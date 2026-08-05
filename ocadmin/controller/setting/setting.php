@@ -193,9 +193,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_comment_approve'] = $this->config->get('config_comment_approve');
 		$data['config_comment_interval'] = $this->config->get('config_comment_interval');
 
-		// Legal
-		$data['config_cookie_id'] = $this->config->get('config_cookie_id');
-
 		// Tax
 		$data['config_tax'] = $this->config->get('config_tax');
 		$data['config_tax_default'] = $this->config->get('config_tax_default');
@@ -225,20 +222,11 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_password_symbol'] = $this->config->get('config_password_symbol');
 		$data['config_password_length'] = $this->config->get('config_password_length');
 
-		// Information
-		$this->load->model('catalog/information');
-
-		$data['informations'] = $this->model_catalog_information->getInformations();
-
-		$data['config_account_id'] = $this->config->get('config_account_id');
-
 		// Checkout
 		$data['config_cart_weight'] = $this->config->get('config_cart_weight');
 		$data['config_checkout_guest'] = $this->config->get('config_checkout_guest');
 		$data['config_checkout_payment_address'] = $this->config->get('config_checkout_payment_address');
 		$data['config_checkout_shipping_address'] = $this->config->get('config_checkout_shipping_address');
-		$data['config_checkout_id'] = $this->config->get('config_checkout_id');
-
 		if ($this->config->get('config_invoice_prefix')) {
 			$data['config_invoice_prefix'] = $this->config->get('config_invoice_prefix');
 		} else {
@@ -263,12 +251,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_affiliate_auto'] = (bool)$this->config->get('config_affiliate_auto');
 		$data['config_affiliate_commission'] = (float)$this->config->get('config_affiliate_commission');
 		$data['config_affiliate_expire'] = $this->config->get('config_affiliate_expire');
-
-		// Affiliate terms
-		$data['config_affiliate_id'] = $this->config->get('config_affiliate_id');
-
-		// Return terms
-		$data['config_return_id'] = $this->config->get('config_return_id');
 
 		// Captcha
 		$data['config_captcha'] = $this->config->get('config_captcha');

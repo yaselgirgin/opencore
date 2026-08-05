@@ -352,12 +352,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_product_count'] = 10;
 		}
 
-		if (isset($setting_info['config_cookie_id'])) {
-			$data['config_cookie_id'] = $setting_info['config_cookie_id'];
-		} else {
-			$data['config_cookie_id'] = '';
-		}
-
 		if (isset($setting_info['config_tax'])) {
 			$data['config_tax'] = $setting_info['config_tax'];
 		} else {
@@ -399,17 +393,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_customer_price'] = '';
 		}
 
-		// Information
-		$this->load->model('catalog/information');
-
-		$data['informations'] = $this->model_catalog_information->getInformations();
-
-		if (isset($setting_info['config_account_id'])) {
-			$data['config_account_id'] = $setting_info['config_account_id'];
-		} else {
-			$data['config_account_id'] = '';
-		}
-
 		if (isset($setting_info['config_cart_weight'])) {
 			$data['config_cart_weight'] = $setting_info['config_cart_weight'];
 		} else {
@@ -420,12 +403,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_checkout_guest'] = $setting_info['config_checkout_guest'];
 		} else {
 			$data['config_checkout_guest'] = '';
-		}
-
-		if (isset($setting_info['config_checkout_id'])) {
-			$data['config_checkout_id'] = $setting_info['config_checkout_id'];
-		} else {
-			$data['config_checkout_id'] = '';
 		}
 
 		if (isset($setting_info['config_stock_display'])) {
