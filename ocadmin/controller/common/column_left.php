@@ -75,8 +75,6 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 			'localisation/address_format' => 'text_address_format',
 			'localisation/length_class'   => 'text_length_class',
 			'localisation/weight_class'   => 'text_weight_class',
-			'localisation/stock_status'   => 'text_stock_status',
-			'localisation/order_status'   => 'text_order_status'
 		];
 
 		foreach ($localisation_routes as $route => $language_key) {
