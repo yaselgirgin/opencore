@@ -39,24 +39,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$language_id = $this->db->getLastId();
 
-		// Attribute
-		$this->load->model('catalog/attribute');
-
-		$results = $this->model_catalog_attribute->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $attribute) {
-			$this->model_catalog_attribute->addDescription($attribute['attribute_id'], $language_id, $attribute);
-		}
-
-		// Attribute Group
-		$this->load->model('catalog/attribute_group');
-
-		$results = $this->model_catalog_attribute_group->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $attribute_group) {
-			$this->model_catalog_attribute_group->addDescription($attribute_group['attribute_group_id'], $language_id, $attribute_group);
-		}
-
 		// Banner
 		$this->load->model('design/banner');
 
@@ -109,33 +91,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_customer_custom_field->addValueDescription($custom_field_value['custom_field_value_id'], $custom_field_value['custom_field_id'], $language_id, $custom_field_value);
 		}
 
-		// Download
-		$this->load->model('catalog/download');
-
-		$results = $this->model_catalog_download->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $download) {
-			$this->model_catalog_download->addDescription($download['download_id'], $language_id, $download);
-		}
-
-		// Filter
-		$this->load->model('catalog/filter');
-
-		$results = $this->model_catalog_filter->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $filter) {
-			$this->model_catalog_filter->addDescription($filter['filter_id'], $language_id, $filter);
-		}
-
-		// Filter Group
-		$this->load->model('catalog/filter_group');
-
-		$results = $this->model_catalog_filter_group->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $filter_group) {
-			$this->model_catalog_filter_group->addDescription($filter_group['filter_group_id'], $language_id, $filter_group);
-		}
-
 		// Information
 		$this->load->model('catalog/information');
 
@@ -153,23 +108,6 @@ class Language extends \Opencart\System\Engine\Model {
 		foreach ($results as $length) {
 			$this->model_localisation_length_class->addDescription($length['length_class_id'], $language_id, $length);
 		}
-
-		// Option
-		$this->load->model('catalog/option');
-
-		$results = $this->model_catalog_option->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $option) {
-			$this->model_catalog_option->addDescription($option['option_id'], $language_id, $option);
-		}
-
-		// Option Value
-		$results = $this->model_catalog_option->getValueDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $option_value) {
-			$this->model_catalog_option->addValueDescription($option_value['option_value_id'], $option_value['option_id'], $language_id, $option_value);
-		}
-
 
 		// Product
 		$this->load->model('catalog/product');
@@ -304,16 +242,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$this->model_cms_article->deleteDescriptionsByLanguageId($language_id);
 
-		// Attribute
-		$this->load->model('catalog/attribute');
-
-		$this->model_catalog_attribute->deleteDescriptionsByLanguageId($language_id);
-
-		// Attribute Group
-		$this->load->model('catalog/attribute_group');
-
-		$this->model_catalog_attribute_group->deleteDescriptionsByLanguageId($language_id);
-
 		// Banner
 		$this->load->model('design/banner');
 
@@ -340,21 +268,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->model_customer_custom_field->deleteDescriptionsByLanguageId($language_id);
 		$this->model_customer_custom_field->deleteValueDescriptionsByLanguageId($language_id);
 
-		// Download
-		$this->load->model('catalog/download');
-
-		$this->model_catalog_download->deleteDescriptionsByLanguageId($language_id);
-
-		// Filter
-		$this->load->model('catalog/filter');
-
-		$this->model_catalog_filter->deleteDescriptionsByLanguageId($language_id);
-
-		// Filter Group
-		$this->load->model('catalog/filter_group');
-
-		$this->model_catalog_filter_group->deleteDescriptionsByLanguageId($language_id);
-
 		// Information
 		$this->load->model('catalog/information');
 
@@ -364,13 +277,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->load->model('localisation/length_class');
 
 		$this->model_localisation_length_class->deleteDescriptionsByLanguageId($language_id);
-
-		// Option
-		$this->load->model('catalog/option');
-
-		$this->model_catalog_option->deleteDescriptionsByLanguageId($language_id);
-		$this->model_catalog_option->deleteValueDescriptionsByLanguageId($language_id);
-
 
 		// Product
 		$this->load->model('catalog/product');
