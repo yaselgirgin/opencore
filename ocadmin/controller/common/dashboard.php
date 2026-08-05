@@ -37,7 +37,7 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 
 		// Get a list of installed modules
 		$extensions = array_filter($this->model_setting_extension->getExtensionsByType('dashboard'), function(array $extension): bool {
-			return !in_array($extension['code'], ['activity', 'chart', 'customer', 'map', 'online', 'order', 'recent', 'sale'], true);
+			return $extension['extension'] !== 'opencart';
 		});
 
 		// Add all the modules which have multiple settings for each module
