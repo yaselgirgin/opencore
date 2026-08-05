@@ -36,7 +36,9 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 		$this->load->model('setting/extension');
 
 		// Get a list of installed modules
-		$extensions = $this->model_setting_extension->getExtensionsByType('dashboard');
+		$extensions = array_filter($this->model_setting_extension->getExtensionsByType('dashboard'), function(array $extension): bool {
+			return !in_array($extension['code'], ['activity', 'chart', 'customer', 'map', 'online', 'order', 'recent', 'sale'], true);
+		});
 
 		// Add all the modules which have multiple settings for each module
 		foreach ($extensions as $extension) {

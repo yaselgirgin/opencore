@@ -11,6 +11,10 @@
 /image/catalog/uploads/*
 !/image/catalog/uploads/.gitkeep
 
+# Üretilen görsel önbelleği
+/image/cache/*
+!/image/cache/.gitkeep
+
 # IDE
 /.idea/
 /.vscode/

@@ -16,6 +16,14 @@
     </div>
   </div>
   <div class="container-fluid">
+    {% if not rows %}
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">{{ text_welcome }}</h2>
+          <p class="card-text mb-0">{{ text_welcome_description }}</p>
+        </div>
+      </div>
+    {% endif %}
     {% for row in rows %}
       <div class="row">
         {% for dashboard_1 in row %}

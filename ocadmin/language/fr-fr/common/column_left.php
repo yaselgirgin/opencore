@@ -27,6 +27,7 @@ $_['text_customer_online']     = 'Clients en Ligne';
 $_['text_custom_field']        = 'Champs Personnalisés';
 $_['text_dashboard']           = 'Tableau de Bord';
 $_['text_design']              = 'Conception';
+$_['text_developer']           = 'Développeur';
 $_['text_download']            = 'Téléchargements';
 $_['text_log']                 = 'Journaux d\'Erreurs';
 $_['text_event']               = 'Événements';

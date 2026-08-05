@@ -27,6 +27,7 @@ $_['text_customer_online']     = 'Customer Online';
 $_['text_custom_field']        = 'Custom Fields';
 $_['text_dashboard']           = 'Dashboard';
 $_['text_design']              = 'Design';
+$_['text_developer']           = 'Developer';
 $_['text_download']            = 'Downloads';
 $_['text_log']                 = 'Error Logs';
 $_['text_event']               = 'Events';
