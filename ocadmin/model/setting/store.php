@@ -33,14 +33,6 @@ class Store extends \Opencart\System\Engine\Model {
 
 		$store_id = $this->db->getLastId();
 
-		// Layout Route
-		$this->load->model('design/layout');
-		$results = $this->model_design_layout->getRoutesByStoreId(0);
-
-		foreach ($results as $result) {
-			$this->model_design_layout->addRoute($result['layout_id'], ['store_id' => $store_id] + $result);
-		}
-
 		// SEO
 		$this->load->model('design/seo_url');
 
@@ -312,27 +304,6 @@ class Store extends \Opencart\System\Engine\Model {
 	 */
 	public function getTotalStores(): int {
 		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "store`");
-
-		return (int)$query->row['total'];
-	}
-
-	/**
-	 * Get Total Stores By Layout ID
-	 *
-	 * Get the total number of total stores by layout records in the database.
-	 *
-	 * @param int $layout_id primary key of the layout record
-	 *
-	 * @return int total number of store records that have layout ID
-	 *
-	 * @example
-	 *
-	 * $this->load->model('setting/store');
-	 *
-	 * $store_total = $this->model_setting_store->getTotalStoresByLayoutId($layout_id);
-	 */
-	public function getTotalStoresByLayoutId(int $layout_id): int {
-		$query = $this->db->query("SELECT COUNT(*) AS `total` FROM `" . DB_PREFIX . "setting` WHERE `key` = 'config_layout_id' AND `value` = '" . (int)$layout_id . "' AND `store_id` != '0'");
 
 		return (int)$query->row['total'];
 	}

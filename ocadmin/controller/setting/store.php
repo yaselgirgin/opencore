@@ -207,17 +207,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_theme'] = '';
 		}
 
-		// Layout
-		$this->load->model('design/layout');
-
-		$data['layouts'] = $this->model_design_layout->getLayouts();
-
-		if (isset($setting_info['config_layout_id'])) {
-			$data['config_layout_id'] = $setting_info['config_layout_id'];
-		} else {
-			$data['config_layout_id'] = '';
-		}
-
 		if (isset($setting_info['config_name'])) {
 			$data['config_name'] = $setting_info['config_name'];
 		} else {

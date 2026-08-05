@@ -62,13 +62,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$data['config_theme'] = $this->config->get('config_theme');
 
-		// Layout
-		$this->load->model('design/layout');
-
-		$data['layouts'] = $this->model_design_layout->getLayouts();
-
-		$data['config_layout_id'] = $this->config->get('config_layout_id');
-
 		$data['config_owner'] = $this->config->get('config_owner');
 		$data['config_address'] = $this->config->get('config_address');
 		$data['config_geocode'] = $this->config->get('config_geocode');
