@@ -239,7 +239,6 @@ class UserPermission extends \Opencart\System\Engine\Controller {
 			'event/currency',
 			'event/debug',
 			'event/language',
-			'event/statistics',
 			'startup/application',
 			'startup/authorize',
 			'startup/error',
