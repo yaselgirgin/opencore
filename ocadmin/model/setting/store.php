@@ -33,15 +33,6 @@ class Store extends \Opencart\System\Engine\Model {
 
 		$store_id = $this->db->getLastId();
 
-		// SEO
-		$this->load->model('design/seo_url');
-
-		$results = $this->model_design_seo_url->getSeoUrlsByStoreId(0);
-
-		foreach ($results as $result) {
-			$this->model_design_seo_url->addSeoUrl($result['key'], $result['value'], $result['keyword'], $store_id, $result['language_id'], $result['sort_order']);
-		}
-
 		$this->cache->delete('store');
 
 		return $store_id;
@@ -91,11 +82,6 @@ class Store extends \Opencart\System\Engine\Model {
 	 */
 	public function deleteStore(int $store_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "store` WHERE `store_id` = '" . (int)$store_id . "'");
-
-		// SEO
-		$this->load->model('design/seo_url');
-
-		$this->model_design_seo_url->deleteSeoUrlsByStoreId($store_id);
 
 		// Setting
 		$this->load->model('setting/setting');
