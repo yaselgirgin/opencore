@@ -23,10 +23,7 @@ class Api extends \Opencart\System\Engine\Controller {
 			'api/system/ping'
 		];
 
-		$authenticated = [
-			'api/order',
-			'api/subscription'
-		];
+		$authenticated = [];
 
 		if ($route && (!str_starts_with($route, 'api/') || !in_array($route, array_merge($public, $authenticated), true))) {
 			return new \Opencart\System\Engine\Action('api/system.notFound');
