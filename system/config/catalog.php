@@ -18,26 +18,24 @@ $_['db_port']            = DB_PORT;
 $_['session_autostart']  = false;
 $_['session_engine']     = 'db'; // db or file
 
+// Response
+$_['response_header']     = ['Content-Type: application/json; charset=utf-8'];
+
 // Actions
 $_['action_pre_action']  = [
 	'startup/setting',
-	'startup/seo_url',
 	'startup/session',
 	'startup/language',
-	'startup/customer',
-	'startup/currency',
-	'startup/tax',
 	'startup/application',
 	'startup/extension',
 	'startup/startup',
-	'startup/marketing',
 	'startup/error',
 	'startup/event',
-	'startup/sass',
-	'startup/api',
-	'startup/maintenance',
-	'startup/authorize'
+	'startup/api'
 ];
+
+$_['action_default']     = 'api/system';
+$_['action_error']       = 'api/system.notFound';
 
 // Action Events
 $_['action_event']      = [

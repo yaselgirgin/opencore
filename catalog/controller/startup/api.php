@@ -18,17 +18,21 @@ class Api extends \Opencart\System\Engine\Controller {
 			$route = '';
 		}
 
-		$allowed = [
+		$public = [
+			'api/system',
+			'api/system/ping'
+		];
+
+		$authenticated = [
 			'api/order',
 			'api/subscription'
 		];
 
-		// Block direct access to other methods
-		if (substr($route, 0, 4) == 'api/' && !in_array($route, $allowed)) {
-			return new \Opencart\System\Engine\Action('startup/api.permission');
+		if ($route && (!str_starts_with($route, 'api/') || !in_array($route, array_merge($public, $authenticated), true))) {
+			return new \Opencart\System\Engine\Action('api/system.notFound');
 		}
 
-		if (in_array($route, $allowed)) {
+		if (in_array($route, $authenticated, true)) {
 			$status = true;
 
 			$required = [
