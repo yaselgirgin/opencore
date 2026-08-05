@@ -41,12 +41,10 @@ $_['action_error']       = 'api/system.notFound';
 $_['action_event']      = [
 	'controller/*/before' => [
 		0 => 'event/modification.controller',
-		1 => 'event/language.before',
-		//2 => 'event/debug.before'
+		1 => 'event/language.before'
 	],
 	'controller/*/after' => [
-		0 => 'event/language.after',
-		//2 => 'event/debug.after'
+		0 => 'event/language.after'
 	],
 	'view/*/before' => [
 		0   => 'event/modification.view',

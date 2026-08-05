@@ -237,7 +237,6 @@ class UserPermission extends \Opencart\System\Engine\Controller {
 			'error/not_found',
 			'error/permission',
 			'event/currency',
-			'event/debug',
 			'event/language',
 			'startup/application',
 			'startup/authorize',
