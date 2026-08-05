@@ -39,15 +39,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$language_id = $this->db->getLastId();
 
-		// Banner
-		$this->load->model('design/banner');
-
-		$results = $this->model_design_banner->getImagesByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $banner_image) {
-			$this->model_design_banner->addImage($banner_image['banner_id'], $language_id, $banner_image);
-		}
-
 		// Category
 		$this->load->model('catalog/category');
 
@@ -241,11 +232,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->load->model('cms/article');
 
 		$this->model_cms_article->deleteDescriptionsByLanguageId($language_id);
-
-		// Banner
-		$this->load->model('design/banner');
-
-		$this->model_design_banner->deleteImagesByLanguageId($language_id);
 
 		// Category
 		$this->load->model('catalog/category');
