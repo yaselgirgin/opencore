@@ -153,15 +153,6 @@ class Customer extends \Opencart\System\Engine\Model {
 		$this->deleteWishlists($customer_id);
 		$this->deleteIps($customer_id);
 
-		// Affiliate
-		$this->load->model('marketing/affiliate');
-
-		$this->model_marketing_affiliate->deleteAffiliate($customer_id);
-
-		// Customer Approval
-		$this->load->model('customer/customer_approval');
-
-		$this->model_customer_customer_approval->deleteApprovalsByCustomerId($customer_id);
 	}
 
 	/**
