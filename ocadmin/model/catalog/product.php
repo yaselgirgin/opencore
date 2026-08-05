@@ -482,11 +482,6 @@ class Product extends \Opencart\System\Engine\Model {
 		$this->model_catalog_product->deleteStores($product_id);
 		$this->model_catalog_product->deleteSubscriptions($product_id);
 
-		// Review
-		$this->load->model('catalog/review');
-
-		$this->model_catalog_review->deleteReviewsByProductId($product_id);
-
 		// SEO
 		$this->load->model('design/seo_url');
 
