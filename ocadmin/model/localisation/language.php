@@ -170,14 +170,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_catalog_option->addValueDescription($option_value['option_value_id'], $option_value['option_id'], $language_id, $option_value);
 		}
 
-		// Order Status
-		$this->load->model('localisation/order_status');
-
-		$results = $this->model_localisation_order_status->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $order_status) {
-			$this->model_localisation_order_status->addDescription($order_status['order_status_id'], $language_id, $order_status);
-		}
 
 		// Product
 		$this->load->model('catalog/product');
@@ -195,14 +187,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_catalog_product->addAttribute($product_attribute['product_id'], $product_attribute['attribute_id'], $language_id, $product_attribute);
 		}
 
-		// Stock Status
-		$this->load->model('localisation/stock_status');
-
-		$results = $this->model_localisation_stock_status->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $stock_status) {
-			$this->model_localisation_stock_status->addDescription($stock_status['stock_status_id'], $language_id, $stock_status);
-		}
 
 		// Weight Class
 		$this->load->model('localisation/weight_class');
@@ -405,10 +389,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->model_catalog_option->deleteDescriptionsByLanguageId($language_id);
 		$this->model_catalog_option->deleteValueDescriptionsByLanguageId($language_id);
 
-		// Order Status
-		$this->load->model('localisation/order_status');
-
-		$this->model_localisation_order_status->deleteOrderStatusesByLanguageId($language_id);
 
 		// Product
 		$this->load->model('catalog/product');
@@ -416,10 +396,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->model_catalog_product->deleteDescriptionsByLanguageId($language_id);
 		$this->model_catalog_product->deleteAttributesByLanguageId($language_id);
 
-		// Stock Status
-		$this->load->model('localisation/stock_status');
-
-		$this->model_localisation_stock_status->deleteStockStatusesByLanguageId($language_id);
 
 		// Weight Class
 		$this->load->model('localisation/weight_class');
