@@ -39,15 +39,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$language_id = $this->db->getLastId();
 
-		// Category
-		$this->load->model('catalog/category');
-
-		$results = $this->model_catalog_category->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $category) {
-			$this->model_catalog_category->addDescription($category['category_id'], $language_id, $category);
-		}
-
 		// Country
 		$this->load->model('localisation/country');
 
@@ -232,11 +223,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->load->model('cms/article');
 
 		$this->model_cms_article->deleteDescriptionsByLanguageId($language_id);
-
-		// Category
-		$this->load->model('catalog/category');
-
-		$this->model_catalog_category->deleteDescriptionsByLanguageId($language_id);
 
 		// Country
 		$this->load->model('localisation/country');
