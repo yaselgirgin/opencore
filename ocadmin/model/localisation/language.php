@@ -48,31 +48,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_localisation_country->addDescription($country['country_id'], $language_id, $country);
 		}
 
-		// Customer Group
-		$this->load->model('customer/customer_group');
-
-		$results = $this->model_customer_customer_group->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $customer_group) {
-			$this->model_customer_customer_group->addDescription($customer_group['customer_group_id'], $language_id, $customer_group);
-		}
-
-		// Custom Field
-		$this->load->model('customer/custom_field');
-
-		$results = $this->model_customer_custom_field->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $custom_field) {
-			$this->model_customer_custom_field->addDescription($custom_field['custom_field_id'], $language_id, $custom_field);
-		}
-
-		// Custom Field Value
-		$results = $this->model_customer_custom_field->getValueDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $custom_field_value) {
-			$this->model_customer_custom_field->addValueDescription($custom_field_value['custom_field_value_id'], $custom_field_value['custom_field_id'], $language_id, $custom_field_value);
-		}
-
 		// Length
 		$this->load->model('localisation/length_class');
 
@@ -159,17 +134,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->load->model('localisation/country');
 
 		$this->model_localisation_country->deleteDescriptionsByLanguageId($language_id);
-
-		// Customer Group
-		$this->load->model('customer/customer_group');
-
-		$this->model_customer_customer_group->deleteDescriptionsByLanguageId($language_id);
-
-		// Custom Field
-		$this->load->model('customer/custom_field');
-
-		$this->model_customer_custom_field->deleteDescriptionsByLanguageId($language_id);
-		$this->model_customer_custom_field->deleteValueDescriptionsByLanguageId($language_id);
 
 		// Length Class
 		$this->load->model('localisation/length_class');

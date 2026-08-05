@@ -359,29 +359,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_tax_customer'] = '';
 		}
 
-		// Customer Group
-		$this->load->model('customer/customer_group');
-
-		$data['customer_groups'] = $this->model_customer_customer_group->getCustomerGroups();
-
-		if (isset($setting_info['config_customer_group_id'])) {
-			$data['config_customer_group_id'] = $setting_info['config_customer_group_id'];
-		} else {
-			$data['config_customer_group_id'] = '';
-		}
-
-		if (isset($setting_info['config_customer_group_display'])) {
-			$data['config_customer_group_display'] = $setting_info['config_customer_group_display'];
-		} else {
-			$data['config_customer_group_display'] = [];
-		}
-
-		if (isset($setting_info['config_customer_price'])) {
-			$data['config_customer_price'] = $setting_info['config_customer_price'];
-		} else {
-			$data['config_customer_price'] = '';
-		}
-
 		if (isset($setting_info['config_cart_weight'])) {
 			$data['config_cart_weight'] = $setting_info['config_cart_weight'];
 		} else {
@@ -629,10 +606,6 @@ class Store extends \Opencart\System\Engine\Controller {
 
 		if ((oc_strlen($this->request->post['config_email']) > 96) || !filter_var($this->request->post['config_email'], FILTER_VALIDATE_EMAIL)) {
 			$json['error']['email'] = $this->language->get('error_email');
-		}
-
-		if (!empty($this->request->post['config_customer_group_display']) && !in_array($this->request->post['config_customer_group_id'], $this->request->post['config_customer_group_display'])) {
-			$json['error']['customer_group_display'] = $this->language->get('error_customer_group_display');
 		}
 
 		if (!$this->request->post['config_product_description_length']) {

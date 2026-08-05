@@ -197,14 +197,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_customer_activity'] = $this->config->get('config_customer_activity');
 		$data['config_customer_search'] = $this->config->get('config_customer_search');
 
-		// Customer Group
-		$this->load->model('customer/customer_group');
-
-		$data['customer_groups'] = $this->model_customer_customer_group->getCustomerGroups();
-
-		$data['config_customer_group_id'] = $this->config->get('config_customer_group_id');
-		$data['config_customer_group_display'] = (array)$this->config->get('config_customer_group_display');
-		$data['config_customer_price'] = $this->config->get('config_customer_price');
 		$data['config_telephone_display'] = $this->config->get('config_telephone_display');
 		$data['config_telephone_required'] = $this->config->get('config_telephone_required');
 		$data['config_2fa'] = $this->config->get('config_2fa');
@@ -239,7 +231,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		// Affiliate
 		$data['config_affiliate_status'] = $this->config->get('config_affiliate_status');
-		$data['config_affiliate_group_id'] = $this->config->get('config_affiliate_group_id');
 		$data['config_affiliate_approval'] = $this->config->get('config_affiliate_approval');
 		$data['config_affiliate_auto'] = (bool)$this->config->get('config_affiliate_auto');
 		$data['config_affiliate_commission'] = (float)$this->config->get('config_affiliate_commission');
@@ -476,10 +467,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		if (!$this->request->post['config_article_description_length']) {
 			$json['error']['article_description_length'] = $this->language->get('error_article_description_length');
-		}
-
-		if (!empty($this->request->post['config_customer_group_display']) && !in_array($this->request->post['config_customer_group_id'], $this->request->post['config_customer_group_display'])) {
-			$json['error']['customer_group_display'] = $this->language->get('error_customer_group_display');
 		}
 
 		if ($this->request->post['config_login_attempts'] < 1) {
