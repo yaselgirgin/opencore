@@ -124,11 +124,6 @@ class Store extends \Opencart\System\Engine\Model {
 		$this->model_catalog_product->deleteLayoutsByStoreId($store_id);
 		$this->model_catalog_product->deleteStoresByStoreId($store_id);
 
-		// GDPR
-		$this->load->model('customer/gdpr');
-
-		$this->model_customer_gdpr->deleteGdprsByStoreId($store_id);
-
 		// Theme
 		$this->load->model('design/theme');
 
