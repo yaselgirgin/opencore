@@ -113,15 +113,6 @@ class Layout extends \Opencart\System\Engine\Model {
 
 		$this->model_catalog_information->deleteLayoutsByLayoutId($layout_id);
 
-		// Article
-		$this->load->model('cms/article');
-
-		$this->model_cms_article->deleteLayoutsByLayoutId($layout_id);
-
-		// CMS Topic
-		$this->load->model('cms/topic');
-
-		$this->model_cms_topic->deleteLayoutsByLayoutId($layout_id);
 	}
 
 	/**

@@ -129,15 +129,6 @@ class Language extends \Opencart\System\Engine\Model {
 			}
 		}
 
-		// Topic Status
-		$this->load->model('cms/topic');
-
-		$results = $this->model_cms_topic->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $topic) {
-			$this->model_cms_topic->addDescription($topic['topic_id'], $language_id, $topic);
-		}
-
 		// Zone
 		$this->load->model('localisation/zone');
 
@@ -203,11 +194,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$this->cache->delete('language');
 
-		// Article
-		$this->load->model('cms/article');
-
-		$this->model_cms_article->deleteDescriptionsByLanguageId($language_id);
-
 		// Country
 		$this->load->model('localisation/country');
 
@@ -246,11 +232,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->model_design_seo_url->deleteSeoUrlsByLanguageId($language_id);
 
 		$this->model_design_seo_url->deleteSeoUrlsByKeyValue('language', $language_info['code']);
-
-		// Topic Status
-		$this->load->model('cms/topic');
-
-		$this->model_cms_topic->deleteDescriptionsByLanguageId($language_id);
 
 		// Zone
 		$this->load->model('localisation/zone');
