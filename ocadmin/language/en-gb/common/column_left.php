@@ -1,32 +1,22 @@
 <?php
 // Text
 $_['text_address_format']      = 'Address Format';
-$_['text_api']                 = 'API';
 $_['text_backup']              = 'Backup / Restore';
-$_['text_contact']             = 'Mail';
 $_['text_country']             = 'Countries';
-$_['text_cron']                = 'Cron Jobs';
 $_['text_currency']            = 'Currencies';
-$_['text_custom_field']        = 'Custom Fields';
 $_['text_dashboard']           = 'Dashboard';
 $_['text_developer']           = 'Developer';
 $_['text_log']                 = 'Error Logs';
 $_['text_event']               = 'Events';
-$_['text_installer']           = 'Installer';
 $_['text_language']            = 'Languages';
-$_['text_language_editor']     = 'Language Editor';
 $_['text_length_class']        = 'Length Classes';
 $_['text_localisation']        = 'Localisation';
 $_['text_location']            = 'Store Location';
 $_['text_maintenance']         = 'Maintenance';
-$_['text_menu']                = 'Menu Manager';
-$_['text_modification']        = 'Modification';
 $_['text_navigation']          = 'Navigation';
-$_['text_online']              = 'Who\'s Online';
 $_['text_setting']             = 'Settings';
 $_['text_startup']             = 'Startup';
 $_['text_system']              = 'System';
-$_['text_translation']         = 'Translations';
 $_['text_upgrade']             = 'Upgrade';
 $_['text_upload']              = 'Uploads';
 $_['text_users']               = 'Users';
