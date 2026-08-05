@@ -247,18 +247,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 			$data['config_invoice_prefix'] = 'INV-' . date('Y') . '-00';
 		}
 
-		// Order Status
-		$this->load->model('localisation/order_status');
-
-		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
-
-		$data['config_order_status_id'] = $this->config->get('config_order_status_id');
-		$data['config_processing_status'] = (array)$this->config->get('config_processing_status');
-		$data['config_complete_status'] = (array)$this->config->get('config_complete_status');
-		$data['config_failed_status_id'] = $this->config->get('config_failed_status_id');
-		$data['config_void_status_id'] = $this->config->get('config_void_status_id');
-		$data['config_fraud_status_id'] = $this->config->get('config_fraud_status_id');
-
 		// Api
 		$this->load->model('user/api');
 
@@ -527,14 +515,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		if (!$this->request->post['config_customer_online_expire']) {
 			$json['error']['customer_online_expire'] = $this->language->get('error_customer_online_expire');
-		}
-
-		if (!isset($this->request->post['config_processing_status'])) {
-			$json['error']['processing_status'] = $this->language->get('error_processing_status');
-		}
-
-		if (!isset($this->request->post['config_complete_status'])) {
-			$json['error']['complete_status'] = $this->language->get('error_complete_status');
 		}
 
 		if (!$this->request->post['config_image_default_width'] || !$this->request->post['config_image_default_height']) {
