@@ -124,16 +124,6 @@ class Store extends \Opencart\System\Engine\Model {
 		$this->model_catalog_product->deleteLayoutsByStoreId($store_id);
 		$this->model_catalog_product->deleteStoresByStoreId($store_id);
 
-		// Theme
-		$this->load->model('design/theme');
-
-		$this->model_design_theme->deleteThemesByStoreId($store_id);
-
-		// Translation
-		$this->load->model('design/translation');
-
-		$this->model_design_translation->deleteTranslationsByStoreId($store_id);
-
 		// SEO
 		$this->load->model('design/seo_url');
 
