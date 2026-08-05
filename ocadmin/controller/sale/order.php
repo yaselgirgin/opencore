@@ -772,9 +772,6 @@ class Order extends \Opencart\System\Engine\Controller {
 		// Order
 		$this->load->model('sale/order');
 
-		// Subscription
-		$this->load->model('sale/subscription');
-
 		// Upload
 		$this->load->model('tool/upload');
 
@@ -830,19 +827,10 @@ class Order extends \Opencart\System\Engine\Controller {
 				$subscription_plan_id = 0;
 			}
 
-			$subscription_info = $this->model_sale_subscription->getSubscriptionByOrderProductId($order_id, $product['order_product_id']);
-
-			if ($subscription_info) {
-				$subscription_edit = $this->url->link('sale/subscription.info', 'user_token=' . $this->session->data['user_token'] . '&subscription_id=' . $subscription_info['subscription_id']);
-			} else {
-				$subscription_edit = '';
-			}
-
 			$data['order_products'][] = [
 				'option'               => $option_data,
 				'subscription_plan'    => $subscription_plan,
 				'subscription_plan_id' => $subscription_plan_id,
-				'subscription_edit'    => $subscription_edit,
 				'price'                => $this->currency->format($product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0), $data['currency_code'], $currency_value),
 				'total'                => $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $data['currency_code'], $currency_value),
 				'product_edit'         => $this->url->link('catalog/product.form', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $product['product_id'])
@@ -1349,9 +1337,6 @@ class Order extends \Opencart\System\Engine\Controller {
 		// Order
 		$this->load->model('sale/order');
 
-		// Subscription
-		$this->load->model('sale/subscription');
-
 		// Setting
 		$this->load->model('setting/setting');
 
@@ -1603,9 +1588,6 @@ class Order extends \Opencart\System\Engine\Controller {
 
 		// Upload
 		$this->load->model('tool/upload');
-
-		// Subscription
-		$this->load->model('sale/subscription');
 
 		$data['orders'] = [];
 

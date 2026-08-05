@@ -127,7 +127,7 @@
                         {% endfor %}
                         {% if order_product.subscription_plan_id %}
                           <li>
-                            <small> - {{ text_subscription }}: {% if order_product.subscription_edit %}<a href="{{ order_product.subscription_edit }}" target="_blank">{{ order_product.subscription_plan }}</a>{% else %}{{ order_product.subscription_plan }}{% endif %}</small>
+                            <small> - {{ text_subscription }}: {{ order_product.subscription_plan }}</small>
                             <div id="error-product-{{ order_product_row }}-subscription" class="invalid-feedback mt-0"></div>
                           </li>
                         {% endif %}
