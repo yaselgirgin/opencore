@@ -195,33 +195,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_catalog_product->addAttribute($product_attribute['product_id'], $product_attribute['attribute_id'], $language_id, $product_attribute);
 		}
 
-		// Return Action
-		$this->load->model('localisation/return_action');
-
-		$results = $this->model_localisation_return_action->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $return_action) {
-			$this->model_localisation_return_action->addDescription($return_action['return_action_id'], $language_id, $return_action);
-		}
-
-		// Return Reason
-		$this->load->model('localisation/return_reason');
-
-		$results = $this->model_localisation_return_reason->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $return_reason) {
-			$this->model_localisation_return_reason->addDescription($return_reason['return_reason_id'], $language_id, $return_reason);
-		}
-
-		// Return Status
-		$this->load->model('localisation/return_status');
-
-		$results = $this->model_localisation_return_status->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $return_status) {
-			$this->model_localisation_return_status->addDescription($return_status['return_status_id'], $language_id, $return_status);
-		}
-
 		// Stock Status
 		$this->load->model('localisation/stock_status');
 
@@ -442,21 +415,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$this->model_catalog_product->deleteDescriptionsByLanguageId($language_id);
 		$this->model_catalog_product->deleteAttributesByLanguageId($language_id);
-
-		// Return Action
-		$this->load->model('localisation/return_action');
-
-		$this->model_localisation_return_action->deleteReturnActionsByLanguageId($language_id);
-
-		// Return Reason
-		$this->load->model('localisation/return_reason');
-
-		$this->model_localisation_return_reason->deleteReturnReasonsByLanguageId($language_id);
-
-		// Return Status
-		$this->load->model('localisation/return_status');
-
-		$this->model_localisation_return_status->deleteReturnStatusesByLanguageId($language_id);
 
 		// Stock Status
 		$this->load->model('localisation/stock_status');
