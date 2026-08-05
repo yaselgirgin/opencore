@@ -206,15 +206,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_catalog_subscription_plan->addDescription($subscription_plan['subscription_plan_id'], $language_id, $subscription_plan);
 		}
 
-		// Subscription Status
-		$this->load->model('localisation/subscription_status');
-
-		$results = $this->model_localisation_subscription_status->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $subscription) {
-			$this->model_localisation_subscription_status->addDescription($subscription['subscription_status_id'], $language_id, $subscription);
-		}
-
 		// SEO
 		$this->load->model('design/seo_url');
 
@@ -401,11 +392,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->load->model('localisation/weight_class');
 
 		$this->model_localisation_weight_class->deleteDescriptionsByLanguageId($language_id);
-
-		// Subscription Status
-		$this->load->model('localisation/subscription_status');
-
-		$this->model_localisation_subscription_status->deleteStockStatusesByLanguageId($language_id);
 
 		// SEO
 		$this->load->model('design/seo_url');
