@@ -50,14 +50,12 @@ $_['action_event']      = [
 	],
 	'view/*/before' => [
 		0   => 'event/modification.view',
-		500 => 'event/theme',
 		998 => 'event/language'
 	],
 	'language/*/before' => [
 		0 => 'event/modification.language'
 	],
 	'language/*/after' => [
-		0 => 'startup/language.after',
-		1 => 'event/translation'
+		0 => 'startup/language.after'
 	]
 ];
