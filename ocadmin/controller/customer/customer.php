@@ -500,12 +500,6 @@ class Customer extends \Opencart\System\Engine\Controller {
 		$data['upload'] = $this->url->link('tool/upload.upload', 'user_token=' . $this->session->data['user_token']);
 
 		if (isset($this->request->get['customer_id'])) {
-			$data['orders'] = $this->url->link('sale/order', 'user_token=' . $this->session->data['user_token'] . '&filter_customer_id=' . $this->request->get['customer_id']);
-		} else {
-			$data['orders'] = '';
-		}
-
-		if (isset($this->request->get['customer_id'])) {
 			$this->load->model('customer/customer');
 
 			$customer_info = $this->model_customer_customer->getCustomer((int)$this->request->get['customer_id']);
