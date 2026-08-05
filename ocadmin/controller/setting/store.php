@@ -358,12 +358,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_cookie_id'] = '';
 		}
 
-		if (isset($setting_info['config_gdpr_id'])) {
-			$data['config_gdpr_id'] = $setting_info['config_gdpr_id'];
-		} else {
-			$data['config_gdpr_id'] = '';
-		}
-
 		if (isset($setting_info['config_tax'])) {
 			$data['config_tax'] = $setting_info['config_tax'];
 		} else {
