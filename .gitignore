@@ -1,0 +1,35 @@
+# OpenCart yerel yapılandırma dosyaları
+/config.php
+/ocadmin/config.php
+
+# Ortam ve gizli bilgi dosyaları
+.env
+.env.*
+!.env.example
+
+# Kullanıcı tarafından yüklenen dosyalar
+/image/catalog/uploads/*
+!/image/catalog/uploads/.gitkeep
+
+# IDE
+/.idea/
+/.vscode/
+*.code-workspace
+
+# İşletim sistemi dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Geçici dosyalar
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Veritabanı ve arşiv yedekleri
+*.sql
+*.sql.gz
+*.zip
+*.7z

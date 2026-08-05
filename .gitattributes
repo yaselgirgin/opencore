@@ -1,0 +1,17 @@
+# Kaynak kodlarını Git içinde LF olarak sakla
+* text=auto eol=lf
+
+# Windows komut dosyaları
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary dosyalar
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.7z binary
