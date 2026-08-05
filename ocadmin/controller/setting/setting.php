@@ -300,13 +300,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		// Affiliate terms
 		$data['config_affiliate_id'] = $this->config->get('config_affiliate_id');
 
-		// Return Status
-		$this->load->model('localisation/return_status');
-
-		$data['return_statuses'] = $this->model_localisation_return_status->getReturnStatuses();
-
-		$data['config_return_status_id'] = $this->config->get('config_return_status_id');
-
 		// Return terms
 		$data['config_return_id'] = $this->config->get('config_return_id');
 
