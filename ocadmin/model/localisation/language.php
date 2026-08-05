@@ -197,15 +197,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_localisation_weight_class->addDescription($weight_class['weight_class_id'], $language_id, $weight_class);
 		}
 
-		// Subscription Plan
-		$this->load->model('catalog/subscription_plan');
-
-		$results = $this->model_catalog_subscription_plan->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $subscription_plan) {
-			$this->model_catalog_subscription_plan->addDescription($subscription_plan['subscription_plan_id'], $language_id, $subscription_plan);
-		}
-
 		// SEO
 		$this->load->model('design/seo_url');
 
