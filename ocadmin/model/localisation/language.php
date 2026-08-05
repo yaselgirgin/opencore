@@ -91,22 +91,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_localisation_length_class->addDescription($length['length_class_id'], $language_id, $length);
 		}
 
-		// Product
-		$this->load->model('catalog/product');
-
-		$results = $this->model_catalog_product->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $product) {
-			$this->model_catalog_product->addDescription($product['product_id'], $language_id, $product);
-		}
-
-		// Product Attribute
-		$results = $this->model_catalog_product->getAttributesByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $product_attribute) {
-			$this->model_catalog_product->addAttribute($product_attribute['product_id'], $product_attribute['attribute_id'], $language_id, $product_attribute);
-		}
-
 
 		// Weight Class
 		$this->load->model('localisation/weight_class');
@@ -249,12 +233,6 @@ class Language extends \Opencart\System\Engine\Model {
 		$this->load->model('localisation/length_class');
 
 		$this->model_localisation_length_class->deleteDescriptionsByLanguageId($language_id);
-
-		// Product
-		$this->load->model('catalog/product');
-
-		$this->model_catalog_product->deleteDescriptionsByLanguageId($language_id);
-		$this->model_catalog_product->deleteAttributesByLanguageId($language_id);
 
 
 		// Weight Class

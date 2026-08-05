@@ -487,11 +487,6 @@ class Product extends \Opencart\System\Engine\Model {
 
 		$this->model_design_seo_url->deleteSeoUrlsByKeyValue('product_id', $product_id);
 
-		// Coupon
-		$this->load->model('marketing/coupon');
-
-		$this->model_marketing_coupon->deleteProductsByProductId($product_id);
-
 		$this->model_catalog_product->editMasterId($product_id, 0);
 
 		$this->cache->delete('product');

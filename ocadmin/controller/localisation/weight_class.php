@@ -310,19 +310,11 @@ class WeightClass extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Product
-		$this->load->model('catalog/product');
-
 		foreach ($selected as $weight_class_id) {
 			if ($this->config->get('config_weight_class_id') == $weight_class_id) {
 				$json['error'] = $this->language->get('error_default');
 			}
 
-			$product_total = $this->model_catalog_product->getTotalProductsByWeightClassId($weight_class_id);
-
-			if ($product_total) {
-				$json['error'] = sprintf($this->language->get('error_product'), $product_total);
-			}
 		}
 
 		if (!$json) {

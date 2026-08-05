@@ -108,11 +108,6 @@ class Layout extends \Opencart\System\Engine\Model {
 		$this->deleteRoutes($layout_id);
 		$this->deleteModules($layout_id);
 
-		// Product
-		$this->load->model('catalog/product');
-
-		$this->model_catalog_product->deleteLayoutsByLayoutId($layout_id);
-
 		// Information
 		$this->load->model('catalog/information');
 

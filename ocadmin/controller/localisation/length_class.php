@@ -312,19 +312,11 @@ class LengthClass extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Product
-		$this->load->model('catalog/product');
-
 		foreach ($selected as $length_class_id) {
 			if ($this->config->get('config_length_class_id') == $length_class_id) {
 				$json['error'] = $this->language->get('error_default');
 			}
 
-			$product_total = $this->model_catalog_product->getTotalProductsByLengthClassId($length_class_id);
-
-			if ($product_total) {
-				$json['error'] = sprintf($this->language->get('error_product'), $product_total);
-			}
 		}
 
 		if (!$json) {

@@ -93,12 +93,6 @@ class CustomerGroup extends \Opencart\System\Engine\Model {
 
 		$this->deleteDescriptions($customer_group_id);
 
-		// Product
-		$this->load->model('catalog/product');
-
-		$this->model_catalog_product->deleteDiscountsByCustomerGroupId($customer_group_id);
-		$this->model_catalog_product->deleteRewardsByCustomerGroupId($customer_group_id);
-
 		// Tax Rate
 		$this->load->model('localisation/tax_rate');
 
