@@ -100,12 +100,6 @@ class Store extends \Opencart\System\Engine\Model {
 	public function deleteStore(int $store_id): void {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "store` WHERE `store_id` = '" . (int)$store_id . "'");
 
-		// Information
-		$this->load->model('catalog/information');
-
-		$this->model_catalog_information->deleteLayoutsByStoreId($store_id);
-		$this->model_catalog_information->deleteStoresByStoreId($store_id);
-
 		// SEO
 		$this->load->model('design/seo_url');
 

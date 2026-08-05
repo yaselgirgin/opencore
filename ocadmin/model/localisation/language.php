@@ -73,15 +73,6 @@ class Language extends \Opencart\System\Engine\Model {
 			$this->model_customer_custom_field->addValueDescription($custom_field_value['custom_field_value_id'], $custom_field_value['custom_field_id'], $language_id, $custom_field_value);
 		}
 
-		// Information
-		$this->load->model('catalog/information');
-
-		$results = $this->model_catalog_information->getDescriptionsByLanguageId($this->config->get('config_language_id'));
-
-		foreach ($results as $information) {
-			$this->model_catalog_information->addDescription($information['information_id'], $language_id, $information);
-		}
-
 		// Length
 		$this->load->model('localisation/length_class');
 
@@ -209,11 +200,6 @@ class Language extends \Opencart\System\Engine\Model {
 
 		$this->model_customer_custom_field->deleteDescriptionsByLanguageId($language_id);
 		$this->model_customer_custom_field->deleteValueDescriptionsByLanguageId($language_id);
-
-		// Information
-		$this->load->model('catalog/information');
-
-		$this->model_catalog_information->deleteDescriptionsByLanguageId($language_id);
 
 		// Length Class
 		$this->load->model('localisation/length_class');
