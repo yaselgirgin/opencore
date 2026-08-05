@@ -776,9 +776,6 @@ class Store extends \Opencart\System\Engine\Controller {
 		// Order
 		$this->load->model('sale/order');
 
-		// Subscription
-		$this->load->model('sale/subscription');
-
 		foreach ($selected as $store_id) {
 			if (!$store_id) {
 				$json['error'] = $this->language->get('error_default');
@@ -788,12 +785,6 @@ class Store extends \Opencart\System\Engine\Controller {
 
 			if ($order_total) {
 				$json['error'] = sprintf($this->language->get('error_store'), $order_total);
-			}
-
-			$subscription_total = $this->model_sale_subscription->getTotalSubscriptionsByStoreId($store_id);
-
-			if ($subscription_total) {
-				$json['error'] = sprintf($this->language->get('error_store'), $subscription_total);
 			}
 		}
 
