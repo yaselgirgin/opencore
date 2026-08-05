@@ -1,7 +1,6 @@
 <?php
 // Text
 $_['text_address_format']      = 'Address Format';
-$_['text_affiliate']           = 'Affiliate';
 $_['text_api']                 = 'API';
 $_['text_attribute']           = 'Attributes';
 $_['text_attribute_group']     = 'Attribute Groups';
@@ -20,10 +19,6 @@ $_['text_country']             = 'Countries';
 $_['text_coupon']              = 'Coupons';
 $_['text_cron']                = 'Cron Jobs';
 $_['text_currency']            = 'Currencies';
-$_['text_customer']            = 'Customers';
-$_['text_customer_approval']   = 'Customer Approvals';
-$_['text_customer_group']      = 'Customer Groups';
-$_['text_customer_online']     = 'Customer Online';
 $_['text_custom_field']        = 'Custom Fields';
 $_['text_dashboard']           = 'Dashboard';
 $_['text_design']              = 'Design';
@@ -46,7 +41,6 @@ $_['text_localisation']        = 'Localisation';
 $_['text_location']            = 'Store Location';
 $_['text_maintenance']         = 'Maintenance';
 $_['text_manufacturer']        = 'Manufacturers';
-$_['text_marketing']           = 'Marketing';
 $_['text_marketplace']         = 'Marketplace';
 $_['text_menu']                = 'Menu Manager';
 $_['text_modification']        = 'Modification';
