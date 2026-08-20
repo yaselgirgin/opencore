@@ -35,4 +35,3 @@ $_['error_locale']      = 'Locale required!';
 $_['error_default']     = 'Warning: This language cannot be deleted as it is currently assigned as the default store language!';
 $_['error_admin']       = 'Warning: This Language cannot be deleted as it is currently assigned as the administration language!';
 $_['error_store']       = 'Warning: This language cannot be deleted as it is currently assigned to %s stores!';
-$_['error_order']       = 'Warning: This language cannot be deleted as it is currently assigned to %s orders!';

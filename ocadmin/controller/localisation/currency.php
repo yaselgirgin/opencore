@@ -403,9 +403,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 		// Store
 		$this->load->model('setting/store');
 
-		// Order
-		$this->load->model('sale/order');
-
 		foreach ($selected as $currency_id) {
 			$currency_info = $this->model_localisation_currency->getCurrency($currency_id);
 
@@ -421,11 +418,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 				}
 			}
 
-			$order_total = $this->model_sale_order->getTotalOrdersByCurrencyId($currency_id);
-
-			if ($order_total) {
-				$json['error'] = sprintf($this->language->get('error_order'), $order_total);
-			}
 		}
 
 		if (!$json) {

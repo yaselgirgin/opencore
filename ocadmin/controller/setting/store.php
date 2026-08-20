@@ -712,19 +712,11 @@ class Store extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Order
-		$this->load->model('sale/order');
-
 		foreach ($selected as $store_id) {
 			if (!$store_id) {
 				$json['error'] = $this->language->get('error_default');
 			}
 
-			$order_total = $this->model_sale_order->getTotalOrdersByStoreId($store_id);
-
-			if ($order_total) {
-				$json['error'] = sprintf($this->language->get('error_store'), $order_total);
-			}
 		}
 
 		if (!$json) {
