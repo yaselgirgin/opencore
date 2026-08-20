@@ -353,18 +353,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_checkout_guest'] = '';
 		}
 
-		if (isset($setting_info['config_stock_display'])) {
-			$data['config_stock_display'] = $setting_info['config_stock_display'];
-		} else {
-			$data['config_stock_display'] = '';
-		}
-
-		if (isset($setting_info['config_stock_checkout'])) {
-			$data['config_stock_checkout'] = $setting_info['config_stock_checkout'];
-		} else {
-			$data['config_stock_checkout'] = '';
-		}
-
 		// Image
 		if (isset($setting_info['config_logo'])) {
 			$data['config_logo'] = $setting_info['config_logo'];

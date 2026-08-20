@@ -220,9 +220,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$data['config_api_id'] = $this->config->get('config_api_id');
 
-		$data['config_stock_display'] = $this->config->get('config_stock_display');
-		$data['config_stock_warning'] = $this->config->get('config_stock_warning');
-		$data['config_stock_checkout'] = $this->config->get('config_stock_checkout');
 
 		// Affiliate
 		$data['config_affiliate_status'] = $this->config->get('config_affiliate_status');

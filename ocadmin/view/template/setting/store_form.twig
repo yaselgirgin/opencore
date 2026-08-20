@@ -299,31 +299,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header"><button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-stock">{{ text_stock }}</button></h2>
-                  <div id="collapse-stock" class="accordion-collapse collapse" data-bs-parent="#accordion-option">
-                    <div class="accordion-body">
-                      <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">{{ entry_stock_display }}</label>
-                        <div class="col-sm-10">
-                          <div class="form-check form-switch form-switch-lg">
-                            <input type="hidden" name="config_stock_display" value="0"/> <input type="checkbox" name="config_stock_display" value="1" id="input-stock-display" class="form-check-input"{% if config_stock_display %} checked{% endif %}/>
-                          </div>
-                          <div class="form-text">{{ help_stock_display }}</div>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">{{ entry_stock_checkout }}</label>
-                        <div class="col-sm-10">
-                          <div class="form-check form-switch form-switch-lg">
-                            <input type="hidden" name="config_stock_checkout" value="0"/> <input type="checkbox" name="config_stock_checkout" value="1" id="input-stock-checkout" class="form-check-input"{% if config_stock_checkout %} checked{% endif %}/>
-                          </div>
-                          <div class="form-text">{{ help_stock_checkout }}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
             <div id="tab-image" class="tab-pane">

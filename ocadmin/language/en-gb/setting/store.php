@@ -17,7 +17,6 @@ $_['text_product']                     = 'Products';
 $_['text_legal']                       = 'Legal';
 $_['text_account']                     = 'Account';
 $_['text_checkout']                    = 'Checkout';
-$_['text_stock']                       = 'Stock';
 $_['text_image']                       = 'Image Sizes';
 $_['text_region']                      = 'Region';
 $_['text_language']                    = 'Language';
@@ -53,8 +52,6 @@ $_['entry_pagination']                 = 'Default Items Per Page';
 $_['entry_product_count']              = 'Category Product Count';
 $_['entry_cart_weight']                = 'Display Weight on Cart Page';
 $_['entry_checkout_guest']             = 'Guest Checkout';
-$_['entry_stock_display']              = 'Display Stock';
-$_['entry_stock_checkout']             = 'Stock Checkout';
 $_['entry_logo']                       = 'Store Logo';
 $_['entry_icon']                       = 'Icon';
 $_['entry_image_category']             = 'Category Image Size (W x H)';
@@ -83,8 +80,6 @@ $_['help_currency']                    = 'Change the default currency. Clear you
 $_['help_pagination']                  = 'Determines how many catalog items are shown per page (products, categories, etc)';
 $_['help_product_description_length']  = 'In the list view, short description character limit (categories, special etc)';
 $_['help_checkout_guest']              = 'Allow customers to checkout without creating an account. This will not be available when a downloadable product is in the shopping cart.';
-$_['help_stock_display']               = 'Display stock quantity on the product page.';
-$_['help_stock_checkout']              = 'Allow customers to still checkout if the products they are ordering are not in stock.';
 $_['help_product_count']               = 'Show the number of products inside the subcategories in the storefront header category menu. Be warned, this will cause an extreme performance hit for stores with a lot of subcategories!';
 
 // Error
