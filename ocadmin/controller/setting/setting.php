@@ -186,11 +186,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_comment_approve'] = $this->config->get('config_comment_approve');
 		$data['config_comment_interval'] = $this->config->get('config_comment_interval');
 
-		// Tax
-		$data['config_tax'] = $this->config->get('config_tax');
-		$data['config_tax_default'] = $this->config->get('config_tax_default');
-		$data['config_tax_customer'] = $this->config->get('config_tax_customer');
-
 		// Customer
 		$data['config_customer_online'] = $this->config->get('config_customer_online');
 		$data['config_customer_online_expire'] = $this->config->get('config_customer_online_expire');

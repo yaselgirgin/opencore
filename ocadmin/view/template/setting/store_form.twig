@@ -276,43 +276,6 @@
                   </div>
                 </div>
                 <div class="accordion-item">
-                  <h2 class="accordion-header"><button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-tax">{{ text_tax }}</button></h2>
-                  <div id="collapse-tax" class="accordion-collapse collapse" data-bs-parent="#accordion-option">
-                    <div class="accordion-body">
-                      <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">{{ entry_tax }}</label>
-                        <div class="col-sm-10">
-                          <div class="form-check form-switch form-switch-lg">
-                            <input type="hidden" name="config_tax" value="0"/> <input type="checkbox" name="config_tax" value="1" id="input-tax" class="form-check-input"{% if config_tax %} checked{% endif %}/>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <label for="input-tax-default" class="col-sm-2 col-form-label">{{ entry_tax_default }}</label>
-                        <div class="col-sm-10">
-                          <select name="config_tax_default" id="input-tax-default" class="form-select">
-                            <option value="">{{ text_none }}</option>
-                            <option value="shipping"{% if config_tax_default == 'shipping' %} selected{% endif %}>{{ text_shipping }}</option>
-                            <option value="payment"{% if config_tax_default == 'payment' %} selected{% endif %}>{{ text_payment }}</option>
-                          </select>
-                          <div class="form-text">{{ help_tax_default }}</div>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <label for="input-tax-customer" class="col-sm-2 col-form-label">{{ entry_tax_customer }}</label>
-                        <div class="col-sm-10">
-                          <select name="config_tax_customer" id="input-tax-customer" class="form-select">
-                            <option value="">{{ text_none }}</option>
-                            <option value="shipping"{% if config_tax_customer == 'shipping' %} selected{% endif %}>{{ text_shipping }}</option>
-                            <option value="payment"{% if config_tax_customer == 'payment' %} selected{% endif %}>{{ text_payment }}</option>
-                          </select>
-                          <div class="form-text">{{ help_tax_customer }}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="accordion-item">
                   <h2 class="accordion-header"><button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-checkout">{{ text_checkout }}</button></h2>
                   <div id="collapse-checkout" class="accordion-collapse collapse" data-bs-parent="#accordion-option">
                     <div class="accordion-body">

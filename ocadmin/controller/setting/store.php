@@ -341,24 +341,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_product_count'] = 10;
 		}
 
-		if (isset($setting_info['config_tax'])) {
-			$data['config_tax'] = $setting_info['config_tax'];
-		} else {
-			$data['config_tax'] = '';
-		}
-
-		if (isset($setting_info['config_tax_default'])) {
-			$data['config_tax_default'] = $setting_info['config_tax_default'];
-		} else {
-			$data['config_tax_default'] = '';
-		}
-
-		if (isset($setting_info['config_tax_customer'])) {
-			$data['config_tax_customer'] = $setting_info['config_tax_customer'];
-		} else {
-			$data['config_tax_customer'] = '';
-		}
-
 		if (isset($setting_info['config_cart_weight'])) {
 			$data['config_cart_weight'] = $setting_info['config_cart_weight'];
 		} else {
