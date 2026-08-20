@@ -15,6 +15,10 @@
 /image/cache/*
 !/image/cache/.gitkeep
 
+
+# Örnek arayüz
+UI-Sample/
+
 # IDE
 /.idea/
 /.vscode/
