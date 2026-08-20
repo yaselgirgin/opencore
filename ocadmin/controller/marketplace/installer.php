@@ -224,6 +224,10 @@ class Installer extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
+		if (!$this->user->hasPermission('modify', 'marketplace/installer')) {
+			$json['error'] = $this->language->get('error_permission');
+		}
+
 		// 1. Validate the file uploaded.
 		if (isset($this->request->files['file']['name'])) {
 			$filename = basename($this->request->files['file']['name']);
@@ -270,8 +274,8 @@ class Installer extends \Opencart\System\Engine\Controller {
 				$json['error'] = $this->language->get('error_filename');
 			}
 
-			// 3. Validate is ocmod file.
-			if (substr($filename, -10) != '.ocmod.zip') {
+			// 3. Validate is ocmod file and the extension code cannot escape the extension directory.
+			if (substr($filename, -10) != '.ocmod.zip' || $code == '.' || $code == '..') {
 				$json['error'] = $this->language->get('error_file_type');
 			}
 
@@ -421,6 +425,11 @@ class Installer extends \Opencart\System\Engine\Controller {
 					$source = $zip->getNameIndex($i);
 
 					$destination = str_replace('\\', '/', $source);
+
+					// Reject any entry that traverses outside the install directory
+					if (in_array('..', explode('/', $destination))) {
+						continue;
+					}
 
 					// Only extract the contents of the upload folder
 					$path = $extension_install_info['code'] . '/' . $destination;
