@@ -6,9 +6,7 @@ $_['heading_title']          = 'Developer Options';
 $_['text_developer_success'] = 'Success: You have modified developer settings!';
 $_['text_cache_success']     = 'Success: You have cleared the cache!';
 $_['text_theme_success']     = 'Success: You have cleared the theme cache!';
-$_['text_sass_success']      = 'Success: You have cleared the SASS cache!';
 $_['text_theme']             = 'Theme';
-$_['text_sass']              = 'SASS';
 $_['text_cache']             = 'Cache';
 
 // Column
