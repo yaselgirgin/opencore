@@ -209,62 +209,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_affiliate_commission'] = (float)$this->config->get('config_affiliate_commission');
 		$data['config_affiliate_expire'] = $this->config->get('config_affiliate_expire');
 
-		// Captcha
-		$data['config_captcha'] = $this->config->get('config_captcha');
-
-		// Extension
-		$this->load->model('setting/extension');
-
-		$data['captchas'] = [];
-
-		// Get a list of installed captchas
-		$extensions = $this->model_setting_extension->getExtensionsByType('captcha');
-
-		foreach ($extensions as $extension) {
-			$this->load->language('extension/' . $extension['extension'] . '/captcha/' . $extension['code'], 'extension');
-
-			if ($this->config->get('captcha_' . $extension['code'] . '_status')) {
-				$data['captchas'][] = [
-					'text'  => $this->language->get('extension_heading_title'),
-					'value' => $extension['code']
-				];
-			}
-		}
-
-		$data['config_captcha_page'] = (array)$this->config->get('config_captcha_page');
-
-		$data['captcha_pages'] = [];
-
-		$data['captcha_pages'][] = [
-			'text'  => $this->language->get('text_register'),
-			'value' => 'register'
-		];
-
-		$data['captcha_pages'][] = [
-			'text'  => $this->language->get('text_guest'),
-			'value' => 'guest'
-		];
-
-		$data['captcha_pages'][] = [
-			'text'  => $this->language->get('text_review'),
-			'value' => 'review'
-		];
-
-		$data['captcha_pages'][] = [
-			'text'  => $this->language->get('text_comment'),
-			'value' => 'comment'
-		];
-
-		$data['captcha_pages'][] = [
-			'text'  => $this->language->get('text_return'),
-			'value' => 'returns'
-		];
-
-		$data['captcha_pages'][] = [
-			'text'  => $this->language->get('text_contact'),
-			'value' => 'contact'
-		];
-
 		// Image
 		$data['config_logo'] = $this->config->get('config_logo');
 
