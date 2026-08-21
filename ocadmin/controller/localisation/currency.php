@@ -358,19 +358,16 @@ class Currency extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Extension
-		$this->load->model('setting/extension');
-
-		$extension_info = $this->model_setting_extension->getExtensionByCode('currency', $this->config->get('config_currency_engine'));
-
-		if (!$extension_info) {
-			$json['error'] = $this->language->get('error_extension');
-		}
-
 		if (!$json) {
-			$this->load->controller('extension/' . $extension_info['extension'] . '/currency/' . $extension_info['code'] . '.currency', $this->config->get('config_currency'));
+			try {
+				$this->load->model('localisation/currency');
+				$this->model_localisation_currency->refreshRates($this->config->get('config_currency'));
 
-			$json['success'] = $this->language->get('text_success');
+				$json['success'] = $this->language->get('text_success');
+			} catch (\Throwable $e) {
+				$this->log->write('Currency refresh failed: ' . $e->getMessage());
+				$json['error'] = $this->language->get('error_refresh');
+			}
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

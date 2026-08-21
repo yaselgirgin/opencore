@@ -71,7 +71,6 @@ $_['entry_timezone']                      = 'Time Zone';
 $_['entry_language']                      = 'Language';
 $_['entry_language_admin']                = 'Administration Language';
 $_['entry_currency']                      = 'Currency';
-$_['entry_currency_engine']               = 'Currency Rate Engine';
 $_['entry_currency_auto']                 = 'Auto Update Currency';
 $_['entry_length_class']                  = 'Length Class';
 $_['entry_weight_class']                  = 'Weight Class';

@@ -132,25 +132,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$data['config_currency'] = $this->config->get('config_currency');
 
-		$data['currency_engines'] = [];
-
-		// Extension
-		$this->load->model('setting/extension');
-
-		$extensions = $this->model_setting_extension->getExtensionsByType('currency');
-
-		foreach ($extensions as $extension) {
-			if ($this->config->get('currency_' . $extension['code'] . '_status')) {
-				$this->load->language('extension/' . $extension['extension'] . '/currency/' . $extension['code'], 'extension');
-
-				$data['currency_engines'][] = [
-					'text'  => $this->language->get('extension_heading_title'),
-					'value' => $extension['code']
-				];
-			}
-		}
-
-		$data['config_currency_engine'] = $this->config->get('config_currency_engine');
 		$data['config_currency_auto'] = $this->config->get('config_currency_auto');
 
 		// Length Class

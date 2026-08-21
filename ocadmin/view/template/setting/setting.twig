@@ -256,16 +256,6 @@
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <label for="input-currency-engine" class="col-sm-2 col-form-label">{{ entry_currency_engine }}</label>
-                  <div class="col-sm-10">
-                    <select name="config_currency_engine" id="input-currency-engine" class="form-select">
-                      {% for currency_engine in currency_engines %}
-                        <option value="{{ currency_engine.value }}"{% if currency_engine.value == config_currency_engine %} selected{% endif %}>{{ currency_engine.text }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-                <div class="row mb-3">
                   <label class="col-sm-2 col-form-label">{{ entry_currency_auto }}</label>
                   <div class="col-sm-10">
                     <div class="form-check form-switch form-switch-lg">

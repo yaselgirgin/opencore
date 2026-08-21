@@ -11,9 +11,7 @@ class Currency extends \Opencart\System\Engine\Controller {
 	 *
 	 * Auto update currencies
 	 *
-	 * model/setting/setting/editSetting
-	 * model/localisation/currency/addCurrency
-	 * model/localisation/currency/editCurrency
+	 * model/setting/setting.editSetting
 	 *
 	 * @param string            $route
 	 * @param array<int, mixed> $args
@@ -22,19 +20,21 @@ class Currency extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	public function index(string &$route, array &$args, &$output): void {
-		if ($route == 'model/setting/setting/editSetting' && $args[0] == 'config' && isset($args[1]['config_currency'])) {
-			$currency = $args[1]['config_currency'];
-		} else {
-			$currency = $this->config->get('config_currency');
+		if ($route != 'model/setting/setting.editSetting' || $args[0] != 'config' || !isset($args[1]['config_currency'])) {
+			return;
 		}
 
-		// Extension
-		$this->load->model('setting/extension');
+		$auto = isset($args[1]['config_currency_auto']) ? (bool)$args[1]['config_currency_auto'] : (bool)$this->config->get('config_currency_auto');
 
-		$extension_info = $this->model_setting_extension->getExtensionByCode('currency', $this->config->get('config_currency_engine'));
+		if (!$auto) {
+			return;
+		}
 
-		if ($extension_info) {
-			$this->load->controller('extension/' . $extension_info['extension'] . '/currency/' . $extension_info['code'] . '.currency', $currency);
+		try {
+			$this->load->model('localisation/currency');
+			$this->model_localisation_currency->refreshRates($args[1]['config_currency']);
+		} catch (\Throwable $e) {
+			$this->log->write('Automatic currency update failed: ' . $e->getMessage());
 		}
 	}
 }
