@@ -16,7 +16,11 @@ $autoloader->register('Opencart\Catalog', DIR_APPLICATION);
 $autoloader->register('Opencart\Extension', DIR_EXTENSION);
 $autoloader->register('Opencart\System', DIR_SYSTEM);
 
-require_once(DIR_SYSTEM . 'vendor.php');
+if (is_file(DIR_STORAGE . 'vendor/autoload.php')) {
+	require_once(DIR_STORAGE . 'vendor/autoload.php');
+} else {
+	require_once(DIR_SYSTEM . 'vendor.php');
+}
 
 // Registry
 $registry = new \Opencart\System\Engine\Registry();
