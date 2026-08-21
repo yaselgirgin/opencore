@@ -145,15 +145,14 @@ function verifyInstalledGraph(array $lock, string $installedPath): array {
 	return $actual;
 }
 
-function createSmokeScript(string $path, string $autoloadPath, array $packages): void {
+function createSmokeScript(string $path, string $autoloadPath): void {
 	$code = <<<'PHP'
 <?php
 declare(strict_types=1);
 require $argv[1];
 $required = [
 	'Twig\\Environment',
-	'Twig\\Loader\\ArrayLoader',
-	'ScssPhp\\ScssPhp\\Compiler'
+	'Twig\\Loader\\ArrayLoader'
 ];
 foreach ($required as $symbol) {
 	if (!class_exists($symbol) && !interface_exists($symbol)) {
@@ -163,10 +162,6 @@ foreach ($required as $symbol) {
 $twig = new Twig\Environment(new Twig\Loader\ArrayLoader(['test' => 'Hello {{ name }}']));
 if ($twig->render('test', ['name' => 'OpenCore']) !== 'Hello OpenCore') {
 	throw new RuntimeException('Twig functional smoke failed');
-}
-$compiler = new ScssPhp\ScssPhp\Compiler();
-if (!str_contains($compiler->compileString('$color: red; .test { color: $color; }')->getCss(), 'red')) {
-	throw new RuntimeException('scssphp functional smoke failed');
 }
 echo "AUTOLOAD_SMOKE_OK\n";
 PHP;
@@ -232,9 +227,7 @@ if ($caFile !== null && (!is_file($caFile) || !is_readable($caFile))) {
 
 $sources = [
 	'composer.json' => $repo . DIRECTORY_SEPARATOR . 'composer.json',
-	'composer.lock' => $repo . DIRECTORY_SEPARATOR . 'composer.lock',
-	'patch_tool' => $repo . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'apply-vendor-patches.php',
-	'patch_file' => $repo . DIRECTORY_SEPARATOR . 'build' . DIRECTORY_SEPARATOR . 'patches' . DIRECTORY_SEPARATOR . 'scssphp-1.13.0-opencart-php84.patch'
+	'composer.lock' => $repo . DIRECTORY_SEPARATOR . 'composer.lock'
 ];
 foreach ($sources as $label => $path) {
 	if (!is_file($path) || !is_readable($path)) {
@@ -288,18 +281,12 @@ try {
 
 	$installedPath = $work . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR . 'installed.json';
 	$packages = verifyInstalledGraph($lock, $installedPath);
-	run([PHP_BINARY, $sources['patch_tool'], '--vendor-dir=' . $work . DIRECTORY_SEPARATOR . 'vendor'], $repo, $environment);
-	$checkOutput = run([PHP_BINARY, $sources['patch_tool'], '--vendor-dir=' . $work . DIRECTORY_SEPARATOR . 'vendor', '--check'], $repo, $environment);
-	if (!str_contains($checkOutput, 'PATCH_ALREADY_APPLIED')) {
-		throw new RuntimeException('Vendor patch check did not confirm PATCH_ALREADY_APPLIED');
-	}
-	verifyInstalledGraph($lock, $installedPath);
 
 	$autoload = $work . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 	if (!is_file($autoload) || !is_dir($work . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'composer')) {
 		throw new RuntimeException('Composer autoload metadata is incomplete');
 	}
-	createSmokeScript($workspace . DIRECTORY_SEPARATOR . 'autoload-smoke.php', $autoload, $packages);
+	createSmokeScript($workspace . DIRECTORY_SEPARATOR . 'autoload-smoke.php', $autoload);
 
 	if (!rename($work . DIRECTORY_SEPARATOR . 'vendor', $ready . DIRECTORY_SEPARATOR . 'vendor')) {
 		throw new RuntimeException('Cannot prepare vendor artifact for publication');
@@ -320,8 +307,7 @@ try {
 		'php_version' => PHP_VERSION,
 		'sources' => [
 			'composer_json_sha256' => hash_file('sha256', $sources['composer.json']),
-			'composer_lock_sha256' => hash_file('sha256', $sources['composer.lock']),
-			'vendor_patch_sha256' => hash_file('sha256', $sources['patch_file'])
+			'composer_lock_sha256' => hash_file('sha256', $sources['composer.lock'])
 		],
 		'inventory' => [
 			'algorithm' => 'sha256(path NUL decimal-size NUL lowercase-sha256 LF), paths bytewise-sorted',
