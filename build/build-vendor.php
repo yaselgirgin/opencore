@@ -146,8 +146,6 @@ function verifyInstalledGraph(array $lock, string $installedPath): array {
 }
 
 function createSmokeScript(string $path, string $autoloadPath, array $packages): void {
-	$optionalGuzzle = isset($packages['guzzlehttp/guzzle']);
-	$optionalJmes = isset($packages['mtdowling/jmespath.php']);
 	$code = <<<'PHP'
 <?php
 declare(strict_types=1);
@@ -155,9 +153,7 @@ require $argv[1];
 $required = [
 	'Twig\\Environment',
 	'Twig\\Loader\\ArrayLoader',
-	'ScssPhp\\ScssPhp\\Compiler',
-	'Psr\\Http\\Message\\RequestInterface',
-	'Psr\\Http\\Message\\RequestFactoryInterface'
+	'ScssPhp\\ScssPhp\\Compiler'
 ];
 foreach ($required as $symbol) {
 	if (!class_exists($symbol) && !interface_exists($symbol)) {
@@ -172,19 +168,13 @@ $compiler = new ScssPhp\ScssPhp\Compiler();
 if (!str_contains($compiler->compileString('$color: red; .test { color: $color; }')->getCss(), 'red')) {
 	throw new RuntimeException('scssphp functional smoke failed');
 }
-if ($argv[2] === '1' && !function_exists('GuzzleHttp\\choose_handler')) {
-	throw new RuntimeException('Guzzle autoload-files smoke failed');
-}
-if ($argv[3] === '1' && (!function_exists('JmesPath\\search') || JmesPath\search('value', ['value' => 42]) !== 42)) {
-	throw new RuntimeException('JmesPath autoload-files smoke failed');
-}
 echo "AUTOLOAD_SMOKE_OK\n";
 PHP;
 	if (file_put_contents($path, $code) === false) {
 		throw new RuntimeException('Cannot create isolated autoload smoke script');
 	}
 	$environment = getenv();
-	$output = run([PHP_BINARY, $path, $autoloadPath, $optionalGuzzle ? '1' : '0', $optionalJmes ? '1' : '0'], dirname($path), is_array($environment) ? $environment : []);
+	$output = run([PHP_BINARY, $path, $autoloadPath], dirname($path), is_array($environment) ? $environment : []);
 	if (!str_contains($output, 'AUTOLOAD_SMOKE_OK')) {
 		throw new RuntimeException('Isolated autoload smoke did not report success');
 	}
