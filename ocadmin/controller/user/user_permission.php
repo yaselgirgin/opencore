@@ -242,7 +242,6 @@ class UserPermission extends \Opencart\System\Engine\Controller {
 			'startup/authorize',
 			'startup/error',
 			'startup/event',
-			'startup/extension',
 			'startup/language',
 			'startup/login',
 			'startup/notification',

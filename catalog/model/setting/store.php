@@ -185,7 +185,6 @@ class Store extends \Opencart\System\Engine\Model {
 		// Run pre actions to load key settings and classes.
 		$pre_actions = [
 			'startup/setting',
-			'startup/extension',
 			'startup/application',
 			'startup/startup',
 			'startup/event'

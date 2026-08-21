@@ -27,7 +27,6 @@ $_['action_pre_action']  = [
 	'startup/session',
 	'startup/language',
 	'startup/application',
-	'startup/extension',
 	'startup/startup',
 	'startup/error',
 	'startup/event',

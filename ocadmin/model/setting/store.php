@@ -258,7 +258,6 @@ class Store extends \Opencart\System\Engine\Model {
 		$pre_actions = [
 			'startup/setting',
 			'startup/language',
-			'startup/extension',
 			'startup/customer',
 			'startup/tax',
 			'startup/currency',
