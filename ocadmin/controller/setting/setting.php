@@ -44,24 +44,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$data['store_url'] = HTTP_CATALOG;
 
-		$data['themes'] = [];
-
-		// Extension
-		$this->load->model('setting/extension');
-
-		$extensions = $this->model_setting_extension->getExtensionsByType('theme');
-
-		foreach ($extensions as $extension) {
-			$this->load->language('extension/' . $extension['extension'] . '/theme/' . $extension['code'], 'extension');
-
-			$data['themes'][] = [
-				'text'  => $this->language->get('extension_heading_title'),
-				'value' => $extension['code']
-			];
-		}
-
-		$data['config_theme'] = $this->config->get('config_theme');
-
 		$data['config_owner'] = $this->config->get('config_owner');
 		$data['config_address'] = $this->config->get('config_address');
 		$data['config_geocode'] = $this->config->get('config_geocode');
@@ -508,29 +490,5 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
-	}
-
-	/**
-	 * Theme
-	 *
-	 * @return void
-	 */
-	public function theme(): void {
-		if (isset($this->request->get['theme'])) {
-			$theme = basename($this->request->get['theme']);
-		} else {
-			$theme = '';
-		}
-
-		// Extension
-		$this->load->model('setting/extension');
-
-		$extension_info = $this->model_setting_extension->getExtensionByCode('theme', $theme);
-
-		if ($extension_info) {
-			$this->response->setOutput(HTTP_CATALOG . 'extension/' . $extension_info['extension'] . '/admin/view/image/' . $extension_info['code'] . '.png');
-		} else {
-			$this->response->setOutput(HTTP_CATALOG . 'image/no_image.png');
-		}
 	}
 }

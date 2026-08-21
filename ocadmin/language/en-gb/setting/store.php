@@ -32,7 +32,6 @@ $_['entry_url']                        = 'Store URL';
 $_['entry_meta_title']                 = 'Meta Title';
 $_['entry_meta_description']           = 'Meta Tag Description';
 $_['entry_meta_keyword']               = 'Meta Tag Keywords';
-$_['entry_theme']                      = 'Theme';
 $_['entry_name']                       = 'Store Name';
 $_['entry_owner']                      = 'Store Owner';
 $_['entry_address']                    = 'Address';
