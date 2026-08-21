@@ -38,15 +38,7 @@ class Language extends \Opencart\System\Engine\Model {
 		$language = $query->row;
 
 		if ($language) {
-			$language['image'] = HTTP_SERVER;
-
-			if (!$language['extension']) {
-				$language['image'] .= 'catalog/';
-			} else {
-				$language['image'] .= 'extension/' . $language['extension'] . '/catalog/';
-			}
-
-			$language['image'] .= 'language/' . $language['code'] . '/' . $language['code'] . '.png';
+			$language['image'] = HTTP_SERVER . 'catalog/language/' . $language['code'] . '/' . $language['code'] . '.png';
 		}
 
 		$this->data[$language_id] = $language;
@@ -77,15 +69,7 @@ class Language extends \Opencart\System\Engine\Model {
 		$language = $query->row;
 
 		if ($language) {
-			$language['image'] = HTTP_SERVER;
-
-			if (!$language['extension']) {
-				$language['image'] .= 'catalog/';
-			} else {
-				$language['image'] .= 'extension/' . $language['extension'] . '/catalog/';
-			}
-
-			$language['image'] .= 'language/' . $language['code'] . '/' . $language['code'] . '.png';
+			$language['image'] = HTTP_SERVER . 'catalog/language/' . $language['code'] . '/' . $language['code'] . '.png';
 		}
 
 		$this->data[$code] = $language;
@@ -122,15 +106,7 @@ class Language extends \Opencart\System\Engine\Model {
 		$language_data = [];
 
 		foreach ($results as $result) {
-			$image = HTTP_SERVER;
-
-			if (!$result['extension']) {
-				$image .= 'catalog/';
-			} else {
-				$image .= 'extension/' . $result['extension'] . '/catalog/';
-			}
-
-			$language_data[$result['code']] = ['image' => $image . 'language/' . $result['code'] . '/' . $result['code'] . '.png'] + $result;
+			$language_data[$result['code']] = ['image' => HTTP_SERVER . 'catalog/language/' . $result['code'] . '/' . $result['code'] . '.png'] + $result;
 		}
 
 		return $language_data;

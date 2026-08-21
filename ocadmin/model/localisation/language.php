@@ -23,7 +23,6 @@ class Language extends \Opencart\System\Engine\Model {
 	 *     'name'       => 'Language Name',
 	 *     'code'       => 'Language Code',
 	 *     'locale'     => 'Language Locale',
-	 *     'extension'  => '',
 	 *     'sort_order' => 0,
 	 *     'status'     => 0
 	 * ];
@@ -33,7 +32,7 @@ class Language extends \Opencart\System\Engine\Model {
 	 * $language_id = $this->model_localisation_language->addLanguage($language_data);
 	 */
 	public function addLanguage(array $data): int {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "language` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `locale` = '" . $this->db->escape((string)$data['locale']) . "', `extension` = '" . $this->db->escape((string)$data['extension']) . "', `sort_order` = '" . (int)$data['sort_order'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "'");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "language` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `locale` = '" . $this->db->escape((string)$data['locale']) . "', `extension` = '', `sort_order` = '" . (int)$data['sort_order'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "'");
 
 		$this->cache->delete('language');
 
@@ -95,7 +94,6 @@ class Language extends \Opencart\System\Engine\Model {
 	 *     'name'       => 'Language Name',
 	 *     'code'       => 'Language Code',
 	 *     'locale'     => 'Language Locale',
-	 *     'extension'  => '',
 	 *     'sort_order' => 0,
 	 *     'status'     => 1
 	 * ];
@@ -105,7 +103,7 @@ class Language extends \Opencart\System\Engine\Model {
 	 * $this->model_localisation_language->editLanguage($language_id, $language_data);
 	 */
 	public function editLanguage(int $language_id, array $data): void {
-		$this->db->query("UPDATE `" . DB_PREFIX . "language` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `locale` = '" . $this->db->escape((string)$data['locale']) . "', `extension` = '" . $this->db->escape((string)$data['extension']) . "', `sort_order` = '" . (int)$data['sort_order'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "' WHERE `language_id` = '" . (int)$language_id . "'");
+		$this->db->query("UPDATE `" . DB_PREFIX . "language` SET `name` = '" . $this->db->escape((string)$data['name']) . "', `code` = '" . $this->db->escape((string)$data['code']) . "', `locale` = '" . $this->db->escape((string)$data['locale']) . "', `extension` = '', `sort_order` = '" . (int)$data['sort_order'] . "', `status` = '" . (bool)($data['status'] ?? 0) . "' WHERE `language_id` = '" . (int)$language_id . "'");
 
 		$this->cache->delete('language');
 	}
@@ -173,15 +171,7 @@ class Language extends \Opencart\System\Engine\Model {
 		$language = $query->row;
 
 		if ($language) {
-			$language['image'] = HTTP_CATALOG;
-
-			if (!$language['extension']) {
-				$language['image'] .= 'catalog/';
-			} else {
-				$language['image'] .= 'extension/' . $language['extension'] . '/catalog/';
-			}
-
-			$language['image'] .= 'language/' . $language['code'] . '/' . $language['code'] . '.png';
+			$language['image'] = HTTP_CATALOG . 'catalog/language/' . $language['code'] . '/' . $language['code'] . '.png';
 		}
 
 		return $language;
@@ -206,15 +196,7 @@ class Language extends \Opencart\System\Engine\Model {
 		$language = $query->row;
 
 		if ($language) {
-			$language['image'] = HTTP_CATALOG;
-
-			if (!$language['extension']) {
-				$language['image'] .= 'catalog/';
-			} else {
-				$language['image'] .= 'extension/' . $language['extension'] . '/catalog/';
-			}
-
-			$language['image'] .= 'language/' . $language['code'] . '/' . $language['code'] . '.png';
+			$language['image'] = HTTP_CATALOG . 'catalog/language/' . $language['code'] . '/' . $language['code'] . '.png';
 		}
 
 		return $language;
@@ -288,37 +270,10 @@ class Language extends \Opencart\System\Engine\Model {
 		$language_data = [];
 
 		foreach ($results as $result) {
-			$image = HTTP_CATALOG;
-
-			if (!$result['extension']) {
-				$image .= 'catalog/';
-			} else {
-				$image .= 'extension/' . $result['extension'] . '/catalog/';
-			}
-
-			$language_data[$result['code']] = $result + ['image' => $image . 'language/' . $result['code'] . '/' . $result['code'] . '.png'];
+			$language_data[$result['code']] = $result + ['image' => HTTP_CATALOG . 'catalog/language/' . $result['code'] . '/' . $result['code'] . '.png'];
 		}
 
 		return $language_data;
-	}
-
-	/**
-	 * Get Languages By Extension
-	 *
-	 * @param string $extension
-	 *
-	 * @return array<int, array<string, mixed>>
-	 *
-	 * @example
-	 *
-	 * $this->load->model('localisation/language');
-	 *
-	 * $results = $this->model_localisation_language->getLanguagesByExtension($extension);
-	 */
-	public function getLanguagesByExtension(string $extension): array {
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "language` WHERE `extension` = '" . $this->db->escape($extension) . "'");
-
-		return $query->rows;
 	}
 
 	/**

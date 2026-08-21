@@ -2,7 +2,6 @@
 // Autoloader
 $autoloader = new \Opencart\System\Engine\Autoloader();
 $autoloader->register('Opencart\\' . APPLICATION, DIR_APPLICATION);
-$autoloader->register('Opencart\Extension', DIR_EXTENSION);
 $autoloader->register('Opencart\System', DIR_SYSTEM);
 
 require_once(DIR_STORAGE . 'vendor/autoload.php');

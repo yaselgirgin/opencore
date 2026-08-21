@@ -239,12 +239,6 @@ class Language extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!empty($language_info)) {
-			$data['extension'] = $language_info['extension'];
-		} else {
-			$data['extension'] = '';
-		}
-
-		if (!empty($language_info)) {
 			$data['sort_order'] = $language_info['sort_order'];
 		} else {
 			$data['sort_order'] = 1;
@@ -282,7 +276,6 @@ class Language extends \Opencart\System\Engine\Controller {
 			'name'        => '',
 			'code'        => '',
 			'locale'      => '',
-			'extension'   => '',
 			'sort_order'  => 0,
 			'status'      => 0
 		];
