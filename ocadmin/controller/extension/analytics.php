@@ -23,9 +23,6 @@ class Analytics extends \Opencart\System\Engine\Controller {
 	public function getList(): string {
 		$this->load->language('extension/analytics');
 
-		// Promotion
-		$data['promotion'] = $this->load->controller('marketplace/promotion');
-
 		$available = [];
 
 		$results = glob(DIR_EXTENSION . '*/admin/controller/analytics/*.php');

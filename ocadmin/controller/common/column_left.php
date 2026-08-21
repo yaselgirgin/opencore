@@ -95,30 +95,6 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 			];
 		}
 
-		$runtime = [];
-		$runtime_routes = [
-			'marketplace/event'   => 'text_event',
-			'marketplace/startup' => 'text_startup'
-		];
-
-		foreach ($runtime_routes as $route => $language_key) {
-			if ($this->user->hasPermission('access', $route)) {
-				$runtime[] = [
-					'name'     => $this->language->get($language_key),
-					'href'     => $this->url->link($route, 'user_token=' . $this->session->data['user_token']),
-					'children' => []
-				];
-			}
-		}
-
-		if ($runtime) {
-			$system[] = [
-				'name'     => $this->language->get('text_developer'),
-				'href'     => '',
-				'children' => $runtime
-			];
-		}
-
 		$maintenance = [];
 		$maintenance_routes = [
 			'tool/upgrade' => 'text_upgrade',
