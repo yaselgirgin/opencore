@@ -38,7 +38,7 @@ final class VendorDeployment {
 	private array $ownedPaths = [];
 
 	public function __construct(private readonly DeploymentFilesystem $filesystem) {
-		$repo = realpath(dirname(__DIR__));
+		$repo = realpath(dirname(__DIR__, 2));
 
 		if ($repo === false) {
 			throw new DeploymentException('PATH_SAFETY_FAILED', 'Cannot resolve repository root');
@@ -648,7 +648,7 @@ function deploymentMain(array $argv, ?DeploymentFilesystem $filesystem = null): 
 	if (!isset($options['artifact-dir'], $options['storage-dir'])
 		|| !is_string($options['artifact-dir']) || $options['artifact-dir'] === ''
 		|| !is_string($options['storage-dir']) || $options['storage-dir'] === '') {
-		fwrite(STDERR, "Usage: php build/deploy-vendor.php --artifact-dir=<path> --storage-dir=<path> --confirm-quiescent [--dry-run] [--keep-backup]\n");
+		fwrite(STDERR, "Usage: php system/build/deploy-vendor.php --artifact-dir=<path> --storage-dir=<path> --confirm-quiescent [--dry-run] [--keep-backup]\n");
 		return 2;
 	}
 

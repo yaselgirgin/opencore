@@ -200,10 +200,10 @@ function inventory(string $vendor): array {
 
 $options = getopt('', ['artifact-dir:', 'composer:', 'ca-file:']);
 if (!isset($options['artifact-dir']) || !is_string($options['artifact-dir']) || $options['artifact-dir'] === '') {
-	fail('Usage: php build/build-vendor.php --artifact-dir=<path> [--composer=<executable-or-phar>] [--ca-file=<path>]');
+	fail('Usage: php system/build/build-vendor.php --artifact-dir=<path> [--composer=<executable-or-phar>] [--ca-file=<path>]');
 }
 
-$repo = realpath(dirname(__DIR__));
+$repo = realpath(dirname(__DIR__, 2));
 if ($repo === false) {
 	fail('Cannot resolve repository root');
 }

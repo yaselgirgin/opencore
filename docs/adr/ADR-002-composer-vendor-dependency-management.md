@@ -109,8 +109,8 @@ Production Composer çalıştırmaz; prebuilt artifact deploy eder. Vendor mümk
 
 ### 7.1 Build, activation ve runtime sınırı
 
-- `build/build-vendor.php`, `composer.lock` üzerinden deterministic vendor artifact'i üretir.
-- `build/deploy-vendor.php`, hazır artifact'i doğrular ve external storage altında aktive eder.
+- `system/build/build-vendor.php`, `composer.lock` üzerinden deterministic vendor artifact'i üretir.
+- `system/build/deploy-vendor.php`, hazır artifact'i doğrular ve external storage altında aktive eder.
 - Runtime yalnız `DIR_STORAGE . 'vendor/autoload.php'` sözleşmesini kullanır.
 - Deployment aracı runtime `config.php` dosyalarını veya `DIR_STORAGE` sabitini yüklemez. Storage hedefi operator veya release orchestrator tarafından açıkça `--storage-dir=<path>` ile verilir. Böylece deployment yerel runtime config'ine veya ortama özel mutlak bir yola bağlanmaz.
 
