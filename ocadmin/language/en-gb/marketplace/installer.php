@@ -9,7 +9,6 @@ $_['text_progress']          = 'Install Progress';
 $_['text_installed']         = 'Installed Extensions';
 $_['text_info']              = 'Extension Information';
 $_['text_install']           = 'Installing files %s to %s of %s';
-$_['text_vendor']            = 'Refresh vendor files';
 $_['text_xml']               = 'Install OCMOD files';
 
 // Column
@@ -45,6 +44,7 @@ $_['error_directory_exists'] = 'Path %s already exists!';
 $_['error_unzip']            = 'Zip file could not be opened!';
 $_['error_upload']           = 'File could not be uploaded!';
 $_['error_unknown']          = 'An unknown error occurred!';
+$_['error_vendor']           = 'Marketplace extensions may not install dependencies into the shared root Composer vendor directory!';
 
 // Zip errors
 $_['zip_error_exists']       = 'File already exists!';
