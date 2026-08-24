@@ -1348,40 +1348,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'identifier',
-		'field' => [
-			[
-				'name'           => 'identifier_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'code',
-				'type' => 'varchar(48)'
-			],
-			[
-				'name' => 'validation',
-				'type' => 'varchar(255)'
-			],
-			[
-				'name'    => 'status',
-				'type'    => 'tinyint(1)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'identifier_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'language',
 		'field' => [
 			[
@@ -1844,39 +1810,6 @@ function oc_db_schema() {
 				'key'   => 'option_id',
 				'table' => 'option',
 				'field' => 'option_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'order_status',
-		'field' => [
-			[
-				'name'           => 'order_status_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'language_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(32)'
-			]
-		],
-		'primary' => [
-			'order_status_id',
-			'language_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
 			]
 		],
 		'engine'  => 'InnoDB',
@@ -2524,108 +2457,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'return_action',
-		'field' => [
-			[
-				'name'           => 'return_action_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'language_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(64)'
-			]
-		],
-		'primary' => [
-			'return_action_id',
-			'language_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'return_reason',
-		'field' => [
-			[
-				'name'           => 'return_reason_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'language_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(128)'
-			]
-		],
-		'primary' => [
-			'return_reason_id',
-			'language_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'return_status',
-		'field' => [
-			[
-				'name'           => 'return_status_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'language_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(32)'
-			]
-		],
-		'primary' => [
-			'return_status_id',
-			'language_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'statistics',
 		'field' => [
 			[
@@ -2864,39 +2695,6 @@ function oc_db_schema() {
 		],
 		'primary' => [
 			'subscription_plan_id',
-			'language_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'subscription_status',
-		'field' => [
-			[
-				'name'           => 'subscription_status_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'language_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(32)'
-			]
-		],
-		'primary' => [
-			'subscription_status_id',
 			'language_id'
 		],
 		'foreign' => [
