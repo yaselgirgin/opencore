@@ -574,11 +574,6 @@ function oc_db_schema() {
 				'auto_increment' => true
 			],
 			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
 				'name' => 'code',
 				'type' => 'varchar(128)'
 			],
@@ -598,39 +593,6 @@ function oc_db_schema() {
 		],
 		'primary' => [
 			'setting_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-
-	$tables[] = [
-		'name'  => 'store',
-		'field' => [
-			[
-				'name'           => 'store_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'url',
-				'type' => 'varchar(255)'
-			]
-		],
-		'primary' => [
-			'store_id'
 		],
 		'engine'  => 'InnoDB',
 		'charset' => 'utf8mb4',
