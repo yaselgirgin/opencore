@@ -129,14 +129,8 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_weight_class_id'] = $this->config->get('config_weight_class_id');
 
 		// Options
-		$data['config_pagination'] = $this->config->get('config_pagination');
 		$data['config_pagination_admin'] = $this->config->get('config_pagination_admin');
 		$data['config_autocomplete_limit'] = $this->config->get('config_autocomplete_limit');
-		$data['config_2fa'] = $this->config->get('config_2fa');
-		$data['config_password_uppercase'] = $this->config->get('config_password_uppercase');
-		$data['config_password_lowercase'] = $this->config->get('config_password_lowercase');
-		$data['config_password_number'] = $this->config->get('config_password_number');
-		$data['config_password_symbol'] = $this->config->get('config_password_symbol');
 
 		// Image
 		$data['config_logo'] = $this->config->get('config_logo');
@@ -246,10 +240,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 			$json['error']['email'] = $this->language->get('error_email');
 		}
 
-		if (!$this->request->post['config_pagination']) {
-			$json['error']['pagination'] = $this->language->get('error_pagination');
-		}
-
 		if (!$this->request->post['config_pagination_admin']) {
 			$json['error']['pagination_admin'] = $this->language->get('error_pagination');
 		}
@@ -259,7 +249,7 @@ class Setting extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$this->request->post['config_image_default_width'] || !$this->request->post['config_image_default_height']) {
-			$json['error']['image_default'] = $this->language->get('error_image_category');
+			$json['error']['image_default'] = $this->language->get('error_image_default');
 		}
 
 		if (!$this->request->post['config_image_location_width'] || !$this->request->post['config_image_location_height']) {

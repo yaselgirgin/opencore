@@ -271,21 +271,13 @@
             <div id="tab-option" class="tab-pane">
               <div class="accordion" id="accordion-option">
                 <div class="accordion-item">
-                  <h2 class="accordion-header"><button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-product">{{ text_product }}</button></h2>
-                  <div id="collapse-product" class="accordion-collapse collapse" data-bs-parent="#accordion-option">
+                  <h2 class="accordion-header"><button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-limits">{{ text_limits }}</button></h2>
+                  <div id="collapse-limits" class="accordion-collapse collapse" data-bs-parent="#accordion-option">
                     <div class="accordion-body">
                       <div class="row mb-3 required">
-                        <label for="input-pagination" class="col-sm-2 col-form-label">{{ entry_pagination }}</label>
+                        <label for="input-pagination-admin" class="col-sm-2 col-form-label">{{ entry_pagination }}</label>
                         <div class="col-sm-10">
-                          <input type="text" name="config_pagination" value="{{ config_pagination }}" placeholder="{{ entry_pagination }}" id="input-pagination" class="form-control"/>
-                          <div class="form-text">{{ help_pagination }}</div>
-                          <div id="error-pagination" class="invalid-feedback"></div>
-                        </div>
-                      </div>
-                      <div class="row mb-3 required">
-                        <label for="input-pagination-admin" class="col-sm-2 col-form-label">{{ entry_pagination_admin }}</label>
-                        <div class="col-sm-10">
-                          <input type="text" name="config_pagination_admin" value="{{ config_pagination_admin }}" placeholder="{{ entry_pagination_admin }}" id="input-pagination-admin" class="form-control"/>
+                          <input type="text" name="config_pagination_admin" value="{{ config_pagination_admin }}" placeholder="{{ entry_pagination }}" id="input-pagination-admin" class="form-control"/>
                           <div class="form-text">{{ help_pagination }}</div>
                           <div id="error-pagination-admin" class="invalid-feedback"></div>
                         </div>
@@ -301,50 +293,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header"><button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-account">{{ text_account }}</button></h2>
-                  <div id="collapse-account" class="accordion-collapse collapse" data-bs-parent="#accordion-option">
-                    <div class="accordion-body">
-                      <fieldset>
-                        <legend>{{ text_security }}</legend>
-                        <div class="row mb-3">
-                          <label class="col-sm-2 col-form-label">{{ entry_2fa }}</label>
-                          <div class="col-sm-10">
-                            <div class="form-check form-switch form-switch-lg">
-                              <input type="hidden" name="config_2fa" value="0"/>
-                              <input type="checkbox" name="config_2fa" value="1" id="input-2fa" class="form-check-input"{% if config_2fa %} checked{% endif %}/>
-                            </div>
-                            <div class="form-text">{{ help_2fa }}</div>
-            </div>
-                        </div>
-                        <div class="row mb-3">
-                          <label class="col-sm-2 col-form-label">{{ entry_password }}</label>
-                          <div class="col-sm-10">
-                            <div class="form-control" style="overflow: auto;">
-                              <div class="form-check">
-                                <input type="checkbox" name="config_password_uppercase" value="1" id="input-password-uppercase" class="form-check-input"{% if config_password_uppercase %} checked{% endif %}/>
-                                <label for="input-password-uppercase" class="form-check-label">{{ text_password_uppercase }}</label>
-                              </div>
-                              <div class="form-check">
-                                <input type="checkbox" name="config_password_lowercase" value="1" id="input-password-lowercase" class="form-check-input"{% if config_password_lowercase %} checked{% endif %}/>
-                                <label for="input-password-lowercase" class="form-check-label">{{ text_password_lowercase }}</label>
-                              </div>
-                              <div class="form-check">
-                                <input type="checkbox" name="config_password_number" value="1" id="input-password-number" class="form-check-input"{% if config_password_number %} checked{% endif %}/>
-                                <label for="input-password-number" class="form-check-label">{{ text_password_number }}</label>
-                              </div>
-                              <div class="form-check">
-                                <input type="checkbox" name="config_password_symbol" value="1" id="input-password-symbol" class="form-check-input"{% if config_password_symbol %} checked{% endif %}/>
-                                <label for="input-password-symbol" class="form-check-label">{{ text_password_symbol }}</label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </fieldset>
-                    </div>
-                  </div>
-                </div>
-
               </div>
             </div>
             <div id="tab-image" class="tab-pane">

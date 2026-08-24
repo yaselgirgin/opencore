@@ -300,13 +300,6 @@ class Store extends \Opencart\System\Engine\Controller {
 			$data['config_currency'] = $this->config->get('config_currency');
 		}
 
-		// Options
-		if (isset($setting_info['config_pagination'])) {
-			$data['config_pagination'] = $setting_info['config_pagination'];
-		} else {
-			$data['config_pagination'] = 15;
-		}
-
 		// Image
 		if (isset($setting_info['config_logo'])) {
 			$data['config_logo'] = $setting_info['config_logo'];
@@ -398,10 +391,6 @@ class Store extends \Opencart\System\Engine\Controller {
 
 		if ((oc_strlen($this->request->post['config_email']) > 96) || !filter_var($this->request->post['config_email'], FILTER_VALIDATE_EMAIL)) {
 			$json['error']['email'] = $this->language->get('error_email');
-		}
-
-		if (!$this->request->post['config_pagination']) {
-			$json['error']['pagination'] = $this->language->get('error_pagination');
 		}
 
 		if (!$this->request->post['config_image_location_width'] || !$this->request->post['config_image_location_height']) {
