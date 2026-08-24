@@ -169,7 +169,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_mail_smtp_port'] = $this->config->get('config_mail_smtp_port');
 		$data['config_mail_smtp_timeout'] = $this->config->get('config_mail_smtp_timeout');
 		// Server
-		$data['config_maintenance'] = $this->config->get('config_maintenance');
 		$data['config_session_expire'] = $this->config->get('config_session_expire');
 		$data['config_session_samesite'] = $this->config->get('config_session_samesite');
 		$data['config_compression'] = $this->config->get('config_compression');
@@ -182,8 +181,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_user_password_number'] = $this->config->get('config_user_password_number');
 		$data['config_user_password_symbol'] = $this->config->get('config_user_password_symbol');
 		$data['config_user_password_length'] = $this->config->get('config_user_password_length');
-
-		$data['config_shared'] = $this->config->get('config_shared');
 
 		// Uploads
 		$data['config_file_max_size'] = $this->config->get('config_file_max_size');

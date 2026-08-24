@@ -68,12 +68,10 @@ $_['entry_mail_smtp_username']            = 'Username';
 $_['entry_mail_smtp_password']            = 'Password';
 $_['entry_mail_smtp_port']                = 'Port';
 $_['entry_mail_smtp_timeout']             = 'Timeout';
-$_['entry_shared']                        = 'Use Shared Sessions';
 $_['entry_robots']                        = 'Robots';
 $_['entry_file_max_size']                 = 'Max File Size';
 $_['entry_file_ext_allowed']              = 'Allowed File Extensions';
 $_['entry_file_mime_allowed']             = 'Allowed File Mime Types';
-$_['entry_maintenance']                   = 'Maintenance Mode';
 $_['entry_session_expire']                = 'Session Lifetime';
 $_['entry_session_samesite']              = 'Session Samesite Cookie';
 $_['entry_compression']                   = 'Output Compression Level';
@@ -100,12 +98,10 @@ $_['help_mail_smtp_password']             = 'For Gmail you might need to setup a
 $_['help_session_expire']                 = 'Set the PHP Session lifetime in seconds (e.g. 3600 = 1 hour)';
 $_['help_session_samesite']               = 'Set the PHP Session samesite cookie';
 $_['help_user_2fa']                       = 'Two-factor security for admin users.';
-$_['help_shared']                         = 'Try to share the session cookie between stores so the cart can be passed between different domains.';
 $_['help_robots']                         = 'A list of web crawler user agents that shared sessions will not be used with. Use separate lines for each user agent.';
 $_['help_file_max_size']                  = 'The maximum allowed upload size in megabytes.';
 $_['help_file_ext_allowed']               = 'Add which file extensions are allowed to be uploaded. Use a new line for each value.';
 $_['help_file_mime_allowed']              = 'Add which file mime types are allowed to be uploaded. Use a new line for each value.';
-$_['help_maintenance']                    = 'Prevents customers from browsing your store. They will instead see a maintenance message. If logged in as admin, you will see the store as normal.';
 $_['help_compression']                    = 'GZIP for more efficient transfer to requesting clients. Compression level must be between 0 - 9.';
 
 // Error
