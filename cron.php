@@ -231,10 +231,8 @@ $loader->load->language($config->get('language_code'));
 // Url
 $registry->set('url', new \Opencart\System\Library\Url($config->get('site_url')));
 
-// Pre Actions
-foreach ($config->get('action_pre_action') as $pre_action) {
-	$loader->controller($pre_action);
-}
+// Startup
+$loader->controller('startup/setting');
 
 // Dispatch
 $result = $loader->controller('cron/cron', $cron_id);
