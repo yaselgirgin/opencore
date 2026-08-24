@@ -82,7 +82,6 @@ $_['button_option_value_add']       = 'Add Option Value';
 $_['button_subscription_add']       = 'Add Subscription';
 $_['button_discount_add']           = 'Add Discount';
 $_['button_image_add']              = 'Add Image';
-$_['button_geo_zone_add']           = 'Add Geo Zone';
 $_['button_history_add']            = 'Add History';
 $_['button_transaction_add']        = 'Add Transaction';
 $_['button_route_add']              = 'Add Route';

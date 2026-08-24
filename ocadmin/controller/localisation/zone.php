@@ -430,9 +430,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 		// Customer
 		$this->load->model('customer/customer');
 
-		// Geo Zone
-		$this->load->model('localisation/geo_zone');
-
 		foreach ($selected as $zone_id) {
 			if ((int)$this->config->get('config_zone_id') == (int)$zone_id) {
 				$json['error'] = $this->language->get('error_default');
@@ -450,11 +447,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 				$json['error'] = sprintf($this->language->get('error_address'), $address_total);
 			}
 
-			$zone_to_geo_zone_total = $this->model_localisation_geo_zone->getTotalZoneToGeoZoneByZoneId((int)$zone_id);
-
-			if ($zone_to_geo_zone_total) {
-				$json['error'] = sprintf($this->language->get('error_zone_to_geo_zone'), $zone_to_geo_zone_total);
-			}
 		}
 
 		if (!$json) {
