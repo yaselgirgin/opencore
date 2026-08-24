@@ -12,29 +12,8 @@ class Setting extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	public function index(): void {
-		$hostname = ($this->request->server['HTTPS'] ? 'https://' : 'http://') . str_replace('www.', '', $this->request->server['HTTP_HOST']) . rtrim(dirname($this->request->server['PHP_SELF']), '/.\\') . '/';
-
 		// Store
-		$this->load->model('setting/store');
-
-		$store_info = $this->model_setting_store->getStoreByHostname($hostname);
-
-		if (isset($this->request->get['store_id'])) {
-			$this->config->set('config_store_id', (int)$this->request->get['store_id']);
-		} elseif ($store_info) {
-			$this->config->set('config_store_id', $store_info['store_id']);
-		} else {
-			$this->config->set('config_store_id', 0);
-		}
-
-		if (!$store_info) {
-			// If catalog constant is defined
-			if (defined('HTTP_CATALOG')) {
-				$this->config->set('config_url', HTTP_CATALOG);
-			} else {
-				$this->config->set('config_url', HTTP_SERVER);
-			}
-		}
+		$this->config->set('config_store_id', 0);
 
 		// Setting
 		$this->load->model('setting/setting');
@@ -48,9 +27,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 				$this->config->set($result['key'], json_decode($result['value'], true));
 			}
 		}
-
-		// Url
-		$this->registry->set('url', new \Opencart\System\Library\Url($this->config->get('config_url')));
 
 		// Set time zone
 		if ($this->config->get('config_timezone')) {
