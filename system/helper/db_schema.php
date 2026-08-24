@@ -267,35 +267,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'antispam',
-		'field' => [
-			[
-				'name'           => 'antispam_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'keyword',
-				'type' => 'varchar(64)'
-			]
-		],
-		'primary' => [
-			'antispam_id'
-		],
-		'index' => [
-			[
-				'name' => 'keyword',
-				'key'  => [
-					'keyword'
-				]
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'cart',
 		'field' => [
 			[
@@ -875,42 +846,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'customer_approval',
-		'field' => [
-			[
-				'name'           => 'customer_approval_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'customer_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'type',
-				'type' => 'varchar(9)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'customer_approval_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'customer_id',
-				'table' => 'customer',
-				'field' => 'customer_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'customer_authorize',
 		'field' => [
 			[
@@ -1176,39 +1111,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'customer_online',
-		'field' => [
-			[
-				'name' => 'ip',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name'    => 'customer_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'url',
-				'type' => 'text'
-			],
-			[
-				'name' => 'referer',
-				'type' => 'text'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'ip'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'customer_reward',
 		'field' => [
 			[
@@ -1242,46 +1144,6 @@ function oc_db_schema() {
 		],
 		'primary' => [
 			'customer_reward_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'customer_id',
-				'table' => 'customer',
-				'field' => 'customer_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'customer_token',
-		'field' => [
-			[
-				'name'           => 'customer_token_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'customer_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'code',
-				'type' => 'text'
-			],
-			[
-				'name' => 'type',
-				'type' => 'varchar(10)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'customer_token_id'
 		],
 		'foreign' => [
 			[
@@ -1333,87 +1195,6 @@ function oc_db_schema() {
 				'key'   => 'customer_id',
 				'table' => 'customer',
 				'field' => 'customer_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'customer_search',
-		'field' => [
-			[
-				'name'           => 'customer_search_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'language_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'customer_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'keyword',
-				'type' => 'varchar(255)'
-			],
-			[
-				'name' => 'category_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'sub_category',
-				'type' => 'tinyint(1)'
-			],
-			[
-				'name' => 'description',
-				'type' => 'tinyint(1)'
-			],
-			[
-				'name' => 'products',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'ip',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'customer_search_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			],
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			],
-			[
-				'key'   => 'customer_id',
-				'table' => 'customer',
-				'field' => 'customer_id'
-			],
-			[
-				'key'   => 'category_id',
-				'table' => 'category',
-				'field' => 'category_id'
 			]
 		],
 		'engine'  => 'InnoDB',
