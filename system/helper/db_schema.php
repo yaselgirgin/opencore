@@ -2245,36 +2245,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'manufacturer',
-		'field' => [
-			[
-				'name'           => 'manufacturer_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'image',
-				'type' => 'varchar(255)'
-			],
-			[
-				'name'    => 'sort_order',
-				'type'    => 'int(3)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'manufacturer_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'module',
 		'field' => [
 			[
@@ -2685,11 +2655,6 @@ function oc_db_schema() {
 				'key'   => 'stock_status_id',
 				'table' => 'stock_status',
 				'field' => 'stock_status_id'
-			],
-			[
-				'key'   => 'manufacturer_id',
-				'table' => 'manufacturer',
-				'field' => 'manufacturer_id'
 			],
 			[
 				'key'   => 'tax_class_id',
