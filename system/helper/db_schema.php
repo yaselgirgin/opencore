@@ -580,62 +580,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'coupon_history',
-		'field' => [
-			[
-				'name'           => 'coupon_history_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'coupon_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'order_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name'    => 'customer_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'amount',
-				'type' => 'decimal(15,4)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'coupon_history_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'coupon_id',
-				'table' => 'coupon',
-				'field' => 'coupon_id'
-			],
-			[
-				'key'   => 'order_id',
-				'table' => 'order',
-				'field' => 'order_id'
-			],
-			[
-				'key'   => 'customer_id',
-				'table' => 'customer',
-				'field' => 'customer_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'coupon_product',
 		'field' => [
 			[
@@ -1397,11 +1341,6 @@ function oc_db_schema() {
 				'key'   => 'customer_id',
 				'table' => 'customer',
 				'field' => 'customer_id'
-			],
-			[
-				'key'   => 'order_id',
-				'table' => 'order',
-				'field' => 'order_id'
 			]
 		],
 		'engine'  => 'InnoDB',
@@ -1487,11 +1426,6 @@ function oc_db_schema() {
 				'key'   => 'customer_id',
 				'table' => 'customer',
 				'field' => 'customer_id'
-			],
-			[
-				'key'   => 'order_id',
-				'table' => 'order',
-				'field' => 'order_id'
 			]
 		],
 		'engine'  => 'InnoDB',
