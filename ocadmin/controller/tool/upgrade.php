@@ -24,6 +24,8 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 		$data['current_version'] = VERSION;
 		$data['check'] = $this->url->link('tool/upgrade.check', 'user_token=' . $this->session->data['user_token']);
 		$data['prepare'] = $this->url->link('tool/upgrade.prepare', 'user_token=' . $this->session->data['user_token']);
+		$data['apply'] = $this->url->link('tool/upgrade.apply', 'user_token=' . $this->session->data['user_token']);
+		$data['recover'] = $this->url->link('tool/upgrade.recover', 'user_token=' . $this->session->data['user_token']);
 		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/upgrade');
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -62,7 +64,10 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 
 		$json = [];
 
-		if (!$this->user->hasPermission('modify', 'tool/upgrade')) {
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST') {
+			$json['success'] = false;
+			$json['error'] = $this->language->get('error_method');
+		} elseif (!$this->user->hasPermission('modify', 'tool/upgrade')) {
 			$json['success'] = false;
 			$json['error'] = $this->language->get('error_permission_modify');
 		} elseif (!isset($this->request->post['version']) || !is_string($this->request->post['version'])) {
@@ -76,6 +81,40 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 
 			if (!$result['success']) {
 				$json['error'] = $result['status'] === 'DOWNLOAD_FAILED' ? $this->language->get('error_download') : $this->language->get('error_validation');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	public function apply(): void {
+		$this->mutate('apply');
+	}
+
+	public function recover(): void {
+		$this->mutate('recover');
+	}
+
+	private function mutate(string $operation): void {
+		$this->load->language('tool/upgrade');
+		$json = [];
+
+		if (($this->request->server['REQUEST_METHOD'] ?? '') !== 'POST') {
+			$json = ['success' => false, 'error' => $this->language->get('error_method')];
+		} elseif (!$this->user->hasPermission('modify', 'tool/upgrade')) {
+			$json = ['success' => false, 'error' => $this->language->get('error_permission_modify')];
+		} elseif (!isset($this->request->post['version']) || !is_string($this->request->post['version'])) {
+			$json = ['success' => false, 'error' => $this->language->get('error_apply')];
+		} else {
+			$this->load->model('tool/upgrade');
+			$result = $operation === 'apply' ? $this->model_tool_upgrade->apply($this->request->post['version'], VERSION) : $this->model_tool_upgrade->recover($this->request->post['version']);
+			$json = $result;
+			if (!$result['success']) {
+				$json['error'] = $this->language->get('error_' . strtolower($result['status']));
+				if (!$json['error'] || $json['error'] === 'error_' . strtolower($result['status'])) {
+					$json['error'] = $this->language->get('error_apply');
+				}
 			}
 		}
 

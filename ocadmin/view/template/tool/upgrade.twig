@@ -32,6 +32,8 @@
         <button type="button" id="button-check" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> {{ button_check }}</button>
         {% if can_modify %}
           <button type="button" id="button-prepare" class="btn btn-warning" disabled><i class="fa-solid fa-box-archive"></i> {{ button_prepare }}</button>
+          <button type="button" id="button-apply" class="btn btn-danger" disabled><i class="fa-solid fa-play"></i> {{ button_apply }}</button>
+          <button type="button" id="button-recover" class="btn btn-outline-danger d-none"><i class="fa-solid fa-rotate-left"></i> {{ button_recover }}</button>
         {% endif %}
       </div>
     </div>
@@ -99,11 +101,49 @@ $('#button-prepare').on('click', function() {
 
             var message = json.status === 'ALREADY_STAGED' ? '{{ text_already_staged|escape('js') }}' : '{{ text_staged|escape('js') }}';
             $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + message + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            $('#button-apply').data('version', json.version).prop('disabled', false);
         },
         error: function() {
             $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_prepare|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
         }
     });
+});
+
+function mutateUpdate(url, version, element) {
+    $(element).prop('disabled', true);
+
+    $.ajax({
+        url: url,
+        type: 'post',
+        dataType: 'json',
+        data: {version: version},
+        success: function(json) {
+            $('#alert').empty();
+
+            if (!json.success) {
+                $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                if (json.status === 'ROLLBACK_FAILED' || json.status === 'RECOVERY_REQUIRED') {
+                    $('#button-recover').data('version', version).removeClass('d-none');
+                }
+                return;
+            }
+
+            var message = json.status === 'APPLIED' ? '{{ text_applied|escape('js') }}' : '{{ text_recovered|escape('js') }}';
+            $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + message + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            $('#button-recover').addClass('d-none');
+        },
+        error: function() {
+            $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_apply|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        }
+    });
+}
+
+$('#button-apply').on('click', function() {
+    mutateUpdate('{{ apply }}', $(this).data('version'), this);
+});
+
+$('#button-recover').on('click', function() {
+    mutateUpdate('{{ recover }}', $(this).data('version'), this);
 });
 //--></script>
 {{ footer }}
