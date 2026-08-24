@@ -210,7 +210,17 @@ $(document).on('submit', 'form', function(e) {
                     var target = $(form).attr('data-oc-target');
 
                     if (url !== undefined && target !== undefined) {
-                        $(target).load(url);
+                        var target_element = $(target);
+
+                        target_element.filter('[data-bs-toggle=\'tooltip\']').add(target_element.find('[data-bs-toggle=\'tooltip\']')).each(function() {
+                            var tooltip = bootstrap.Tooltip.getInstance(this);
+
+                            if (tooltip) {
+                                tooltip.dispose();
+                            }
+                        });
+
+                        target_element.load(url);
                     }
                 }
 
