@@ -25,26 +25,9 @@ $_['response_header']     = ['Content-Type: application/json; charset=utf-8'];
 $_['action_pre_action']  = [
 	'startup/setting',
 	'startup/session',
-	'startup/language',
 	'startup/error',
 	'startup/api'
 ];
 
 $_['action_default']     = 'api/system';
 $_['action_error']       = 'api/system.notFound';
-
-// Action Events
-$_['action_event']      = [
-	'controller/*/before' => [
-		1 => 'event/language.before'
-	],
-	'controller/*/after' => [
-		0 => 'event/language.after'
-	],
-	'view/*/before' => [
-		998 => 'event/language'
-	],
-	'language/*/after' => [
-		0 => 'startup/language.after'
-	]
-];
