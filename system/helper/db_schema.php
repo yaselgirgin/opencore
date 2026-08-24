@@ -2678,97 +2678,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'product_attribute',
-		'field' => [
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'attribute_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'language_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'text',
-				'type' => 'text'
-			]
-		],
-		'primary' => [
-			'product_id',
-			'attribute_id',
-			'language_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'attribute_id',
-				'table' => 'attribute',
-				'field' => 'attribute_id'
-			],
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'product_code',
-		'field' => [
-			[
-				'name'           => 'product_code_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'code',
-				'type' => 'varchar(48)'
-			],
-			[
-				'name' => 'value',
-				'type' => 'varchar(255)'
-			]
-		],
-		'primary' => [
-			'product_code_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			]
-		],
-		'index' => [
-			[
-				'name' => 'code',
-				'key'  => [
-					'code'
-				]
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'product_description',
 		'field' => [
 			[
@@ -2896,84 +2805,6 @@ function oc_db_schema() {
 				'key'   => 'customer_group_id',
 				'table' => 'customer_group',
 				'field' => 'customer_group_id'
-			]
-		],
-		'index' => [
-			[
-				'name' => 'product_id',
-				'key'  => [
-					'product_id'
-				]
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'product_filter',
-		'field' => [
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'filter_id',
-				'type' => 'int(11)'
-			]
-		],
-		'primary' => [
-			'product_id',
-			'filter_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'filter_id',
-				'table' => 'filter',
-				'field' => 'filter_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'product_image',
-		'field' => [
-			[
-				'name'           => 'product_image_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'image',
-				'type' => 'varchar(255)'
-			],
-			[
-				'name'    => 'sort_order',
-				'type'    => 'int(3)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'product_image_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
 			]
 		],
 		'index' => [
@@ -3178,39 +3009,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'product_related',
-		'field' => [
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'related_id',
-				'type' => 'int(11)'
-			]
-		],
-		'primary' => [
-			'product_id',
-			'related_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'related_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'product_reward',
 		'field' => [
 			[
@@ -3255,47 +3053,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'product_to_category',
-		'field' => [
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'category_id',
-				'type' => 'int(11)'
-			]
-		],
-		'primary' => [
-			'product_id',
-			'category_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'category_id',
-				'table' => 'category',
-				'field' => 'category_id'
-			]
-		],
-		'index' => [
-			[
-				'name' => 'category_id',
-				'key'  => [
-					'category_id'
-				]
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'product_to_download',
 		'field' => [
 			[
@@ -3321,50 +3078,6 @@ function oc_db_schema() {
 				'key'   => 'download_id',
 				'table' => 'download',
 				'field' => 'download_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'product_to_layout',
-		'field' => [
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name'    => 'layout_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'product_id',
-			'store_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			],
-			[
-				'key'   => 'layout_id',
-				'table' => 'layout',
-				'field' => 'layout_id'
 			]
 		],
 		'engine'  => 'InnoDB',
@@ -3399,34 +3112,6 @@ function oc_db_schema() {
 				'key'   => 'store_id',
 				'table' => 'store',
 				'field' => 'store_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'product_viewed',
-		'field' => [
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'viewed',
-				'type'    => 'int(11)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'product_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
 			]
 		],
 		'engine'  => 'InnoDB',
