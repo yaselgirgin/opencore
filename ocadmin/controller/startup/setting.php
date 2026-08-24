@@ -15,7 +15,7 @@ class Setting extends \Opencart\System\Engine\Controller {
 		// Setting
 		$this->load->model('setting/setting');
 
-		$results = $this->model_setting_setting->getSettings(0);
+		$results = $this->model_setting_setting->getSettings();
 
 		foreach ($results as $result) {
 			if (!$result['serialized']) {

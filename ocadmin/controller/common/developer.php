@@ -39,7 +39,7 @@ class Developer extends \Opencart\System\Engine\Controller {
 			// Setting
 			$this->load->model('setting/setting');
 
-			$this->model_setting_setting->editSetting('developer', $this->request->post, 0);
+			$this->model_setting_setting->editSetting('developer', $this->request->post);
 
 			$json['success'] = $this->language->get('text_developer_success');
 		}
