@@ -2457,31 +2457,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'statistics',
-		'field' => [
-			[
-				'name'           => 'statistics_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'code',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'value',
-				'type' => 'decimal(15,4)'
-			]
-		],
-		'primary' => [
-			'statistics_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'session',
 		'field' => [
 			[
@@ -2882,88 +2857,6 @@ function oc_db_schema() {
 		],
 		'primary' => [
 			'upload_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'seo_url',
-		'field' => [
-			[
-				'name'           => 'seo_url_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'language_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'key',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'value',
-				'type' => 'varchar(255)'
-			],
-			[
-				'name' => 'keyword',
-				'type' => 'varchar(768)'
-			],
-			[
-				'name'    => 'sort_order',
-				'type'    => 'int(3)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'seo_url_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			],
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'index' => [
-			[
-				'name' => 'store',
-				'key'  => [
-					'store_id'
-				]
-			],
-			[
-				'name' => 'language',
-				'key'  => [
-					'language_id'
-				]
-			],
-			[
-				'name' => 'keyword',
-				'key'  => [
-					'keyword'
-				]
-			],
-			[
-				'name' => 'query',
-				'key'  => [
-					'key',
-					'value'
-				]
-			]
 		],
 		'engine'  => 'InnoDB',
 		'charset' => 'utf8mb4',
