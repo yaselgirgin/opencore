@@ -7,6 +7,27 @@ if (!is_file('config.php')) {
 // Config
 require_once('config.php');
 
+$cron_id = null;
+
+if (PHP_SAPI === 'cli') {
+	$arguments = $_SERVER['argv'] ?? [];
+	array_shift($arguments);
+
+	if ($arguments) {
+		if (count($arguments) !== 1 || !preg_match('/^--cron-id=([1-9][0-9]*)$/', $arguments[0], $matches)) {
+			fwrite(STDERR, 'Usage: php cron.php [--cron-id=<positive integer>]' . PHP_EOL);
+			exit(1);
+		}
+
+		$cron_id = filter_var($matches[1], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+		if ($cron_id === false) {
+			fwrite(STDERR, 'Usage: php cron.php [--cron-id=<positive integer>]' . PHP_EOL);
+			exit(1);
+		}
+	}
+}
+
 // Startup
 require_once(DIR_SYSTEM . 'startup.php');
 
@@ -219,7 +240,17 @@ foreach ($config->get('action_pre_action') as $pre_action) {
 }
 
 // Dispatch
-$loader->controller('cron/cron');
+$result = $loader->controller('cron/cron', $cron_id);
 
 // Output
 $response->output();
+
+if (PHP_SAPI === 'cli') {
+	if ($result instanceof \Throwable) {
+		$log->write('Cron runner failed: ' . $result->getMessage());
+
+		exit(1);
+	}
+
+	exit($result === 0 ? 0 : 1);
+}

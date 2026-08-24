@@ -22,11 +22,7 @@ class Currency extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
-		try {
-			$this->load->model('localisation/currency');
-			$this->model_localisation_currency->refreshRates((string)$this->config->get('config_currency'));
-		} catch (\Throwable $e) {
-			$this->log->write('Currency cron refresh failed: ' . $e->getMessage());
-		}
+		$this->load->model('localisation/currency');
+		$this->model_localisation_currency->refreshRates((string)$this->config->get('config_currency'));
 	}
 }

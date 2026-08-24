@@ -50,14 +50,20 @@
                       <td class="text-end">
                         {% if can_modify %}
                           {% if cron.status %}
-                            <form action="{{ cron.disable }}" method="post" data-oc-toggle="ajax">
+                            {% if cron.can_run %}
+                              <form action="{{ cron.run }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
+                                <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
+                                <button type="submit" data-bs-toggle="tooltip" title="{{ button_run }}" class="btn btn-primary"><i class="fa-solid fa-play"></i></button>
+                              </form>
+                            {% endif %}
+                            <form action="{{ cron.disable }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
                               <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
-                              <button type="submit" data-oc-toggle="tooltip" title="{{ button_disable }}" class="btn btn-warning"><i class="fa-solid fa-pause"></i></button>
+                              <button type="submit" data-bs-toggle="tooltip" title="{{ button_disable }}" class="btn btn-warning"><i class="fa-solid fa-pause"></i></button>
                             </form>
                           {% else %}
-                            <form action="{{ cron.enable }}" method="post" data-oc-toggle="ajax">
+                            <form action="{{ cron.enable }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
                               <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
-                              <button type="submit" data-oc-toggle="tooltip" title="{{ button_enable }}" class="btn btn-success"><i class="fa-solid fa-play"></i></button>
+                              <button type="submit" data-bs-toggle="tooltip" title="{{ button_enable }}" class="btn btn-success"><i class="fa-solid fa-play"></i></button>
                             </form>
                           {% endif %}
                         {% endif %}
