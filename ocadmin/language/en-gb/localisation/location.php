@@ -19,7 +19,7 @@ $_['entry_name']       = 'Location Name';
 $_['entry_address']    = 'Address';
 $_['entry_geocode']    = 'Geocode';
 $_['entry_telephone']  = 'Telephone';
-$_['entry_image']      = 'Image';
+$_['entry_image']      = 'Location Image';
 $_['entry_open']       = 'Opening Times';
 $_['entry_comment']    = 'Comment';
 
