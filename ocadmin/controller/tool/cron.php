@@ -60,6 +60,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 			'href' => $this->url->link('tool/cron', 'user_token=' . $this->session->data['user_token'] . $url)
 		];
 
+		$data['refresh'] = $this->url->link('tool/cron', 'user_token=' . $this->session->data['user_token'] . $url);
 		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/cron');
 		$data['scheduler_command'] = 'php "' . DIR_OPENCART . 'cron.php"';
 		$data['crons'] = [];
@@ -192,7 +193,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 				$json['error'] = $this->language->get('error_run');
 			} elseif ($this->runProcess($cron_id)) {
 				$json['success'] = $this->language->get('text_run_success');
-				$json['redirect'] = $this->url->link('tool/cron', 'user_token=' . $this->session->data['user_token'], true);
 			} else {
 				$json['error'] = $this->language->get('error_run');
 			}
@@ -226,7 +226,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 			$this->model_setting_cron->editStatus((int)$this->request->post['cron_id'], $status);
 
 			$json['success'] = $this->language->get('text_success');
-			$json['redirect'] = $this->url->link('tool/cron', 'user_token=' . $this->session->data['user_token'], true);
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

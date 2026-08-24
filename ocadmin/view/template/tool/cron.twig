@@ -17,7 +17,7 @@
         <input type="text" value="{{ scheduler_command|e('html_attr') }}" id="input-scheduler-command" class="form-control" readonly/>
       </div>
     </div>
-    <div class="card">
+    <div id="cron-list" class="card">
       <div class="card-header"><i class="fa-solid fa-list"></i> {{ text_list }}</div>
       <div class="card-body">
         <div class="table-responsive">
@@ -51,17 +51,17 @@
                         {% if can_modify %}
                           {% if cron.status %}
                             {% if cron.can_run %}
-                              <form action="{{ cron.run }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
+                              <form action="{{ cron.run }}" method="post" data-oc-toggle="ajax" data-oc-load="{{ refresh }} #cron-list > *" data-oc-target="#cron-list" class="d-inline-block">
                                 <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
                                 <button type="submit" data-bs-toggle="tooltip" title="{{ button_run }}" class="btn btn-primary"><i class="fa-solid fa-play"></i></button>
                               </form>
                             {% endif %}
-                            <form action="{{ cron.disable }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
+                            <form action="{{ cron.disable }}" method="post" data-oc-toggle="ajax" data-oc-load="{{ refresh }} #cron-list > *" data-oc-target="#cron-list" class="d-inline-block">
                               <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
                               <button type="submit" data-bs-toggle="tooltip" title="{{ button_disable }}" class="btn btn-warning"><i class="fa-solid fa-pause"></i></button>
                             </form>
                           {% else %}
-                            <form action="{{ cron.enable }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
+                            <form action="{{ cron.enable }}" method="post" data-oc-toggle="ajax" data-oc-load="{{ refresh }} #cron-list > *" data-oc-target="#cron-list" class="d-inline-block">
                               <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
                               <button type="submit" data-bs-toggle="tooltip" title="{{ button_enable }}" class="btn btn-success"><i class="fa-solid fa-play"></i></button>
                             </form>
