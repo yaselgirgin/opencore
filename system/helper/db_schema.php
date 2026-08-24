@@ -1024,56 +1024,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'customer_affiliate_report',
-		'field' => [
-			[
-				'name'           => 'customer_affiliate_report_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'customer_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'ip',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name' => 'country',
-				'type' => 'varchar(2)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'customer_affiliate_report_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'customer_id',
-				'table' => 'customer',
-				'field' => 'customer_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'customer_approval',
 		'field' => [
 			[
@@ -2515,56 +2465,6 @@ function oc_db_schema() {
 		],
 		'primary' => [
 			'marketing_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'marketing_report',
-		'field' => [
-			[
-				'name'           => 'marketing_report_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'marketing_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'ip',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name' => 'country',
-				'type' => 'varchar(2)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'marketing_report_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'marketing_id',
-				'table' => 'marketing',
-				'field' => 'marketing_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
 		],
 		'engine'  => 'InnoDB',
 		'charset' => 'utf8mb4',
