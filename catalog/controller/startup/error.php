@@ -61,11 +61,9 @@ class Error extends \Opencart\System\Engine\Controller {
 			$this->log->write('PHP ' . $error . ':  ' . $message . ' in ' . $file . ' on line ' . $line);
 		}
 
-		if ($this->config->get('config_error_display')) {
-			echo '<b>' . $error . '</b>: ' . $message . ' in <b>' . $file . '</b> on line <b>' . $line . '</b>';
-		} elseif ($error === 'Fatal Error' || $error === 'Unknown') {
-			header('Location: ' . $this->config->get('error_page'));
-			exit();
+		if (in_array($code, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_USER_ERROR, E_RECOVERABLE_ERROR], true)) {
+			$this->outputError();
+			exit(1);
 		}
 
 		return true;
@@ -99,11 +97,21 @@ class Error extends \Opencart\System\Engine\Controller {
 			$this->log->write(trim($output));
 		}
 
-		if ($this->config->get('config_error_display')) {
-			echo $output;
-		} else {
-			header('Location: ' . $this->config->get('error_page'));
-			exit();
-		}
+		$this->outputError();
+	}
+
+	/**
+	 * Output Error
+	 *
+	 * @return void
+	 */
+	private function outputError(): void {
+		$this->response->addHeader(($this->request->server['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' 500 Internal Server Error');
+		$this->response->addHeader('Content-Type: application/json; charset=utf-8');
+		$this->response->setOutput(json_encode([
+			'success' => false,
+			'error'   => 'Internal Server Error'
+		]));
+		$this->response->output();
 	}
 }
