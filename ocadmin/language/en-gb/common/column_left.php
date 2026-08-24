@@ -15,6 +15,7 @@ $_['text_localisation']        = 'Localisation';
 $_['text_location']            = 'Store Location';
 $_['text_maintenance']         = 'Maintenance';
 $_['text_navigation']          = 'Navigation';
+$_['text_runtime_diagnostics'] = 'Runtime Diagnostics';
 $_['text_setting']             = 'Settings';
 $_['text_startup']             = 'Startup';
 $_['text_system']              = 'System';
