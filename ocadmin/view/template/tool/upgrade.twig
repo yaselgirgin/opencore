@@ -11,109 +11,63 @@
     </div>
   </div>
   <div class="container-fluid">
+    <div id="alert"></div>
     <div class="card">
       <div class="card-header"><i class="fa-solid fa-rotate"></i> {{ text_upgrade }}</div>
       <div class="card-body">
-        <fieldset>
-          <legend>{{ text_information }}</legend>
-          <div class="row mb-3">
-            <div class="col">
-              <div class="form-control border rounded-start">
-                <div class="lead"><strong>{{ text_current_version }}</strong>
-                  <br/>
-                  <span{% if upgrade %} class="text-danger"{% endif %}>{{ current_version }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="form-control border rounded-start">
-                <div class="lead"><strong>{{ text_latest_version }}</strong>
-                  <br/>
-                  {{ latest_version }}
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="form-control border rounded-start">
-                <div class="lead"><strong>{{ text_date_added }}</strong>
-                  <br/>
-                  {{ date_added }}
-                </div>
-              </div>
-            </div>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <strong>{{ text_current_version }}</strong>
+            <div class="fs-4">{{ current_version }}</div>
           </div>
-          <div class="form-control border rounded-start">
-            <div class="lead"><strong>{{ text_change }}</strong>
-              <br/>
-              {{ log }}
-            </div>
+          <div class="col-md-4">
+            <strong>{{ text_latest_version }}</strong>
+            <div id="latest-version" class="fs-4">-</div>
           </div>
-        </fieldset>
-        <fieldset>
-          <legend>{{ text_status }}</legend>
-          <div class="input-group input-group-lg">
-            <button type="button" id="button-upgrade" class="btn btn-warning btn-lg"{% if not upgrade %} disabled{% endif %}><i class="fa-solid fa-level-up-alt"></i> {{ button_upgrade }}</button>
-            <input type="text" id="input-upgrade" value="{{ text_ready }}" class="form-control bg-white" readonly/>
+          <div class="col-md-4">
+            <strong>{{ text_status }}</strong>
+            <div id="upgrade-status" class="fs-4">{{ text_not_checked }}</div>
           </div>
-        </fieldset>
+        </div>
+        <button type="button" id="button-check" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> {{ button_check }}</button>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript"><!--
-$('#button-upgrade').on('click', function() {
+$('#button-check').on('click', function() {
     var element = this;
 
-    $(element).button('loading');
+    $(element).prop('disabled', true);
 
-    if (confirm('{{ text_confirm }}')) {
-        $('#progress').html('{{ text_download|escape('js') }}');
+    $.ajax({
+        url: '{{ check }}',
+        dataType: 'json',
+        complete: function() {
+            $(element).prop('disabled', false);
+        },
+        success: function(json) {
+            $('#alert').empty();
 
-        var next = 'index.php?route=tool/upgrade.download&user_token={{ user_token }}&version={{ latest_version }}';
+            if (!json.success) {
+                $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                return;
+            }
 
-        var upgrade = function() {
-            return $.ajax({
-                url: next,
-                dataType: 'json',
-                success: function(json) {
-                    console.log(json);
+            $('#latest-version').text(json.latest_version || '-');
 
-                    $('#input-upgrade').removeClass('is-valid is-invalid');
-
-                    if (json['error']) {
-                        $('#input-upgrade').val(json['error']);
-                        $('#input-upgrade').addClass('is-invalid');
-
-                        $(element).button('reset');
-                    }
-
-                    if (json['text']) {
-                        $('#input-upgrade').val(json['text']);
-                    }
-
-                    if (json['success']) {
-                        $('#input-upgrade').val(json['success']);
-                        $('#input-upgrade').addClass('is-valid');
-
-                        $(element).button('reset');
-                    }
-
-                    if (json['next']) {
-                        next = json['next'];
-
-                        chain.attach(upgrade);
-                    }
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-
-                    $(element).button('reset');
-                }
-            });
-        };
-
-        chain.attach(upgrade);
-    }
+            if (json.status === 'UPDATE_AVAILABLE') {
+                $('#upgrade-status').text('{{ text_update_available|escape('js') }}').removeClass('text-success text-muted').addClass('text-warning');
+            } else if (json.status === 'UP_TO_DATE') {
+                $('#upgrade-status').text('{{ text_up_to_date|escape('js') }}').removeClass('text-warning text-muted').addClass('text-success');
+            } else {
+                $('#upgrade-status').text('{{ text_no_release|escape('js') }}').removeClass('text-warning text-success').addClass('text-muted');
+            }
+        },
+        error: function() {
+            $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_check|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        }
+    });
 });
 //--></script>
 {{ footer }}

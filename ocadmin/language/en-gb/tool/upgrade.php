@@ -1,30 +1,20 @@
 <?php
 // Heading
-$_['heading_title']        = 'Upgrade';
+$_['heading_title']        = 'OpenCore Upgrade';
 
 // Text
-$_['text_success']         = 'Success: You are using the latest version %s!';
-$_['text_upgrade']         = 'Check Latest Version';
-$_['text_information']     = 'Version Information';
+$_['text_upgrade']         = 'Release Discovery';
 $_['text_current_version'] = 'Current Version';
 $_['text_latest_version']  = 'Latest Version';
-$_['text_date_added']      = 'Release Date';
-$_['text_change']          = 'Change Log';
-$_['text_status']          = 'Upgrade Status';
-$_['text_ready']           = 'Click the upgrade button to upgrade to the latest version...';
-$_['text_download']        = 'Downloading latest...';
-$_['text_install']         = 'Copying files...';
-$_['text_patch']           = 'Applying patches...';
+$_['text_status']          = 'Status';
+$_['text_not_checked']     = 'Not checked';
+$_['text_up_to_date']      = 'Up to Date';
+$_['text_update_available'] = 'Update Available';
+$_['text_no_release']      = 'No OpenCore release is currently available.';
 
 // Button
-$_['button_upgrade']       = 'Upgrade';
+$_['button_check']         = 'Check for Updates';
 
 // Error
-$_['error_permission']     = 'Warning: You do not have permission to modify upgrades!';
-$_['error_connection']     = 'Could not connect to the upgrade server!';
-$_['error_version']        = 'Version is lower than the current version!';
-$_['error_download']       = 'Upgrade could not be downloaded!';
-$_['error_file']           = 'Upgrade file could not be found!';
-$_['error_directory']      = 'Could not create directory %s!';
-$_['error_copy']           = 'Could not copy file %s to %s!';
-$_['error_unzip']          = 'Zip file could not be opened!';
+$_['error_permission']     = 'Warning: You do not have permission to access upgrades!';
+$_['error_check']          = 'Unable to check for updates.';
