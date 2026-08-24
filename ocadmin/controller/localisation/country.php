@@ -440,9 +440,6 @@ class Country extends \Opencart\System\Engine\Controller {
 		// Store
 		$this->load->model('setting/store');
 
-		// Customer
-		$this->load->model('customer/customer');
-
 		// Zone
 		$this->load->model('localisation/zone');
 
@@ -455,12 +452,6 @@ class Country extends \Opencart\System\Engine\Controller {
 
 			if ($store_total) {
 				$json['error'] = sprintf($this->language->get('error_store'), $store_total);
-			}
-
-			$address_total = $this->model_customer_customer->getTotalAddressesByCountryId($country_id);
-
-			if ($address_total) {
-				$json['error'] = sprintf($this->language->get('error_address'), $address_total);
 			}
 
 			$zone_total = $this->model_localisation_zone->getTotalZonesByCountryId($country_id);

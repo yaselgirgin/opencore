@@ -427,9 +427,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 		// Store
 		$this->load->model('setting/store');
 
-		// Customer
-		$this->load->model('customer/customer');
-
 		foreach ($selected as $zone_id) {
 			if ((int)$this->config->get('config_zone_id') == (int)$zone_id) {
 				$json['error'] = $this->language->get('error_default');
@@ -439,12 +436,6 @@ class Zone extends \Opencart\System\Engine\Controller {
 
 			if ($store_total) {
 				$json['error'] = sprintf($this->language->get('error_store'), $store_total);
-			}
-
-			$address_total = $this->model_customer_customer->getTotalAddressesByZoneId((int)$zone_id);
-
-			if ($address_total) {
-				$json['error'] = sprintf($this->language->get('error_address'), $address_total);
 			}
 
 		}
