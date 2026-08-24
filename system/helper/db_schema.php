@@ -3058,65 +3058,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'gdpr',
-		'field' => [
-			[
-				'name'           => 'gdpr_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'language_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'code',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name' => 'email',
-				'type' => 'varchar(96)'
-			],
-			[
-				'name' => 'action',
-				'type' => 'varchar(6)'
-			],
-			[
-				'name'    => 'status',
-				'type'    => 'tinyint(1)',
-				'default' => '0'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'gdpr_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			],
-			[
-				'key'   => 'language_id',
-				'table' => 'language',
-				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'geo_zone',
 		'field' => [
 			[
