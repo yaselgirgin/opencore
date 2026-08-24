@@ -1,6 +1,6 @@
 <?php
 // Version
-define('VERSION', '4.1.0.3');
+require_once(dirname(__DIR__) . '/system/version.php');
 
 // Configuration
 if (is_file('config.php')) {
