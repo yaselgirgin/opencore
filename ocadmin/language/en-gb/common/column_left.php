@@ -3,6 +3,7 @@
 $_['text_address_format']      = 'Address Format';
 $_['text_backup']              = 'Backup / Restore';
 $_['text_country']             = 'Countries';
+$_['text_cron']                = 'Cron Jobs';
 $_['text_currency']            = 'Currencies';
 $_['text_dashboard']           = 'Dashboard';
 $_['text_developer']           = 'Developer';
