@@ -174,14 +174,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 			$data['config_invoice_prefix'] = 'INV-' . date('Y') . '-00';
 		}
 
-		// Api
-		$this->load->model('user/api');
-
-		$data['apis'] = $this->model_user_api->getApis();
-
-		$data['config_api_id'] = $this->config->get('config_api_id');
-
-
 		// Affiliate
 		$data['config_affiliate_status'] = $this->config->get('config_affiliate_status');
 		$data['config_affiliate_approval'] = $this->config->get('config_affiliate_approval');

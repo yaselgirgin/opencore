@@ -17,24 +17,6 @@ class Session extends \Opencart\System\Engine\Controller {
 		$session = new \Opencart\System\Library\Session($this->config->get('session_engine'), $this->registry);
 		$this->registry->set('session', $session);
 
-		// API
-		if (isset($this->request->get['route']) && substr(strtolower((string)$this->request->get['route']), 0, 4) == 'api/' && isset($this->request->get['api_token'])) {
-			$this->load->model('setting/api');
-
-			$this->model_setting_api->cleanSessions();
-
-			// Make sure the IP is allowed
-			$api_info = $this->model_setting_api->getApiByToken($this->request->get['api_token']);
-
-			if ($api_info) {
-				$this->session->start($this->request->get['api_token']);
-
-				$this->model_setting_api->updateSession($api_info['api_session_id']);
-			}
-
-			return;
-		}
-
 		/*
 		We are adding the session cookie outside of the session class as I believe
 		PHP messed up in a big way handling sessions. Why in the hell is it so hard to
