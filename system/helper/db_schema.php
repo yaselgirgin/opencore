@@ -6232,45 +6232,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'startup',
-		'field' => [
-			[
-				'name'           => 'startup_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'description',
-				'type' => 'text'
-			],
-			[
-				'name' => 'code',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'action',
-				'type' => 'text'
-			],
-			[
-				'name'    => 'status',
-				'type'    => 'tinyint(1)',
-				'default' => '0'
-			],
-			[
-				'name'    => 'sort_order',
-				'type'    => 'int(3)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'startup_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'statistics',
 		'field' => [
 			[
