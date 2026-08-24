@@ -30,6 +30,9 @@
           </div>
         </div>
         <button type="button" id="button-check" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> {{ button_check }}</button>
+        {% if can_modify %}
+          <button type="button" id="button-prepare" class="btn btn-warning" disabled><i class="fa-solid fa-box-archive"></i> {{ button_prepare }}</button>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -58,14 +61,47 @@ $('#button-check').on('click', function() {
 
             if (json.status === 'UPDATE_AVAILABLE') {
                 $('#upgrade-status').text('{{ text_update_available|escape('js') }}').removeClass('text-success text-muted').addClass('text-warning');
+                $('#button-prepare').data('version', json.latest_version).prop('disabled', false);
             } else if (json.status === 'UP_TO_DATE') {
                 $('#upgrade-status').text('{{ text_up_to_date|escape('js') }}').removeClass('text-warning text-muted').addClass('text-success');
+                $('#button-prepare').data('version', '').prop('disabled', true);
             } else {
                 $('#upgrade-status').text('{{ text_no_release|escape('js') }}').removeClass('text-warning text-success').addClass('text-muted');
+                $('#button-prepare').data('version', '').prop('disabled', true);
             }
         },
         error: function() {
             $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_check|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        }
+    });
+});
+
+$('#button-prepare').on('click', function() {
+    var element = this;
+
+    $(element).prop('disabled', true);
+
+    $.ajax({
+        url: '{{ prepare }}',
+        type: 'post',
+        dataType: 'json',
+        data: {version: $(element).data('version')},
+        complete: function() {
+            $(element).prop('disabled', false);
+        },
+        success: function(json) {
+            $('#alert').empty();
+
+            if (!json.success) {
+                $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                return;
+            }
+
+            var message = json.status === 'ALREADY_STAGED' ? '{{ text_already_staged|escape('js') }}' : '{{ text_staged|escape('js') }}';
+            $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + message + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+        },
+        error: function() {
+            $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_prepare|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
         }
     });
 });

@@ -23,6 +23,8 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 
 		$data['current_version'] = VERSION;
 		$data['check'] = $this->url->link('tool/upgrade.check', 'user_token=' . $this->session->data['user_token']);
+		$data['prepare'] = $this->url->link('tool/upgrade.prepare', 'user_token=' . $this->session->data['user_token']);
+		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/upgrade');
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -48,6 +50,32 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 			} else {
 				$json['success'] = false;
 				$json['error'] = $this->language->get('error_check');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	public function prepare(): void {
+		$this->load->language('tool/upgrade');
+
+		$json = [];
+
+		if (!$this->user->hasPermission('modify', 'tool/upgrade')) {
+			$json['success'] = false;
+			$json['error'] = $this->language->get('error_permission_modify');
+		} elseif (!isset($this->request->post['version']) || !is_string($this->request->post['version'])) {
+			$json['success'] = false;
+			$json['error'] = $this->language->get('error_prepare');
+		} else {
+			$this->load->model('tool/upgrade');
+
+			$result = $this->model_tool_upgrade->prepare($this->request->post['version'], VERSION);
+			$json = $result;
+
+			if (!$result['success']) {
+				$json['error'] = $result['status'] === 'DOWNLOAD_FAILED' ? $this->language->get('error_download') : $this->language->get('error_validation');
 			}
 		}
 
