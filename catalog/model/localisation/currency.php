@@ -9,6 +9,37 @@ namespace Opencart\Catalog\Model\Localisation;
  */
 class Currency extends \Opencart\System\Engine\Model {
 	/**
+	 * Refresh currency values from the European Central Bank.
+	 *
+	 * @param string $base
+	 *
+	 * @return void
+	 */
+	public function refreshRates(string $base): void {
+		$ecb = $this->load->library('currency/ecb');
+		$rates = $ecb->getRates($base);
+
+		$values = [];
+		$query = $this->db->query("SELECT `code` FROM `" . DB_PREFIX . "currency`");
+
+		foreach ($query->rows as $currency) {
+			$code = $currency['code'];
+
+			if (isset($rates[$code]) && is_numeric($rates[$code]) && (float)$rates[$code] > 0) {
+				$values[$code] = (float)$rates[$code];
+			}
+		}
+
+		$values[strtoupper($base)] = 1.0;
+
+		foreach ($values as $code => $value) {
+			$this->db->query("UPDATE `" . DB_PREFIX . "currency` SET `value` = '" . (float)$value . "', `date_modified` = NOW() WHERE `code` = '" . $this->db->escape($code) . "'");
+		}
+
+		$this->cache->delete('currency');
+	}
+
+	/**
 	 * Edit Value By Code
 	 *
 	 * @param string $code
