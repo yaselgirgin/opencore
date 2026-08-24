@@ -552,30 +552,6 @@ function oc_db_schema() {
 		'collate' => 'utf8mb4_unicode_ci'
 	];
 
-	$tables[] = [
-		'name'  => 'geo_zone',
-		'field' => [
-			[
-				'name'           => 'geo_zone_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'name',
-				'type' => 'varchar(32)'
-			],
-			[
-				'name' => 'description',
-				'type' => 'varchar(255)'
-			]
-		],
-		'primary' => [
-			'geo_zone_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
 
 	$tables[] = [
 		'name'  => 'language',
@@ -1295,52 +1271,6 @@ function oc_db_schema() {
 		'collate' => 'utf8mb4_unicode_ci'
 	];
 
-	$tables[] = [
-		'name'  => 'zone_to_geo_zone',
-		'field' => [
-			[
-				'name'           => 'zone_to_geo_zone_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'geo_zone_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name' => 'country_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'zone_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'zone_to_geo_zone_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'geo_zone_id',
-				'table' => 'geo_zone',
-				'field' => 'geo_zone_id'
-			],
-			[
-				'key'   => 'country_id',
-				'table' => 'country',
-				'field' => 'country_id'
-			],
-			[
-				'key'   => 'zone_id',
-				'table' => 'zone',
-				'field' => 'zone_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
 
 	return $tables;
 }
