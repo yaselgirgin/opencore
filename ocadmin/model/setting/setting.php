@@ -51,6 +51,21 @@ class Setting extends \Opencart\System\Engine\Model {
 	}
 
 	/**
+	 * Edit Value
+	 *
+	 * Update an existing global setting value without rewriting its group.
+	 *
+	 * @param string $code
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return void
+	 */
+	public function editValue(string $code, string $key, string $value): void {
+		$this->db->query("UPDATE `" . DB_PREFIX . "setting` SET `value` = '" . $this->db->escape($value) . "', `serialized` = '0' WHERE `code` = '" . $this->db->escape($code) . "' AND `key` = '" . $this->db->escape($key) . "'");
+	}
+
+	/**
 	 * Delete Setting
 	 *
 	 * @param string $code

@@ -91,6 +91,16 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$data['config_currency'] = $this->config->get('config_currency');
 
+		if ($this->config->has('config_currency_auto')) {
+			$data['config_currency_auto'] = (bool)$this->config->get('config_currency_auto');
+		} else {
+			$this->load->model('setting/cron');
+
+			$currency_cron = $this->model_setting_cron->getCronByCode('currency');
+
+			$data['config_currency_auto'] = $currency_cron && $currency_cron['action'] == 'cron/currency' && $currency_cron['status'];
+		}
+
 		// Length Class
 		$this->load->model('localisation/length_class');
 

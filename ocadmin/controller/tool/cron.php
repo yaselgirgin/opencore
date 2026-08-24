@@ -223,7 +223,15 @@ class Cron extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/cron');
 
-			$this->model_setting_cron->editStatus((int)$this->request->post['cron_id'], $status);
+			$cron_id = (int)$this->request->post['cron_id'];
+			$cron_info = $this->model_setting_cron->getCron($cron_id);
+
+			$this->model_setting_cron->editStatus($cron_id, $status);
+
+			if ($cron_info && $cron_info['code'] == 'currency' && $cron_info['action'] == 'cron/currency') {
+				$this->load->model('setting/setting');
+				$this->model_setting_setting->editValue('config', 'config_currency_auto', (string)(int)$status);
+			}
 
 			$json['success'] = $this->language->get('text_success');
 		}
