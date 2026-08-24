@@ -1932,56 +1932,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'download_report',
-		'field' => [
-			[
-				'name'           => 'download_report_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'download_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'ip',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name' => 'country',
-				'type' => 'varchar(2)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'download_report_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'download_id',
-				'table' => 'download',
-				'field' => 'download_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'event',
 		'field' => [
 			[
@@ -2527,84 +2477,6 @@ function oc_db_schema() {
 		],
 		'primary' => [
 			'manufacturer_id'
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'manufacturer_to_layout',
-		'field' => [
-			[
-				'name' => 'manufacturer_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name'    => 'layout_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'manufacturer_id',
-			'store_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'manufacturer_id',
-				'table' => 'manufacturer',
-				'field' => 'manufacturer_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			],
-			[
-				'key'   => 'layout_id',
-				'table' => 'layout',
-				'field' => 'layout_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'manufacturer_to_store',
-		'field' => [
-			[
-				'name' => 'manufacturer_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			]
-		],
-		'primary' => [
-			'manufacturer_id',
-			'store_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'manufacturer_id',
-				'table' => 'manufacturer',
-				'field' => 'manufacturer_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
 		],
 		'engine'  => 'InnoDB',
 		'charset' => 'utf8mb4',
@@ -4401,56 +4273,6 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
-		'name'  => 'product_report',
-		'field' => [
-			[
-				'name'           => 'product_report_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name' => 'product_id',
-				'type' => 'int(11)'
-			],
-			[
-				'name'    => 'store_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'ip',
-				'type' => 'varchar(40)'
-			],
-			[
-				'name' => 'country',
-				'type' => 'varchar(2)'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'product_report_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'store_id',
-				'table' => 'store',
-				'field' => 'store_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
 		'name'  => 'product_reward',
 		'field' => [
 			[
@@ -4948,80 +4770,6 @@ function oc_db_schema() {
 				'key'   => 'language_id',
 				'table' => 'language',
 				'field' => 'language_id'
-			]
-		],
-		'engine'  => 'InnoDB',
-		'charset' => 'utf8mb4',
-		'collate' => 'utf8mb4_unicode_ci'
-	];
-
-	$tables[] = [
-		'name'  => 'review',
-		'field' => [
-			[
-				'name'           => 'review_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
-			],
-			[
-				'name'    => 'product_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name'    => 'customer_id',
-				'type'    => 'int(11)',
-				'default' => '0'
-			],
-			[
-				'name' => 'author',
-				'type' => 'varchar(64)'
-			],
-			[
-				'name' => 'text',
-				'type' => 'text'
-			],
-			[
-				'name'    => 'rating',
-				'type'    => 'int(1)',
-				'default' => '0'
-
-			],
-			[
-				'name'    => 'status',
-				'type'    => 'tinyint(1)',
-				'default' => '0'
-			],
-			[
-				'name' => 'date_added',
-				'type' => 'datetime'
-			],
-			[
-				'name' => 'date_modified',
-				'type' => 'datetime'
-			]
-		],
-		'primary' => [
-			'review_id'
-		],
-		'foreign' => [
-			[
-				'key'   => 'product_id',
-				'table' => 'product',
-				'field' => 'product_id'
-			],
-			[
-				'key'   => 'customer_id',
-				'table' => 'customer',
-				'field' => 'customer_id'
-			]
-		],
-		'index' => [
-			[
-				'name' => 'product_id',
-				'key'  => [
-					'product_id'
-				]
 			]
 		],
 		'engine'  => 'InnoDB',
