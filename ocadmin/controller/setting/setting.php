@@ -114,8 +114,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		$data['config_currency'] = $this->config->get('config_currency');
 
-		$data['config_currency_auto'] = $this->config->get('config_currency_auto');
-
 		// Length Class
 		$this->load->model('localisation/length_class');
 

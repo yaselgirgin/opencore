@@ -24,12 +24,6 @@ class Currency extends \Opencart\System\Engine\Controller {
 			return;
 		}
 
-		$auto = isset($args[1]['config_currency_auto']) ? (bool)$args[1]['config_currency_auto'] : (bool)$this->config->get('config_currency_auto');
-
-		if (!$auto) {
-			return;
-		}
-
 		try {
 			$this->load->model('localisation/currency');
 			$this->model_localisation_currency->refreshRates($args[1]['config_currency']);
