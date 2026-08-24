@@ -179,7 +179,7 @@ class Upgrade extends \Opencart\System\Engine\Model {
 				return ['success' => true, 'status' => 'STAGED', 'version' => $version];
 			} catch (\Throwable $throwable) {
 				$this->log->write('OpenCore unstarted apply recovery failed for ' . $version . ': ' . $throwable->getMessage());
-				return ['success' => false, 'status' => 'RECOVERY_FAILED'];
+				return ['success' => false, 'status' => 'RECOVERY_REQUIRED'];
 			}
 		}
 
@@ -194,8 +194,10 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			if ($manifest['database']['required']) {
 				return ['success' => false, 'status' => 'DATABASE_UPDATE_NOT_SUPPORTED'];
 			}
-			if ($manifest['vendor']['included']) {
-				return ['success' => false, 'status' => 'VENDOR_APPLY_NOT_SUPPORTED'];
+			foreach (['backup/', 'vendor-candidate/', 'vendor-swap/', 'vendor-restore/', 'vendor-failed/'] as $workspace) {
+				if (file_exists($root . $workspace)) {
+					return ['success' => false, 'status' => 'RECOVERY_REQUIRED'];
+				}
 			}
 		} catch (\Throwable $throwable) {
 			$this->log->write('OpenCore filesystem apply preflight failed for ' . $version . ': ' . $throwable->getMessage());
@@ -204,11 +206,43 @@ class Upgrade extends \Opencart\System\Engine\Model {
 
 		try {
 			$this->acquireLock($lock_file, $version);
-			$journal = $this->createApplyJournal($root, $manifest, $version, $current_version);
-			$this->writeState($journal_file, $journal);
+			try {
+				$journal = $this->createApplyJournal($root, $manifest, $version, $current_version);
+				$this->writeState($journal_file, $journal);
+			} catch (\Throwable $throwable) {
+				$this->discardUnstartedApply($root, $version);
+				$this->releaseLock($lock_file, $version);
+				$this->log->write('OpenCore update backup preparation failed for ' . $version . ': ' . $throwable->getMessage());
+				return ['success' => false, 'status' => 'PREFLIGHT_FAILED'];
+			}
+		} catch (\Throwable $throwable) {
+			$this->log->write('OpenCore update lock acquisition failed for ' . $version . ': ' . $throwable->getMessage());
+			return ['success' => false, 'status' => 'RECOVERY_REQUIRED'];
+		}
+
+		try {
 			$this->writeState($state_file, ['status' => 'APPLYING', 'target_version' => $version, 'started_at' => gmdate('c')]);
 
 			foreach ($journal['operations'] as $index => $operation) {
+				if ($operation['path'] === 'system/version.php') {
+					continue;
+				}
+				$this->assertLivePrecondition($operation);
+				$journal['operations'][$index]['status'] = 'MUTATING';
+				$this->writeState($journal_file, $journal);
+				$this->applyOperation($root, $journal['operations'][$index]);
+				$journal['operations'][$index]['status'] = 'COMPLETED';
+				$this->writeState($journal_file, $journal);
+			}
+
+			if ($journal['vendor']['included']) {
+				$this->applyVendor($root, $journal, $journal_file);
+			}
+
+			foreach ($journal['operations'] as $index => $operation) {
+				if ($operation['path'] !== 'system/version.php') {
+					continue;
+				}
 				$this->assertLivePrecondition($operation);
 				$journal['operations'][$index]['status'] = 'MUTATING';
 				$this->writeState($journal_file, $journal);
@@ -377,7 +411,48 @@ class Upgrade extends \Opencart\System\Engine\Model {
 
 		usort($operations, static fn(array $first, array $second): int => ($first['path'] === 'system/version.php' ? 1 : 0) <=> ($second['path'] === 'system/version.php' ? 1 : 0));
 
-		return ['status' => 'PLANNED', 'target_version' => $version, 'source_version' => $current_version, 'created_at' => gmdate('c'), 'operations' => $operations];
+		$vendor = $this->createVendorJournal($root, $manifest['vendor']);
+
+		return ['status' => 'PLANNED', 'target_version' => $version, 'source_version' => $current_version, 'created_at' => gmdate('c'), 'operations' => $operations, 'vendor' => $vendor];
+	}
+
+	private function createVendorJournal(string $root, array $manifest_vendor): array {
+		if (!$manifest_vendor['included']) {
+			return ['included' => false, 'status' => 'NOT_INCLUDED'];
+		}
+
+		$live = $this->getLiveVendorRoot();
+		$candidate = $root . 'vendor-candidate/';
+		$backup = $root . 'backup/vendor/';
+		$swap = $root . 'vendor-swap/';
+		if (file_exists($candidate) || file_exists($backup) || file_exists($swap)) {
+			throw new \RuntimeException('Vendor apply workspace already exists.');
+		}
+
+		$this->copyVendorInventory($root . 'staging/payload/vendor/', $candidate, $manifest_vendor['files']);
+		$new_identity = $this->getTreeIdentity($candidate);
+		$live_exists = is_dir($live);
+		if (file_exists($live) && !$live_exists) {
+			throw new \RuntimeException('Live vendor root is not a directory.');
+		}
+
+		$old_identity = null;
+		if ($live_exists) {
+			$old_identity = $this->getTreeIdentity($live);
+			$this->copyTreeVerified($live, $backup, $old_identity);
+		}
+
+		return [
+			'included'     => true,
+			'identity'     => (string)$manifest_vendor['identity'],
+			'live_existed' => $live_exists,
+			'old_identity' => $old_identity,
+			'new_identity' => $new_identity,
+			'backup'       => 'backup/vendor',
+			'candidate'    => 'vendor-candidate',
+			'swap'         => 'vendor-swap',
+			'status'       => 'VENDOR_PENDING'
+		];
 	}
 
 	private function assertLivePrecondition(array $operation): void {
@@ -434,11 +509,123 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		}
 	}
 
+	private function applyVendor(string $root, array &$journal, string $journal_file): void {
+		$vendor = $this->validateVendorJournal($journal['vendor']);
+		$live = $this->getLiveVendorRoot();
+		$candidate = $root . $vendor['candidate'];
+		$swap = $root . $vendor['swap'];
+
+		$this->assertVendorIdentity($candidate, $vendor['new_identity']);
+		if ($vendor['live_existed']) {
+			$this->assertVendorIdentity($live, $vendor['old_identity']);
+		} elseif (file_exists($live)) {
+			throw new \RuntimeException('Live vendor appeared after backup preflight.');
+		}
+
+		$journal['vendor']['status'] = 'VENDOR_BACKED_UP';
+		$this->writeState($journal_file, $journal);
+		if ($vendor['live_existed']) {
+			if (file_exists($swap) || !@rename(rtrim($live, '/\\'), rtrim($swap, '/\\'))) {
+				throw new \RuntimeException('Live vendor could not be preserved for swap.');
+			}
+		}
+
+		$journal['vendor']['status'] = 'VENDOR_LIVE_MOVED';
+		$this->writeState($journal_file, $journal);
+		if (!@rename(rtrim($candidate, '/\\'), rtrim($live, '/\\'))) {
+			if ($vendor['live_existed']) {
+				@rename(rtrim($swap, '/\\'), rtrim($live, '/\\'));
+			}
+			throw new \RuntimeException('Vendor candidate activation failed.');
+		}
+
+		$journal['vendor']['status'] = 'VENDOR_SWAPPED';
+		$this->writeState($journal_file, $journal);
+		$this->assertVendorIdentity($live, $vendor['new_identity']);
+		$this->verifyVendorRuntime($live);
+		$journal['vendor']['status'] = 'VENDOR_VERIFIED';
+		$this->writeState($journal_file, $journal);
+
+		if (is_dir($swap)) {
+			$this->removeVendorTree($swap, $root);
+		}
+	}
+
+	private function verifyVendorRuntime(string $vendor_root): void {
+		$autoload = rtrim($vendor_root, '/\\') . '/autoload.php';
+		$installed_php = rtrim($vendor_root, '/\\') . '/composer/installed.php';
+		$installed_json = rtrim($vendor_root, '/\\') . '/composer/installed.json';
+		if (!is_file($autoload) || (!is_file($installed_php) && !is_file($installed_json))) {
+			throw new \RuntimeException('Vendor bootstrap or Composer metadata is missing.');
+		}
+
+		$probe = <<<'PHP'
+$autoload = $argv[1];
+$loader = require $autoload;
+$composer = dirname($autoload) . '/composer/installed.php';
+$composer_json = dirname($autoload) . '/composer/installed.json';
+$metadata = is_file($composer) ? require $composer : json_decode((string)file_get_contents($composer_json), true);
+if (!$loader instanceof Composer\Autoload\ClassLoader || !is_array($metadata) || !class_exists('Composer\\InstalledVersions') || !class_exists('Twig\\Environment')) {
+	exit(2);
+}
+echo 'OPENCORE_VENDOR_OK';
+PHP;
+		$process = proc_open([PHP_BINARY, '-r', $probe, $autoload], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, null, ['bypass_shell' => true]);
+		if (!is_resource($process)) {
+			throw new \RuntimeException('Vendor runtime probe could not start.');
+		}
+		stream_set_blocking($pipes[1], false);
+		stream_set_blocking($pipes[2], false);
+		$output = '';
+		$error = '';
+		$deadline = microtime(true) + 30;
+		$exit_code = null;
+		do {
+			$output .= stream_get_contents($pipes[1], 8192);
+			$error .= stream_get_contents($pipes[2], 8192);
+			$status = proc_get_status($process);
+			if (!$status['running']) {
+				$exit_code = $status['exitcode'];
+				break;
+			}
+			if (microtime(true) >= $deadline) {
+				proc_terminate($process);
+				throw new \RuntimeException('Vendor runtime probe timed out.');
+			}
+			if (strlen($output) + strlen($error) >= 65536) {
+				proc_terminate($process);
+				throw new \RuntimeException('Vendor runtime probe output exceeded its limit.');
+			}
+			usleep(10000);
+		} while (true);
+		$output .= stream_get_contents($pipes[1], 8192);
+		$error .= stream_get_contents($pipes[2], 8192);
+		fclose($pipes[1]);
+		fclose($pipes[2]);
+		$closed = proc_close($process);
+		$exit_code = $exit_code ?? $closed;
+		if ($exit_code !== 0 || trim($output) !== 'OPENCORE_VENDOR_OK') {
+			throw new \RuntimeException('Vendor runtime probe failed.');
+		}
+	}
+
 	private function rollbackJournal(string $root, string $version): void {
 		$journal_file = $root . 'state/journal.json';
 		$journal = $this->readState($journal_file);
 		if (($journal['target_version'] ?? '') !== $version || !isset($journal['operations']) || !is_array($journal['operations'])) {
 			throw new \RuntimeException('Apply journal is missing or invalid.');
+		}
+
+		if (($journal['vendor']['included'] ?? false) === true) {
+			try {
+				$this->rollbackVendor($root, $journal['vendor']);
+				$journal['vendor']['status'] = 'VENDOR_ROLLED_BACK';
+				$this->writeState($journal_file, $journal);
+			} catch (\Throwable $throwable) {
+				$journal['vendor']['status'] = 'VENDOR_ROLLBACK_FAILED';
+				$this->writeState($journal_file, $journal);
+				throw $throwable;
+			}
 		}
 
 		for ($index = count($journal['operations']) - 1; $index >= 0; $index--) {
@@ -454,6 +641,66 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		$journal['status'] = 'ROLLED_BACK';
 		$journal['rolled_back_at'] = gmdate('c');
 		$this->writeState($journal_file, $journal);
+	}
+
+	private function rollbackVendor(string $root, array $vendor): void {
+		$vendor = $this->validateVendorJournal($vendor);
+		$live = $this->getLiveVendorRoot();
+		$backup = $root . $vendor['backup'];
+		$swap = $root . $vendor['swap'];
+		$candidate = $root . $vendor['candidate'];
+
+		if ($vendor['live_existed']) {
+			$this->assertVendorIdentity($backup, $vendor['old_identity']);
+			if (is_dir($live) && $this->treeIdentityMatches($live, $vendor['old_identity'])) {
+				$this->cleanupVendorTransients($candidate, $swap, $root);
+				return;
+			}
+			if (is_dir($swap) && $this->treeIdentityMatches($swap, $vendor['old_identity']) && !file_exists($live)) {
+				if (!@rename(rtrim($swap, '/\\'), rtrim($live, '/\\'))) {
+					throw new \RuntimeException('Interrupted vendor swap restoration failed.');
+				}
+				$this->assertVendorIdentity($live, $vendor['old_identity']);
+				$this->cleanupVendorTransients($candidate, $swap, $root);
+				return;
+			}
+
+			$restore = $root . 'vendor-restore/';
+			if (file_exists($restore)) {
+				throw new \RuntimeException('Vendor restore candidate already exists.');
+			}
+			$this->copyTreeVerified($backup, $restore, $vendor['old_identity']);
+			$failed = $root . 'vendor-failed/';
+			if (file_exists($failed)) {
+				throw new \RuntimeException('Vendor failed-tree evidence already exists.');
+			}
+			if (is_dir($live) && !@rename(rtrim($live, '/\\'), rtrim($failed, '/\\'))) {
+				$this->removeVendorTree($restore, $root);
+				throw new \RuntimeException('Failed vendor could not be preserved for rollback.');
+			}
+			if (!@rename(rtrim($restore, '/\\'), rtrim($live, '/\\'))) {
+				if (is_dir($failed)) {
+					@rename(rtrim($failed, '/\\'), rtrim($live, '/\\'));
+				}
+				if (is_dir($restore)) {
+					$this->removeVendorTree($restore, $root);
+				}
+				throw new \RuntimeException('Vendor rollback activation failed.');
+			}
+			$this->assertVendorIdentity($live, $vendor['old_identity']);
+			if (is_dir($failed)) {
+				$this->removeVendorTree($failed, $root);
+			}
+		} elseif (is_dir($live)) {
+			if (!$this->treeIdentityMatches($live, $vendor['new_identity'])) {
+				throw new \RuntimeException('Unowned live vendor blocks rollback.');
+			}
+			$this->removeVendorTree($live, rtrim(DIR_STORAGE, '/\\') . '/');
+		} elseif (file_exists($live)) {
+			throw new \RuntimeException('Vendor rollback destination is unsafe.');
+		}
+
+		$this->cleanupVendorTransients($candidate, $swap, $root);
 	}
 
 	private function rollbackOperation(string $root, array $operation): void {
@@ -530,13 +777,26 @@ class Upgrade extends \Opencart\System\Engine\Model {
 				throw new \RuntimeException('Rollback add evidence is inconsistent.');
 			}
 		}
+		if (($journal['vendor']['included'] ?? false) === true) {
+			$vendor = $this->validateVendorJournal($journal['vendor']);
+			$expected_vendor = $state === 'APPLIED' ? 'VENDOR_VERIFIED' : 'VENDOR_ROLLED_BACK';
+			if ($vendor['status'] !== $expected_vendor) {
+				throw new \RuntimeException('Completed vendor journal is inconsistent.');
+			}
+			$identity = $state === 'APPLIED' ? $vendor['new_identity'] : $vendor['old_identity'];
+			if ($state === 'APPLIED' || $vendor['live_existed']) {
+				$this->assertVendorIdentity($this->getLiveVendorRoot(), $identity);
+			} elseif (file_exists($this->getLiveVendorRoot())) {
+				throw new \RuntimeException('Rolled-back vendor evidence is inconsistent.');
+			}
+		}
 	}
 
 	private function discardUnstartedApply(string $root, string $version): void {
 		$journal_file = $root . 'state/journal.json';
 		if (is_file($journal_file)) {
 			$journal = $this->readState($journal_file);
-			if (($journal['target_version'] ?? '') !== $version || ($journal['status'] ?? '') !== 'PLANNED' || !isset($journal['operations']) || !is_array($journal['operations'])) {
+			if (($journal['target_version'] ?? '') !== $version || ($journal['status'] ?? '') !== 'PLANNED' || !isset($journal['operations'], $journal['vendor']) || !is_array($journal['operations']) || !is_array($journal['vendor'])) {
 				throw new \RuntimeException('Unstarted apply journal is inconsistent.');
 			}
 			foreach ($journal['operations'] as $operation) {
@@ -545,14 +805,187 @@ class Upgrade extends \Opencart\System\Engine\Model {
 				}
 				$this->assertLivePrecondition($operation);
 			}
+			if (($journal['vendor']['included'] ?? false) === true) {
+				$vendor = $this->validateVendorJournal($journal['vendor']);
+				if ($vendor['status'] !== 'VENDOR_PENDING') {
+					throw new \RuntimeException('Unstarted vendor apply contains a mutation marker.');
+				}
+				if ($vendor['live_existed']) {
+					$this->assertVendorIdentity($this->getLiveVendorRoot(), $vendor['old_identity']);
+				} elseif (file_exists($this->getLiveVendorRoot())) {
+					throw new \RuntimeException('Live vendor changed after backup preflight.');
+				}
+			}
 		}
 
 		$this->removeUpdaterDirectory($root . 'backup/', $root);
+		$this->removeUpdaterDirectory($root . 'vendor-candidate/', $root);
+		$this->removeUpdaterDirectory($root . 'vendor-swap/', $root);
+		$this->removeUpdaterDirectory($root . 'vendor-restore/', $root);
+		$this->removeUpdaterDirectory($root . 'vendor-failed/', $root);
 		foreach (array_merge([$journal_file, $journal_file . '.previous'], glob($journal_file . '.tmp-*') ?: []) as $file) {
 			if (is_file($file) && !unlink($file)) {
 				throw new \RuntimeException('Unstarted apply journal cleanup failed.');
 			}
 		}
+	}
+
+	private function validateVendorJournal(array $vendor): array {
+		$required = ['included', 'identity', 'live_existed', 'old_identity', 'new_identity', 'backup', 'candidate', 'swap', 'status'];
+		foreach ($required as $key) {
+			if (!array_key_exists($key, $vendor)) {
+				throw new \RuntimeException('Vendor journal is incomplete.');
+			}
+		}
+		if ($vendor['included'] !== true || !is_bool($vendor['live_existed']) || !is_string($vendor['identity']) || $vendor['identity'] === '' || !preg_match('/^[a-f0-9]{64}$/', (string)$vendor['new_identity'])) {
+			throw new \RuntimeException('Vendor journal is invalid.');
+		}
+		if ($vendor['live_existed'] && !preg_match('/^[a-f0-9]{64}$/', (string)$vendor['old_identity'])) {
+			throw new \RuntimeException('Vendor prior identity is invalid.');
+		}
+		if (!$vendor['live_existed'] && $vendor['old_identity'] !== null) {
+			throw new \RuntimeException('Vendor prior identity is inconsistent.');
+		}
+		foreach (['backup' => 'backup/vendor', 'candidate' => 'vendor-candidate', 'swap' => 'vendor-swap'] as $key => $expected) {
+			if ($vendor[$key] !== $expected) {
+				throw new \RuntimeException('Vendor journal path is invalid.');
+			}
+		}
+		return $vendor;
+	}
+
+	private function getLiveVendorRoot(): string {
+		$storage = rtrim(str_replace('\\', '/', (string)realpath(DIR_STORAGE)), '/') . '/';
+		if ($storage === '/' || !is_dir($storage)) {
+			throw new \RuntimeException('Runtime storage root is invalid.');
+		}
+		return rtrim(DIR_STORAGE, '/\\') . '/vendor/';
+	}
+
+	private function copyVendorInventory(string $source_root, string $destination_root, array $inventory): void {
+		$this->createDirectory($destination_root);
+		$owned = [];
+		foreach ($inventory as $entry) {
+			if (!is_array($entry) || !isset($entry['path'], $entry['sha256'], $entry['size'])) {
+				throw new \RuntimeException('Vendor inventory entry is invalid.');
+			}
+			$path = $this->normalizePath((string)$entry['path']);
+			$key = strtolower($path);
+			if (isset($owned[$key]) || !preg_match('/^[a-f0-9]{64}$/', (string)$entry['sha256']) || !is_int($entry['size']) || $entry['size'] < 0) {
+				throw new \RuntimeException('Vendor inventory entry is invalid.');
+			}
+			$source = rtrim($source_root, '/\\') . '/' . $path;
+			$destination = rtrim($destination_root, '/\\') . '/' . $path;
+			if (!is_file($source) || is_link($source) || filesize($source) !== $entry['size']) {
+				throw new \RuntimeException('Staged vendor source is invalid.');
+			}
+			$this->copyFileVerified($source, $destination, (string)$entry['sha256']);
+			$owned[$key] = true;
+		}
+		if (!$this->treeInventoryMatches($destination_root, $owned)) {
+			throw new \RuntimeException('Vendor candidate inventory is inconsistent.');
+		}
+	}
+
+	private function copyTreeVerified(string $source, string $destination, string $identity): void {
+		if (!is_dir($source) || is_link($source) || file_exists($destination)) {
+			throw new \RuntimeException('Vendor tree copy boundary is invalid.');
+		}
+		$this->createDirectory($destination);
+		$source_real = rtrim(str_replace('\\', '/', (string)realpath($source)), '/') . '/';
+		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($source, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
+		foreach ($iterator as $entry) {
+			if ($entry->isLink()) {
+				throw new \RuntimeException('Vendor tree contains a link.');
+			}
+			$real = str_replace('\\', '/', (string)$entry->getRealPath());
+			if (!str_starts_with($real . ($entry->isDir() ? '/' : ''), $source_real)) {
+				throw new \RuntimeException('Vendor tree escapes its root.');
+			}
+			$relative = substr(str_replace('\\', '/', $entry->getPathname()), strlen(rtrim(str_replace('\\', '/', $source), '/')) + 1);
+			$target = rtrim($destination, '/\\') . '/' . $relative;
+			if ($entry->isDir()) {
+				$this->createDirectory($target);
+			} elseif ($entry->isFile()) {
+				$this->copyFileVerified($entry->getPathname(), $target, hash_file('sha256', $entry->getPathname()));
+			} else {
+				throw new \RuntimeException('Vendor tree contains an unsupported entry.');
+			}
+		}
+		$this->assertVendorIdentity($destination, $identity);
+	}
+
+	private function getTreeIdentity(string $root): string {
+		if (!is_dir($root) || is_link($root)) {
+			throw new \RuntimeException('Vendor identity root is invalid.');
+		}
+		$root_normalized = rtrim(str_replace('\\', '/', (string)realpath($root)), '/') . '/';
+		$files = [];
+		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::LEAVES_ONLY);
+		foreach ($iterator as $entry) {
+			if ($entry->isLink() || !$entry->isFile()) {
+				throw new \RuntimeException('Vendor identity contains an unsupported entry.');
+			}
+			$real = str_replace('\\', '/', (string)$entry->getRealPath());
+			if (!str_starts_with($real, $root_normalized)) {
+				throw new \RuntimeException('Vendor identity path escapes its root.');
+			}
+			$path = substr($real, strlen($root_normalized));
+			$key = strtolower($path);
+			if (isset($files[$key])) {
+				throw new \RuntimeException('Vendor tree contains a case-colliding path.');
+			}
+			$files[$key] = $path . "\0" . $entry->getSize() . "\0" . hash_file('sha256', $entry->getPathname());
+		}
+		ksort($files, SORT_STRING);
+		return hash('sha256', implode("\n", $files));
+	}
+
+	private function assertVendorIdentity(string $root, ?string $identity): void {
+		if (!$identity || !hash_equals($identity, $this->getTreeIdentity($root))) {
+			throw new \RuntimeException('Vendor tree identity mismatch.');
+		}
+	}
+
+	private function treeIdentityMatches(string $root, ?string $identity): bool {
+		try {
+			$this->assertVendorIdentity($root, $identity);
+			return true;
+		} catch (\Throwable) {
+			return false;
+		}
+	}
+
+	private function treeInventoryMatches(string $root, array $expected): bool {
+		$actual = [];
+		$root_normalized = rtrim(str_replace('\\', '/', (string)realpath($root)), '/') . '/';
+		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::LEAVES_ONLY);
+		foreach ($iterator as $entry) {
+			if ($entry->isLink() || !$entry->isFile()) {
+				return false;
+			}
+			$real = str_replace('\\', '/', (string)$entry->getRealPath());
+			if (!str_starts_with($real, $root_normalized)) {
+				return false;
+			}
+			$actual[strtolower(substr($real, strlen($root_normalized)))] = true;
+		}
+		ksort($actual);
+		ksort($expected);
+		return array_keys($actual) === array_keys($expected);
+	}
+
+	private function cleanupVendorTransients(string $candidate, string $swap, string $root): void {
+		if (is_dir($candidate)) {
+			$this->removeVendorTree($candidate, $root);
+		}
+		if (is_dir($swap)) {
+			$this->removeVendorTree($swap, $root);
+		}
+	}
+
+	private function removeVendorTree(string $directory, string $allowed_root): void {
+		$this->removeUpdaterDirectory($directory, $allowed_root);
 	}
 
 	private function removeUpdaterDirectory(string $directory, string $release_root): void {
