@@ -400,21 +400,12 @@ class Currency extends \Opencart\System\Engine\Controller {
 		// Currency
 		$this->load->model('localisation/currency');
 
-		// Store
-		$this->load->model('setting/store');
-
 		foreach ($selected as $currency_id) {
 			$currency_info = $this->model_localisation_currency->getCurrency($currency_id);
 
 			if ($currency_info) {
 				if ($this->config->get('config_currency') == $currency_info['code']) {
 					$json['error'] = $this->language->get('error_default');
-				}
-
-				$store_total = $this->model_setting_store->getTotalStoresByCurrency($currency_info['code']);
-
-				if ($store_total) {
-					$json['error'] = sprintf($this->language->get('error_store'), $store_total);
 				}
 			}
 

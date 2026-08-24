@@ -143,7 +143,6 @@ $_['tab_image']                     = 'Image';
 $_['tab_option']                    = 'Option';
 $_['tab_server']                    = 'Server';
 $_['tab_seo']                       = 'SEO';
-$_['tab_store']                     = 'Store';
 $_['tab_local']                     = 'Local';
 $_['tab_mail']                      = 'Mail';
 $_['tab_payment_method']            = 'Payment Methods';

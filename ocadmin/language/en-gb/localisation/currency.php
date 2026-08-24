@@ -37,4 +37,3 @@ $_['error_refresh']        = 'Warning: Currency rates could not be refreshed!';
 $_['error_title']          = 'Currency Title must be between 3 and 32 characters!';
 $_['error_code']           = 'Currency Code must contain 3 characters!';
 $_['error_default']        = 'Warning: This currency cannot be deleted as it is currently assigned as the default store currency!';
-$_['error_store']          = 'Warning: This currency cannot be deleted as it is currently assigned to %s stores!';

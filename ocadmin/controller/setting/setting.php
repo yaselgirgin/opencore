@@ -24,44 +24,21 @@ class Setting extends \Opencart\System\Engine\Controller {
 		];
 
 		$data['breadcrumbs'][] = [
-			'text' => $this->language->get('text_stores'),
-			'href' => $this->url->link('setting/store', 'user_token=' . $this->session->data['user_token'])
-		];
-
-		$data['breadcrumbs'][] = [
 			'text' => $this->language->get('heading_title'),
 			'href' => $this->url->link('setting/setting', 'user_token=' . $this->session->data['user_token'])
 		];
 
 		$data['save'] = $this->url->link('setting/setting.save', 'user_token=' . $this->session->data['user_token']);
-		$data['back'] = $this->url->link('setting/store', 'user_token=' . $this->session->data['user_token']);
 
 		// General
-		$data['config_description'] = (array)$this->config->get('config_description');
-
-		// Store Details
+		// Application details
 		$data['config_name'] = $this->config->get('config_name');
-
-		$data['store_url'] = HTTP_CATALOG;
 
 		$data['config_owner'] = $this->config->get('config_owner');
 		$data['config_address'] = $this->config->get('config_address');
 		$data['config_geocode'] = $this->config->get('config_geocode');
 		$data['config_email'] = $this->config->get('config_email');
 		$data['config_telephone'] = $this->config->get('config_telephone');
-
-		// Image
-		$data['config_image'] = $this->config->get('config_image');
-
-		$this->load->model('tool/image');
-
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
-
-		if ($data['config_image'] && is_file(DIR_IMAGE . html_entity_decode($data['config_image'], ENT_QUOTES, 'UTF-8'))) {
-			$data['thumb'] = $this->model_tool_image->resize($data['config_image'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
-		} else {
-			$data['thumb'] = $data['placeholder'];
-		}
 
 		$data['config_open'] = $this->config->get('config_open');
 		$data['config_comment'] = $this->config->get('config_comment');
@@ -133,32 +110,38 @@ class Setting extends \Opencart\System\Engine\Controller {
 		$data['config_autocomplete_limit'] = $this->config->get('config_autocomplete_limit');
 
 		// Image
+		$data['config_image_thumbnail_width'] = (int)$this->config->get('config_image_thumbnail_width') ?: 160;
+		$data['config_image_thumbnail_height'] = (int)$this->config->get('config_image_thumbnail_height') ?: 160;
+		$data['config_image_icon_width'] = (int)$this->config->get('config_image_icon_width') ?: 64;
+		$data['config_image_icon_height'] = (int)$this->config->get('config_image_icon_height') ?: 64;
+		$data['config_image_popup_width'] = (int)$this->config->get('config_image_popup_width') ?: 800;
+		$data['config_image_popup_height'] = (int)$this->config->get('config_image_popup_height') ?: 800;
+
 		$data['config_logo'] = $this->config->get('config_logo');
 
 		$this->load->model('tool/image');
 
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['thumbnail_placeholder'] = $this->model_tool_image->resize('no_image.png', $data['config_image_thumbnail_width'], $data['config_image_thumbnail_height']);
 
 		if ($data['config_logo'] && is_file(DIR_IMAGE . html_entity_decode($data['config_logo'], ENT_QUOTES, 'UTF-8'))) {
-			$data['logo'] = $this->model_tool_image->resize($data['config_logo'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+			$data['logo'] = $this->model_tool_image->resize($data['config_logo'], $data['config_image_thumbnail_width'], $data['config_image_thumbnail_height']);
 		} else {
-			$data['logo'] = $data['placeholder'];
+			$data['logo'] = $data['thumbnail_placeholder'];
 		}
-		// Fav Icon
+
+		// Application icon
 		$data['config_icon'] = $this->config->get('config_icon');
-		$data['placeholder'] = $this->model_tool_image->resize('no_image.png', $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+		$data['icon_placeholder'] = $this->model_tool_image->resize('no_image.png', $data['config_image_icon_width'], $data['config_image_icon_height']);
 
 		if ($data['config_icon'] && is_file(DIR_IMAGE . html_entity_decode($data['config_icon'], ENT_QUOTES, 'UTF-8'))) {
-			$data['icon'] = $this->model_tool_image->resize($data['config_icon'], $this->config->get('config_image_default_width'), $this->config->get('config_image_default_height'));
+			$data['icon'] = $this->model_tool_image->resize($data['config_icon'], $data['config_image_icon_width'], $data['config_image_icon_height']);
 		} else {
-			$data['icon'] = '';
+			$data['icon'] = $data['icon_placeholder'];
 		}
 
 		// Image
 		$data['config_image_default_width'] = $this->config->get('config_image_default_width');
 		$data['config_image_default_height'] = $this->config->get('config_image_default_height');
-		$data['config_image_location_width'] = $this->config->get('config_image_location_width');
-		$data['config_image_location_height'] = $this->config->get('config_image_location_height');
 
 		// Mail
 		$data['config_mail_engine'] = $this->config->get('config_mail_engine');
@@ -219,12 +202,6 @@ class Setting extends \Opencart\System\Engine\Controller {
 			$json['error']['name'] = $this->language->get('error_name');
 		}
 
-		foreach ($this->request->post['config_description'] as $language_id => $value) {
-			if (!oc_validate_length($value['meta_title'], 1, 64)) {
-				$json['error']['meta_title_' . $language_id] = $this->language->get('error_meta_title');
-			}
-		}
-
 		if (!oc_validate_length($this->request->post['config_owner'], 3, 64)) {
 			$json['error']['owner'] = $this->language->get('error_owner');
 		}
@@ -249,8 +226,16 @@ class Setting extends \Opencart\System\Engine\Controller {
 			$json['error']['image_default'] = $this->language->get('error_image_default');
 		}
 
-		if (!$this->request->post['config_image_location_width'] || !$this->request->post['config_image_location_height']) {
-			$json['error']['image_location'] = $this->language->get('error_image_location');
+		if (!$this->request->post['config_image_thumbnail_width'] || !$this->request->post['config_image_thumbnail_height']) {
+			$json['error']['image_thumbnail'] = $this->language->get('error_image_thumbnail');
+		}
+
+		if (!$this->request->post['config_image_icon_width'] || !$this->request->post['config_image_icon_height']) {
+			$json['error']['image_icon'] = $this->language->get('error_image_icon');
+		}
+
+		if (!$this->request->post['config_image_popup_width'] || !$this->request->post['config_image_popup_height']) {
+			$json['error']['image_popup'] = $this->language->get('error_image_popup');
 		}
 
 		if ($this->request->post['config_user_2fa'] && !$this->request->post['config_mail_engine']) {

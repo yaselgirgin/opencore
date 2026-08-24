@@ -25,4 +25,3 @@ $_['entry_status']           = 'Status';
 $_['error_permission']       = 'Warning: You do not have permission to modify zones!';
 $_['error_name']             = 'Zone Name must be between 1 and 128 characters!';
 $_['error_default']          = 'Warning: This zone cannot be deleted as it is currently assigned as the default store zone!';
-$_['error_store']            = 'Warning: This zone cannot be deleted as it is currently assigned to %s stores!';

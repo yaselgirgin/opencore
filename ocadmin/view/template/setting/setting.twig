@@ -4,7 +4,6 @@
     <div class="container-fluid">
       <div class="float-end">
         <button type="submit" form="form-setting" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i></button>
-        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
       </div>
       <h1>{{ heading_title }}</h1>
       <ol class="breadcrumb">
@@ -21,7 +20,6 @@
         <form id="form-setting" action="{{ save }}" method="post" data-oc-toggle="ajax">
           <ul class="nav nav-tabs">
             <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ tab_general }}</a></li>
-            <li class="nav-item"><a href="#tab-store" data-bs-toggle="tab" class="nav-link">{{ tab_store }}</a></li>
             <li class="nav-item"><a href="#tab-local" data-bs-toggle="tab" class="nav-link">{{ tab_local }}</a></li>
             <li class="nav-item"><a href="#tab-option" data-bs-toggle="tab" class="nav-link">{{ tab_option }}</a></li>
             <li class="nav-item"><a href="#tab-image" data-bs-toggle="tab" class="nav-link">{{ tab_image }}</a></li>
@@ -43,7 +41,7 @@
                   <label for="input-logo" class="col-sm-2 col-form-label">{{ entry_logo }}</label>
                   <div class="col-sm-10">
                     <div class="border rounded d-block" style="max-width: 300px;">
-                      <img src="{{ logo }}" alt="" title="" id="thumb-logo" data-oc-placeholder="{{ placeholder }}" class="img-fluid"/> <input type="hidden" name="config_logo" value="{{ config_logo }}" id="input-logo"/>
+                      <img src="{{ logo }}" alt="" title="" id="thumb-logo" data-oc-placeholder="{{ thumbnail_placeholder }}" class="img-fluid"/> <input type="hidden" name="config_logo" value="{{ config_logo }}" id="input-logo"/>
                       <div class="d-grid">
                         <button type="button" data-oc-toggle="image" data-oc-target="#input-logo" data-oc-thumb="#thumb-logo" class="btn btn-primary rounded-0"><i class="fa-solid fa-pencil"></i> {{ button_edit }}</button>
                         <button type="button" data-oc-toggle="clear" data-oc-target="#input-logo" data-oc-thumb="#thumb-logo" class="btn btn-warning rounded-0"><i class="fa-regular fa-trash-can"></i> {{ button_clear }}</button>
@@ -55,7 +53,7 @@
                   <label for="input-icon" class="col-sm-2 col-form-label">{{ entry_icon }}</label>
                   <div class="col-sm-10">
                     <div class="border rounded d-block" style="max-width: 300px;">
-                      <img src="{{ icon }}" alt="" title="" id="thumb-icon" data-oc-placeholder="{{ placeholder }}" class="img-fluid"/> <input type="hidden" name="config_icon" value="{{ config_icon }}" id="input-icon"/>
+                      <img src="{{ icon }}" alt="" title="" id="thumb-icon" data-oc-placeholder="{{ icon_placeholder }}" class="img-fluid"/> <input type="hidden" name="config_icon" value="{{ config_icon }}" id="input-icon"/>
                       <div class="d-grid">
                         <button type="button" data-oc-toggle="image" data-oc-target="#input-icon" data-oc-thumb="#thumb-icon" class="btn btn-primary rounded-0"><i class="fa-solid fa-pencil"></i> {{ button_edit }}</button>
                         <button type="button" data-oc-toggle="clear" data-oc-target="#input-icon" data-oc-thumb="#thumb-icon" class="btn btn-warning rounded-0"><i class="fa-regular fa-trash-can"></i> {{ button_clear }}</button>
@@ -64,42 +62,6 @@
                     <div class="form-text">{{ help_icon }}</div>
                   </div>
                 </div>
-              </fieldset>
-              <fieldset>
-                <legend>{{ text_meta }}</legend>
-                <ul class="nav nav-tabs">
-                  {% for language in languages %}
-                    <li class="nav-item"><a href="#language-{{ language.language_id }}" data-bs-toggle="tab" class="nav-link{% if loop.first %} active{% endif %}"><img src="{{ language.image }}" title="{{ language.name }}"/> {{ language.name }}</a></li>
-                  {% endfor %}
-                </ul>
-                <div class="tab-content">
-                  {% for language in languages %}
-                    <div id="language-{{ language.language_id }}" class="tab-pane{% if loop.first %} active{% endif %}">
-                      <div class="row mb-3 required">
-                        <label for="input-meta-title-{{ language.language_id }}" class="col-sm-2 col-form-label">{{ entry_meta_title }}</label>
-                        <div class="col-sm-10">
-                          <input type="text" name="config_description[{{ language.language_id }}][meta_title]" value="{{ config_description[language.language_id] ? config_description[language.language_id].meta_title }}" placeholder="{{ entry_meta_title }}" id="input-meta-title-{{ language.language_id }}" class="form-control"/>
-                          <div id="error-meta-title-{{ language.language_id }}" class="invalid-feedback"></div>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <label for="input-meta-description-{{ language.language_id }}" class="col-sm-2 col-form-label">{{ entry_meta_description }}</label>
-                        <div class="col-sm-10">
-                          <textarea name="config_description[{{ language.language_id }}][meta_description]" rows="5" placeholder="{{ entry_meta_description }}" id="input-meta-description-{{ language.language_id }}" class="form-control">{{ config_description[language.language_id] ? config_description[language.language_id].meta_description }}</textarea>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <label for="input-meta-keyword-{{ language.language_id }}" class="col-sm-2 col-form-label">{{ entry_meta_keyword }}</label>
-                        <div class="col-sm-10">
-                          <textarea name="config_description[{{ language.language_id }}][meta_keyword]" rows="5" placeholder="{{ entry_meta_keyword }}" id="input-meta-keyword-{{ language.language_id }}" class="form-control">{{ config_description[language.language_id] ? config_description[language.language_id].meta_keyword }}</textarea>
-                        </div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              </fieldset>
-            </div>
-            <div id="tab-store" class="tab-pane">
               <div class="row mb-3 required">
                 <label for="input-owner" class="col-sm-2 col-form-label">{{ entry_owner }}</label>
                 <div class="col-sm-10">
@@ -135,18 +97,6 @@
                 </div>
               </div>
               <div class="row mb-3">
-                <label for="input-image" class="col-sm-2 col-form-label">{{ entry_image }}</label>
-                <div class="col-sm-10">
-                  <div class="border rounded d-block" style="max-width: 300px;">
-                    <img src="{{ thumb }}" alt="" title="" id="thumb-image" data-oc-placeholder="{{ placeholder }}" class="img-fluid"/> <input type="hidden" name="config_image" value="{{ config_image }}" id="input-image"/>
-                    <div class="d-grid">
-                      <button type="button" data-oc-toggle="image" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-primary rounded-0"><i class="fa-solid fa-pencil"></i> {{ button_edit }}</button>
-                      <button type="button" data-oc-toggle="clear" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-warning rounded-0"><i class="fa-regular fa-trash-can"></i> {{ button_clear }}</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row mb-3">
                 <label for="input-open" class="col-sm-2 col-form-label">{{ entry_open }}</label>
                 <div class="col-sm-10">
                   <textarea name="config_open" rows="5" placeholder="{{ entry_open }}" id="input-open" class="form-control">{{ config_open }}</textarea>
@@ -175,6 +125,7 @@
                   </div>
                 </div>
               {% endif %}
+              </fieldset>
             </div>
             <div id="tab-local" class="tab-pane">
               <fieldset>
@@ -313,17 +264,45 @@
                   </div>
                 </div>
                 <div class="row mb-3 required">
-                  <label for="input-image-location-width" class="col-sm-2 col-form-label">{{ entry_image_location }}</label>
+                  <label for="input-image-thumbnail-width" class="col-sm-2 col-form-label">{{ entry_image_thumbnail }}</label>
                   <div class="col-sm-10">
-                    <div id="input-image-location" class="row">
+                    <div id="input-image-thumbnail" class="row">
                       <div class="col-sm-6">
-                        <input type="text" name="config_image_location_width" value="{{ config_image_location_width }}" placeholder="{{ entry_width }}" id="input-image-location-width" class="form-control"/>
+                        <input type="text" name="config_image_thumbnail_width" value="{{ config_image_thumbnail_width }}" placeholder="{{ entry_width }}" id="input-image-thumbnail-width" class="form-control"/>
                       </div>
                       <div class="col-sm-6">
-                        <input type="text" name="config_image_location_height" value="{{ config_image_location_height }}" placeholder="{{ entry_height }}" id="input-image-location-height" class="form-control"/>
+                        <input type="text" name="config_image_thumbnail_height" value="{{ config_image_thumbnail_height }}" placeholder="{{ entry_height }}" id="input-image-thumbnail-height" class="form-control"/>
                       </div>
                     </div>
-                    <div id="error-image-location" class="invalid-feedback"></div>
+                    <div id="error-image-thumbnail" class="invalid-feedback"></div>
+                  </div>
+                </div>
+                <div class="row mb-3 required">
+                  <label for="input-image-icon-width" class="col-sm-2 col-form-label">{{ entry_image_icon }}</label>
+                  <div class="col-sm-10">
+                    <div id="input-image-icon" class="row">
+                      <div class="col-sm-6">
+                        <input type="text" name="config_image_icon_width" value="{{ config_image_icon_width }}" placeholder="{{ entry_width }}" id="input-image-icon-width" class="form-control"/>
+                      </div>
+                      <div class="col-sm-6">
+                        <input type="text" name="config_image_icon_height" value="{{ config_image_icon_height }}" placeholder="{{ entry_height }}" id="input-image-icon-height" class="form-control"/>
+                      </div>
+                    </div>
+                    <div id="error-image-icon" class="invalid-feedback"></div>
+                  </div>
+                </div>
+                <div class="row mb-3 required">
+                  <label for="input-image-popup-width" class="col-sm-2 col-form-label">{{ entry_image_popup }}</label>
+                  <div class="col-sm-10">
+                    <div id="input-image-popup" class="row">
+                      <div class="col-sm-6">
+                        <input type="text" name="config_image_popup_width" value="{{ config_image_popup_width }}" placeholder="{{ entry_width }}" id="input-image-popup-width" class="form-control"/>
+                      </div>
+                      <div class="col-sm-6">
+                        <input type="text" name="config_image_popup_height" value="{{ config_image_popup_height }}" placeholder="{{ entry_height }}" id="input-image-popup-height" class="form-control"/>
+                      </div>
+                    </div>
+                    <div id="error-image-popup" class="invalid-feedback"></div>
                   </div>
                 </div>
               </fieldset>

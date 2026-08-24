@@ -336,9 +336,6 @@ class Language extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Store
-		$this->load->model('setting/store');
-
 		foreach ($selected as $language_id) {
 			$language_info = $this->model_localisation_language->getLanguage($language_id);
 
@@ -349,12 +346,6 @@ class Language extends \Opencart\System\Engine\Controller {
 
 				if ($this->config->get('config_language_admin') == $language_info['code']) {
 					$json['error'] = $this->language->get('error_admin');
-				}
-
-				$store_total = $this->model_setting_store->getTotalStoresByLanguage($language_info['code']);
-
-				if ($store_total) {
-					$json['error'] = sprintf($this->language->get('error_store'), $store_total);
 				}
 			}
 

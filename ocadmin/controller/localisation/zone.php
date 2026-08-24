@@ -424,18 +424,9 @@ class Zone extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Store
-		$this->load->model('setting/store');
-
 		foreach ($selected as $zone_id) {
 			if ((int)$this->config->get('config_zone_id') == (int)$zone_id) {
 				$json['error'] = $this->language->get('error_default');
-			}
-
-			$store_total = $this->model_setting_store->getTotalStoresByZoneId((int)$zone_id);
-
-			if ($store_total) {
-				$json['error'] = sprintf($this->language->get('error_store'), $store_total);
 			}
 
 		}

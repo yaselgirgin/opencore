@@ -437,21 +437,12 @@ class Country extends \Opencart\System\Engine\Controller {
 			$json['error'] = $this->language->get('error_permission');
 		}
 
-		// Store
-		$this->load->model('setting/store');
-
 		// Zone
 		$this->load->model('localisation/zone');
 
 		foreach ($selected as $country_id) {
 			if ($this->config->get('config_country_id') == $country_id) {
 				$json['error'] = $this->language->get('error_default');
-			}
-
-			$store_total = $this->model_setting_store->getTotalStoresByCountryId($country_id);
-
-			if ($store_total) {
-				$json['error'] = sprintf($this->language->get('error_store'), $store_total);
 			}
 
 			$zone_total = $this->model_localisation_zone->getTotalZonesByCountryId($country_id);
