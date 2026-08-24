@@ -39,14 +39,6 @@ class RuntimeDiagnostics extends \Opencart\System\Engine\Controller {
 			] + $event;
 		}
 
-		$this->load->model('setting/startup');
-
-		$data['startups'] = [];
-
-		foreach ($this->model_setting_startup->getStartups() as $startup) {
-			$data['startups'][] = ['source_resolution' => $this->resolveStartup($startup['action'])] + $startup;
-		}
-
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -98,29 +90,6 @@ class RuntimeDiagnostics extends \Opencart\System\Engine\Controller {
 		if ($route === '') {
 			return 'invalid';
 		}
-
-		return is_file($directory . 'controller/' . $route . '.php') ? 'ok' : 'missing';
-	}
-
-	/**
-	 * Resolve Startup Action
-	 *
-	 * @param string $action
-	 *
-	 * @return string
-	 */
-	private function resolveStartup(string $action): string {
-		if (!preg_match('/^(admin|catalog)\/(.+)$/', $action, $match)) {
-			return 'invalid';
-		}
-
-		$route = $this->parseControllerRoute($match[2]);
-
-		if ($route === '') {
-			return 'invalid';
-		}
-
-		$directory = $match[1] == 'admin' ? DIR_APPLICATION : DIR_CATALOG;
 
 		return is_file($directory . 'controller/' . $route . '.php') ? 'ok' : 'missing';
 	}

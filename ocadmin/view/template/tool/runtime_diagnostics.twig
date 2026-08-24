@@ -12,7 +12,7 @@
   </div>
   <div class="container-fluid">
     <div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> {{ text_information }}</div>
-    <div class="card mb-3">
+    <div class="card">
       <div class="card-header"><i class="fa-solid fa-bolt"></i> {{ text_events }}</div>
       <div class="card-body">
         <div class="table-responsive">
@@ -52,47 +52,6 @@
               {% else %}
                 <tr>
                   <td class="text-center" colspan="9">{{ text_no_events }}</td>
-                </tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><i class="fa-solid fa-power-off"></i> {{ text_startup }}</div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-bordered table-hover">
-            <thead>
-              <tr>
-                <th>{{ column_id }}</th>
-                <th>{{ column_code }}</th>
-                <th>{{ column_description }}</th>
-                <th>{{ column_action }}</th>
-                <th>{{ column_status }}</th>
-                <th>{{ column_sort_order }}</th>
-                <th>{{ column_source_resolution }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if startups %}
-                {% for startup in startups %}
-                  <tr>
-                    <td>{{ startup.startup_id }}</td>
-                    <td>{{ startup.code }}</td>
-                    <td>{{ startup.description }}</td>
-                    <td><code>{{ startup.action }}</code></td>
-                    <td>{% if startup.status %}<span class="badge bg-success">{{ text_enabled }}</span>{% else %}<span class="badge bg-secondary">{{ text_disabled }}</span>{% endif %}</td>
-                    <td>{{ startup.sort_order }}</td>
-                    <td>
-                      {% if startup.source_resolution == 'ok' %}<span class="badge bg-success">{{ text_ok }}</span>{% elseif startup.source_resolution == 'missing' %}<span class="badge bg-danger">{{ text_missing }}</span>{% else %}<span class="badge bg-danger">{{ text_invalid }}</span>{% endif %}
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% else %}
-                <tr>
-                  <td class="text-center" colspan="7">{{ text_no_startups }}</td>
                 </tr>
               {% endif %}
             </tbody>

@@ -247,8 +247,7 @@ class UserPermission extends \Opencart\System\Engine\Controller {
 			'startup/notification',
 			'startup/permission',
 			'startup/session',
-			'startup/setting',
-			'startup/startup'
+			'startup/setting'
 		];
 
 		$files = [];

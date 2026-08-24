@@ -262,7 +262,6 @@ class Store extends \Opencart\System\Engine\Model {
 			'startup/tax',
 			'startup/currency',
 			'startup/application',
-			'startup/startup',
 			'startup/event'
 		];
 

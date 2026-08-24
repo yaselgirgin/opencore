@@ -186,7 +186,6 @@ class Store extends \Opencart\System\Engine\Model {
 		$pre_actions = [
 			'startup/setting',
 			'startup/application',
-			'startup/startup',
 			'startup/event'
 		];
 
