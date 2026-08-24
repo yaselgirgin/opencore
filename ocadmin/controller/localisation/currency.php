@@ -119,6 +119,8 @@ class Currency extends \Opencart\System\Engine\Controller {
 		];
 
 		$data['action'] = $this->url->link('localisation/currency.list', 'user_token=' . $this->session->data['user_token'] . $url);
+		$default_currency = (string)$this->config->get('config_currency');
+		$data['column_default_equivalent'] = sprintf($this->language->get('column_default_equivalent'), $default_currency);
 
 		// Currency
 		$data['currencies'] = [];
@@ -136,9 +138,10 @@ class Currency extends \Opencart\System\Engine\Controller {
 
 		foreach ($results as $result) {
 			$data['currencies'][] = [
-				'title'         => $result['title'] . (($result['code'] == $this->config->get('config_currency')) ? $this->language->get('text_default') : ''),
-				'date_modified' => date($this->language->get('date_format_short'), strtotime($result['date_modified'])),
-				'edit'          => $this->url->link('localisation/currency.form', 'user_token=' . $this->session->data['user_token'] . '&currency_id=' . $result['currency_id'] . $url)
+				'title'              => $result['title'] . (($result['code'] == $default_currency) ? $this->language->get('text_default') : ''),
+				'default_equivalent' => is_numeric($result['value']) && (float)$result['value'] > 0 ? number_format(1 / (float)$result['value'], 4, $this->language->get('decimal_point'), $this->language->get('thousand_point')) : '-',
+				'date_modified'      => date($this->language->get('date_format_short'), strtotime($result['date_modified'])),
+				'edit'               => $this->url->link('localisation/currency.form', 'user_token=' . $this->session->data['user_token'] . '&currency_id=' . $result['currency_id'] . $url)
 			] + $result;
 		}
 

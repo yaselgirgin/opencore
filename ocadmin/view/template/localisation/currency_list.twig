@@ -7,6 +7,7 @@
           <th><a href="{{ sort_title }}"{% if sort == 'title' %} class="{{ order|lower }}"{% endif %}>{{ column_title }}</a></th>
           <th><a href="{{ sort_code }}"{% if sort == 'code' %} class="{{ order|lower }}"{% endif %}>{{ column_code }}</a></th>
           <th class="text-end"><a href="{{ sort_value }}"{% if sort == 'value' %} class="{{ order|lower }}"{% endif %}>{{ column_value }}</a></th>
+          <th class="text-end">{{ column_default_equivalent }}</th>
           <th class="d-none d-lg-table-cell"><a href="{{ sort_date_modified }}"{% if sort == 'date_modified' %} class="{{ order|lower }}"{% endif %}>{{ column_date_modified }}</a></th>
           <th class="text-end">{{ column_action }}</th>
         </tr>
@@ -19,6 +20,7 @@
               <td>{{ currency.title }}</td>
               <td>{{ currency.code }}</td>
               <td class="text-end">{{ currency.value }}</td>
+              <td class="text-end">{{ currency.default_equivalent }}</td>
               <td class="d-none d-lg-table-cell">{{ currency.date_modified }}</td>
               <td class="text-end"><a href="{{ currency.edit }}" data-bs-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
             </tr>
