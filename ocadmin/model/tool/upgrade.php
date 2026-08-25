@@ -279,13 +279,10 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			$this->revalidateStagedState($root, $state, $version, $current_version);
 			$manifest = $this->validateStaging($root . 'staging/', $version, $current_version);
 
-			if ($manifest['database']['required']) {
-				$database_version = $this->getDatabaseVersion();
+			$database_version = $this->getDatabaseVersion();
 
-				if ($database_version !== $current_version) {
-					throw new \RuntimeException('Database version metadata does not match the source release.');
-				}
-
+			if ($database_version !== $current_version) {
+				throw new \RuntimeException('Database version metadata does not match the source release.');
 			}
 			foreach (['backup/', 'vendor-candidate/', 'vendor-swap/', 'vendor-restore/', 'vendor-failed/'] as $workspace) {
 				if (file_exists($root . $workspace)) {
@@ -300,7 +297,7 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		try {
 			$this->acquireLock($lock_file, $version);
 			try {
-				$journal = $this->createApplyJournal($root, $manifest, $version, $current_version);
+				$journal = $this->createApplyJournal($root, $manifest, $version, $current_version, (string)$database_version);
 
 				if ($manifest['database']['required']) {
 					$journal['database']['source_database_version'] = $database_version;
@@ -358,6 +355,10 @@ class Upgrade extends \Opencart\System\Engine\Model {
 				return ['success' => true, 'status' => 'DATABASE_PENDING', 'version' => $version];
 			}
 
+			$this->setDatabaseVersion($version, (string)$database_version);
+			$journal['database']['status'] = 'METADATA_SYNCHRONIZED';
+			$this->writeState($journal_file, $journal);
+
 			foreach ($journal['operations'] as $index => $operation) {
 				if ($operation['path'] !== 'system/version.php') {
 					continue;
@@ -371,6 +372,10 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			}
 
 			$this->validateInstalledVersion($version);
+			if ($this->getDatabaseVersion() !== $version) {
+				throw new \RuntimeException('Database version metadata did not advance to the target release.');
+			}
+			$journal['database']['status'] = 'METADATA_VERIFIED';
 			$journal['status'] = 'APPLIED';
 			$journal['completed_at'] = gmdate('c');
 			$this->writeState($journal_file, $journal);
@@ -589,7 +594,7 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		$this->validateStaging($root . 'staging/', $version, $current_version);
 	}
 
-	private function createApplyJournal(string $root, array $manifest, string $version, string $current_version): array {
+	private function createApplyJournal(string $root, array $manifest, string $version, string $current_version, string $source_database_version): array {
 		$backup_root = $root . 'backup/';
 		if (file_exists($backup_root)) {
 			throw new \RuntimeException('An apply backup already exists.');
@@ -660,9 +665,9 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		$database = [
 			'required'                => (bool)$manifest['database']['required'],
 			'updates'                 => $manifest['database']['updates'],
-			'source_database_version' => null,
+			'source_database_version' => $source_database_version,
 			'backup'                  => null,
-			'status'                  => $manifest['database']['required'] ? 'DATABASE_BACKUP_PENDING' : 'NOT_REQUIRED',
+			'status'                  => $manifest['database']['required'] ? 'DATABASE_BACKUP_PENDING' : 'METADATA_PENDING',
 			'handlers'                => []
 		];
 
@@ -851,6 +856,23 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			$this->writeState($journal_file, $journal);
 		}
 
+		if (($journal['database']['required'] ?? null) === false) {
+			$source_database_version = (string)($journal['database']['source_database_version'] ?? '');
+			if ($this->normalizeVersion($source_database_version) !== $source_database_version) {
+				throw new \RuntimeException('Rollback database version metadata is invalid.');
+			}
+
+			$database_version = $this->getDatabaseVersion();
+			if ($database_version === $version) {
+				$this->setDatabaseVersion($source_database_version, $version);
+			} elseif ($database_version !== $source_database_version) {
+				throw new \RuntimeException('Rollback database version metadata is inconsistent.');
+			}
+
+			$journal['database']['status'] = 'METADATA_ROLLED_BACK';
+			$this->writeState($journal_file, $journal);
+		}
+
 		$journal['status'] = 'ROLLED_BACK';
 		$journal['rolled_back_at'] = gmdate('c');
 		$this->writeState($journal_file, $journal);
@@ -1001,6 +1023,14 @@ class Upgrade extends \Opencart\System\Engine\Model {
 				$this->assertVendorIdentity($this->getLiveVendorRoot(), $identity);
 			} elseif (file_exists($this->getLiveVendorRoot())) {
 				throw new \RuntimeException('Rolled-back vendor evidence is inconsistent.');
+			}
+		}
+
+		if (($journal['database']['required'] ?? null) === false) {
+			$expected_database_version = $state === 'APPLIED' ? $version : (string)($journal['database']['source_database_version'] ?? '');
+			$expected_database_status = $state === 'APPLIED' ? 'METADATA_VERIFIED' : 'METADATA_ROLLED_BACK';
+			if (($journal['database']['status'] ?? '') !== $expected_database_status || $this->getDatabaseVersion() !== $expected_database_version) {
+				throw new \RuntimeException('Completed database version metadata is inconsistent.');
 			}
 		}
 	}
