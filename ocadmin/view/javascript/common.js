@@ -532,3 +532,15 @@ $(document).ready(function() {
         });
     });
 });
+
+$(document).on('keydown', '#form-filter input', function(e) {
+    if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
+
+        var button = $(this).closest('#form-filter').find('#button-filter');
+
+        if (button.length && !button.prop('disabled')) {
+            button.trigger('click');
+        }
+    }
+});
