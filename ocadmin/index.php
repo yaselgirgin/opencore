@@ -3,13 +3,28 @@
 require_once(dirname(__DIR__) . '/system/version.php');
 
 // Configuration
-if (is_file('config.php')) {
-	require_once('config.php');
+$config = __DIR__ . '/config.php';
+
+if (!is_file($config) || !is_readable($config)) {
+	http_response_code(503);
+	header('Content-Type: text/plain; charset=utf-8');
+	echo 'OpenCore is not configured.';
+	exit();
 }
 
-// Installs
+try {
+	@require_once($config);
+} catch (\Throwable $throwable) {
+	http_response_code(503);
+	header('Content-Type: text/plain; charset=utf-8');
+	echo 'OpenCore is not configured.';
+	exit();
+}
+
 if (!defined('DIR_APPLICATION')) {
-	header('Location: ../install/index.php');
+	http_response_code(503);
+	header('Content-Type: text/plain; charset=utf-8');
+	echo 'OpenCore is not configured.';
 	exit();
 }
 
