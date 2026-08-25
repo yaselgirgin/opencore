@@ -62,28 +62,35 @@ function showOperationMessage(message) {
     $('#alert').html('<div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> ' + message + '</div>');
 }
 
-$('#button-check').on('click', function() {
+function checkForUpdates() {
     if (upgradeOperationActive) {
         return;
     }
 
-    var element = this;
+    var element = $('#button-check');
 
     upgradeOperationActive = true;
-    $(element).prop('disabled', true);
+    setOperationButton(element, true, '{{ text_checking|escape('js') }}');
+    $('#latest-version').text('{{ text_checking|escape('js') }}');
+    $('#upgrade-status').text('{{ text_checking_updates|escape('js') }}').removeClass('text-warning text-success text-danger text-muted').addClass('text-muted');
+    $('#button-prepare').data('version', '').prop('disabled', true);
+    $('#button-apply').prop('disabled', true);
 
     $.ajax({
         url: '{{ check|replace({'&amp;': '&'})|escape('js') }}',
         dataType: 'json',
         complete: function() {
             upgradeOperationActive = false;
-            $(element).prop('disabled', false);
+            setOperationButton(element, false, '');
+            element.prop('disabled', false);
         },
         success: function(json) {
             $('#alert').empty();
 
             if (!json.success) {
                 $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                $('#latest-version').text('-');
+                $('#upgrade-status').text('{{ text_check_failed|escape('js') }}').removeClass('text-warning text-success text-muted').addClass('text-danger');
                 return;
             }
 
@@ -91,7 +98,8 @@ $('#button-check').on('click', function() {
 
             if (json.status === 'UPDATE_AVAILABLE') {
                 $('#upgrade-status').text('{{ text_update_available|escape('js') }}').removeClass('text-success text-muted').addClass('text-warning');
-                $('#button-prepare').data('version', json.latest_version).prop('disabled', false);
+                var updaterAttentionRequired = !$('#button-database').hasClass('d-none') || !$('#button-recover').hasClass('d-none');
+                $('#button-prepare').data('version', json.latest_version).prop('disabled', updaterAttentionRequired);
             } else if (json.status === 'UP_TO_DATE') {
                 $('#upgrade-status').text('{{ text_up_to_date|escape('js') }}').removeClass('text-warning text-muted').addClass('text-success');
                 $('#button-prepare').data('version', '').prop('disabled', true);
@@ -101,9 +109,16 @@ $('#button-check').on('click', function() {
             }
         },
         error: function() {
+            $('#alert').empty();
             $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_check|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            $('#latest-version').text('-');
+            $('#upgrade-status').text('{{ text_check_failed|escape('js') }}').removeClass('text-warning text-success text-muted').addClass('text-danger');
         }
     });
+}
+
+$('#button-check').on('click', function() {
+    checkForUpdates();
 });
 
 $('#button-prepare').on('click', function() {
@@ -229,5 +244,7 @@ $('#button-database').on('click', function() {
 $('#button-recover').on('click', function() {
     mutateUpdate('{{ recover|replace({'&amp;': '&'})|escape('js') }}', $(this).data('version'), this);
 });
+
+checkForUpdates();
 //--></script>
 {{ footer }}
