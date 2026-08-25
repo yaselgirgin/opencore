@@ -1,3 +1,3 @@
 <?php
 // Version
-define('VERSION', '2026.08.3');
+define('VERSION', '2026.08.4');
