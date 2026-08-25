@@ -17,7 +17,15 @@ opencore-<version>.zip
 opencore-<version>.zip.sha256
 ```
 
-The application payload contains tracked Git files, excluding repository-only `docs/`, `tools/release/`, `.gitignore`, and `.gitattributes`, plus local-only `AGENTS.md` and `UI-Sample/`. Protected and local paths such as `config.php`, `ocadmin/config.php`, `.env*`, `.git/`, external storage, and build output are rejected or excluded. Untracked files are never packaged. The vendor payload is built afresh from `composer.lock` using the supplied Composer PHAR and is checked against the lock package set before packaging.
+The application payload contains tracked Git files, excluding repository-only `docs/`, `tools/release/`, `.gitignore`, and `.gitattributes`, plus local-only `AGENTS.md` and `UI-Sample/`. Protected and local paths such as `config.php`, `ocadmin/config.php`, `.env*`, `.git/`, external storage, and build output are rejected or excluded. Untracked files are never packaged. By default, the vendor payload is built afresh from `composer.lock` using the supplied Composer PHAR and is checked against the lock package set before packaging.
+
+`--no-vendor` is an exceptional bridge-release mode that intentionally preserves the installed OpenCore vendor runtime instead of packaging dependencies. Composer PHAR is not required in this mode:
+
+```text
+C:\xampp\php\php.exe tools/release/build.php --source-version=2026.08.2 --no-vendor
+```
+
+Normal releases must continue to use the default vendor-inclusive build path; the bridge option is not a general substitute for dependency validation or updates.
 
 Every compatible installed version must be supplied explicitly with a repeated `--source-version`. File removals are never inferred; supply each approved removal as a repeated `--remove=relative/path`. Database update identifiers are also explicit repeated `--database-update=<step-version>.NNN` values. With no database update arguments, the manifest contains `database.required=false` and `database.updates=[]`.
 

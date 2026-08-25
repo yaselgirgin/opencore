@@ -214,7 +214,9 @@ function validateComposerInstall(string $lock_file, string $vendor): void {
 $vendor = $argv[1];
 $loader = require $vendor . '/autoload.php';
 $twig = (new ReflectionClass(Twig\Environment::class))->getFileName();
-if (!$loader instanceof Composer\Autoload\ClassLoader || !is_string($twig) || str_replace('\\', '/', $twig) !== str_replace('\\', '/', $vendor . '/twig/twig/src/Environment.php')) exit(1);
+$twigReal = is_string($twig) ? realpath($twig) : false;
+$expectedTwigReal = realpath($vendor . '/twig/twig/src/Environment.php');
+if (!$loader instanceof Composer\Autoload\ClassLoader || $twigReal === false || $expectedTwigReal === false || str_replace('\\', '/', $twigReal) !== str_replace('\\', '/', $expectedTwigReal)) exit(1);
 PHP;
 	run([PHP_BINARY, '-r', $probe, $vendor], dirname($vendor));
 }
@@ -249,9 +251,9 @@ function addZipFile(ZipArchive $zip, string $archive_path, string $source, int $
 	}
 }
 
-$options = getopt('', ['source-version:', 'remove:', 'database-update:', 'composer:', 'output:', 'allow-dirty', 'help']);
+$options = getopt('', ['source-version:', 'remove:', 'database-update:', 'composer:', 'output:', 'allow-dirty', 'no-vendor', 'help']);
 if (isset($options['help'])) {
-	echo "Usage: php tools/release/build.php --source-version=<YYYY.MM.RELEASE> [--source-version=...] [--remove=<path>] [--database-update=<version.NNN>] [--composer=<composer.phar>] [--output=<directory>] [--allow-dirty]\n";
+	echo "Usage: php tools/release/build.php --source-version=<YYYY.MM.RELEASE> [--source-version=...] [--remove=<path>] [--database-update=<version.NNN>] [--composer=<composer.phar>] [--output=<directory>] [--allow-dirty] [--no-vendor]\n";
 	exit(0);
 }
 
@@ -353,28 +355,35 @@ try {
 	$workspace = $output_real . '/.work-' . bin2hex(random_bytes(8));
 	createDirectory($workspace);
 
-	$composer = isset($options['composer']) ? (string)$options['composer'] : (string)getenv('COMPOSER_PHAR');
-	if ($composer === '' || !is_file($composer)) {
-		throw new RuntimeException('Composer PHAR is required via --composer or COMPOSER_PHAR.');
+	$include_vendor = !isset($options['no-vendor']);
+	$vendor = null;
+	$vendor_inventory = [];
+	$vendor_identity = null;
+
+	if ($include_vendor) {
+		$composer = isset($options['composer']) ? (string)$options['composer'] : (string)getenv('COMPOSER_PHAR');
+		if ($composer === '' || !is_file($composer)) {
+			throw new RuntimeException('Composer PHAR is required via --composer or COMPOSER_PHAR.');
+		}
+		$vendor = $workspace . '/vendor';
+		$composer_home = $workspace . '/composer-home';
+		$temporary = $workspace . '/temp';
+		createDirectory($composer_home);
+		createDirectory($temporary);
+		$process_environment = getenv();
+		$environment = array_merge(is_array($process_environment) ? $process_environment : $_ENV, [
+			'COMPOSER_VENDOR_DIR'      => $vendor,
+			'COMPOSER_HOME'            => $composer_home,
+			'COMPOSER_ALLOW_SUPERUSER' => '1',
+			'TEMP'                     => $temporary,
+			'TMP'                      => $temporary,
+			'TMPDIR'                   => $temporary
+		]);
+		run([PHP_BINARY, $composer, 'install', '--working-dir=' . $root, '--no-dev', '--prefer-dist', '--optimize-autoloader', '--classmap-authoritative', '--no-interaction', '--no-progress', '--no-scripts', '--no-plugins'], $root, $environment);
+		validateComposerInstall($composer_lock, $vendor);
+		$vendor_inventory = inventory($vendor);
+		$vendor_identity = treeIdentity($vendor_inventory);
 	}
-	$vendor = $workspace . '/vendor';
-	$composer_home = $workspace . '/composer-home';
-	$temporary = $workspace . '/temp';
-	createDirectory($composer_home);
-	createDirectory($temporary);
-	$process_environment = getenv();
-	$environment = array_merge(is_array($process_environment) ? $process_environment : $_ENV, [
-		'COMPOSER_VENDOR_DIR'      => $vendor,
-		'COMPOSER_HOME'            => $composer_home,
-		'COMPOSER_ALLOW_SUPERUSER' => '1',
-		'TEMP'                     => $temporary,
-		'TMP'                      => $temporary,
-		'TMPDIR'                   => $temporary
-	]);
-	run([PHP_BINARY, $composer, 'install', '--working-dir=' . $root, '--no-dev', '--prefer-dist', '--optimize-autoloader', '--classmap-authoritative', '--no-interaction', '--no-progress', '--no-scripts', '--no-plugins'], $root, $environment);
-	validateComposerInstall($composer_lock, $vendor);
-	$vendor_inventory = inventory($vendor);
-	$vendor_identity = treeIdentity($vendor_inventory);
 
 	$timestamp = getenv('SOURCE_DATE_EPOCH') !== false ? (int)getenv('SOURCE_DATE_EPOCH') : time();
 	if ($timestamp < 1) {
@@ -391,7 +400,7 @@ try {
 		'application_files'         => $application_inventory,
 		'application_removals'      => $removals,
 		'composer_lock_sha256'      => hash_file('sha256', $composer_lock),
-		'vendor'                    => ['included' => true, 'identity' => $vendor_identity, 'files' => $vendor_inventory],
+		'vendor'                    => ['included' => $include_vendor, 'identity' => $vendor_identity, 'files' => $vendor_inventory],
 		'database'                  => ['required' => (bool)$database_updates, 'updates' => $database_updates]
 	];
 	$manifest_json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
@@ -462,6 +471,7 @@ try {
 		'artifact_sha256'           => $artifact_hash,
 		'checksum'                  => $final_checksum,
 		'application_file_count'    => count($application_inventory),
+		'vendor_included'           => $include_vendor,
 		'vendor_file_count'         => count($vendor_inventory),
 		'application_removal_count' => count($removals),
 		'database_required'         => (bool)$database_updates,

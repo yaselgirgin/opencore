@@ -821,8 +821,10 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		$loader = require $autoload;
 
 		$twig = $loader instanceof \Composer\Autoload\ClassLoader ? $loader->findFile('Twig\\Environment') : false;
+		$twig_real = is_string($twig) ? realpath($twig) : false;
+		$expected_twig_real = realpath(rtrim($vendor_root, '/\\') . '/twig/twig/src/Environment.php');
 
-		if (!is_array($metadata) || !$loader instanceof \Composer\Autoload\ClassLoader || !is_file(rtrim($vendor_root, '/\\') . '/composer/InstalledVersions.php') || !is_string($twig) || str_replace('\\', '/', $twig) !== str_replace('\\', '/', rtrim($vendor_root, '/\\') . '/twig/twig/src/Environment.php')) {
+		if (!is_array($metadata) || !$loader instanceof \Composer\Autoload\ClassLoader || !is_file(rtrim($vendor_root, '/\\') . '/composer/InstalledVersions.php') || $twig_real === false || $expected_twig_real === false || str_replace('\\', '/', $twig_real) !== str_replace('\\', '/', $expected_twig_real)) {
 			throw new \RuntimeException('Vendor runtime probe failed.');
 		}
 	}
