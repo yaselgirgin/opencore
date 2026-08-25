@@ -18,7 +18,7 @@
         <div class="row mb-3">
           <div class="col-md-4">
             <strong>{{ text_current_version }}</strong>
-            <div class="fs-4">{{ current_version }}</div>
+            <div id="current-version" class="fs-4">{{ current_version }}</div>
           </div>
           <div class="col-md-4">
             <strong>{{ text_latest_version }}</strong>
@@ -41,15 +41,42 @@
   </div>
 </div>
 <script type="text/javascript"><!--
+var upgradeOperationActive = false;
+var recoveryStatuses = ['ROLLBACK_FAILED', 'RECOVERY_REQUIRED', 'DATABASE_RECOVERY_REQUIRED', 'DATABASE_RESTORE_REQUIRED', 'DATABASE_RESTORE_FAILED'];
+
+function setOperationButton(element, active, text) {
+    var button = $(element);
+
+    if (!button.data('idle-html')) {
+        button.data('idle-html', button.html());
+    }
+
+    if (active) {
+        button.prop('disabled', true);
+    }
+
+    button.html(active ? '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + text : button.data('idle-html'));
+}
+
+function showOperationMessage(message) {
+    $('#alert').html('<div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> ' + message + '</div>');
+}
+
 $('#button-check').on('click', function() {
+    if (upgradeOperationActive) {
+        return;
+    }
+
     var element = this;
 
+    upgradeOperationActive = true;
     $(element).prop('disabled', true);
 
     $.ajax({
-        url: '{{ check }}',
+        url: '{{ check|replace({'&amp;': '&'})|escape('js') }}',
         dataType: 'json',
         complete: function() {
+            upgradeOperationActive = false;
             $(element).prop('disabled', false);
         },
         success: function(json) {
@@ -80,16 +107,24 @@ $('#button-check').on('click', function() {
 });
 
 $('#button-prepare').on('click', function() {
+    if (upgradeOperationActive) {
+        return;
+    }
+
     var element = this;
 
-    $(element).prop('disabled', true);
+    upgradeOperationActive = true;
+    setOperationButton(element, true, 'Downloading & Validating...');
+    showOperationMessage('Downloading and validating the update. Please wait...');
 
     $.ajax({
-        url: '{{ prepare }}',
+        url: '{{ prepare|replace({'&amp;': '&'})|escape('js') }}',
         type: 'post',
         dataType: 'json',
         data: {version: $(element).data('version')},
         complete: function() {
+            upgradeOperationActive = false;
+            setOperationButton(element, false, '');
             $(element).prop('disabled', false);
         },
         success: function(json) {
@@ -105,13 +140,28 @@ $('#button-prepare').on('click', function() {
             $('#button-apply').data('version', json.version).prop('disabled', false);
         },
         error: function() {
+            $('#alert').empty();
             $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_prepare|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
         }
     });
 });
 
 function mutateUpdate(url, version, element) {
+    if (upgradeOperationActive) {
+        return;
+    }
+
+    var isApply = $(element).is('#button-apply');
+    var keepElementDisabled = false;
+
+    upgradeOperationActive = true;
     $(element).prop('disabled', true);
+
+    if (isApply) {
+        setOperationButton(element, true, 'Applying Update...');
+        $('#button-check, #button-prepare').prop('disabled', true);
+        showOperationMessage('Applying the update. Please wait and do not refresh or close this page.');
+    }
 
     $.ajax({
         url: url,
@@ -123,33 +173,61 @@ function mutateUpdate(url, version, element) {
 
             if (!json.success) {
                 $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-                if (json.status === 'ROLLBACK_FAILED' || json.status === 'RECOVERY_REQUIRED' || json.status === 'DATABASE_RECOVERY_REQUIRED' || json.status === 'DATABASE_RESTORE_REQUIRED' || json.status === 'DATABASE_RESTORE_FAILED') {
-                    $('#button-recover').data('version', version).removeClass('d-none');
-                }
+                var recoveryRequired = recoveryStatuses.indexOf(json.status) !== -1;
+                $('#button-recover').data('version', version).toggleClass('d-none', !recoveryRequired);
+                $('#button-database').addClass('d-none');
+                keepElementDisabled = isApply && recoveryRequired;
+                $('#button-prepare').prop('disabled', recoveryRequired);
                 return;
             }
 
             var message = json.status === 'APPLIED' ? '{{ text_applied|escape('js') }}' : (json.status === 'DATABASE_PENDING' ? '{{ text_database_pending|escape('js') }}' : '{{ text_recovered|escape('js') }}');
             $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + message + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
             $('#button-database').data('version', version).toggleClass('d-none', json.status !== 'DATABASE_PENDING');
-            $('#button-recover').toggleClass('d-none', json.status === 'DATABASE_PENDING');
+            $('#button-recover').addClass('d-none');
+
+            if (json.status === 'APPLIED') {
+                keepElementDisabled = isApply;
+                $('#current-version').text(version);
+                $('#button-apply').prop('disabled', true);
+                $('#button-prepare').data('version', '').prop('disabled', true);
+            } else if (json.status === 'DATABASE_PENDING') {
+                keepElementDisabled = isApply;
+                $('#button-apply, #button-prepare').prop('disabled', true);
+            } else {
+                $('#button-apply').prop('disabled', false);
+                $('#button-prepare').prop('disabled', false);
+            }
         },
         error: function() {
+            $('#alert').empty();
             $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_apply|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            $(element).prop('disabled', false);
+            $('#button-prepare').prop('disabled', false);
+        },
+        complete: function() {
+            upgradeOperationActive = false;
+
+            if (isApply) {
+                setOperationButton(element, false, '');
+            }
+
+            $(element).prop('disabled', keepElementDisabled);
+            $('#button-check').prop('disabled', false);
         }
     });
 }
 
 $('#button-apply').on('click', function() {
-    mutateUpdate('{{ apply }}', $(this).data('version'), this);
+    mutateUpdate('{{ apply|replace({'&amp;': '&'})|escape('js') }}', $(this).data('version'), this);
 });
 
 $('#button-database').on('click', function() {
-    mutateUpdate('{{ database }}', $(this).data('version'), this);
+    mutateUpdate('{{ database|replace({'&amp;': '&'})|escape('js') }}', $(this).data('version'), this);
 });
 
 $('#button-recover').on('click', function() {
-    mutateUpdate('{{ recover }}', $(this).data('version'), this);
+    mutateUpdate('{{ recover|replace({'&amp;': '&'})|escape('js') }}', $(this).data('version'), this);
 });
 //--></script>
 {{ footer }}
