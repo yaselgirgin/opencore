@@ -9,6 +9,7 @@ $_['text_backup']        = 'Backing up table %s records %s to %s records';
 $_['text_restore']       = 'Restoring %s of %s';
 $_['text_option']        = 'Backup Options';
 $_['text_history']       = 'Backup History';
+$_['text_storage']       = 'Backups are stored securely in the configured storage directory. Use Download to export a backup as a standard SQL file.';
 
 // Column
 $_['column_filename']    = 'Filename';

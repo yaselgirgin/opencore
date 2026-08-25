@@ -141,7 +141,7 @@ class Backup extends \Opencart\System\Engine\Model {
 		foreach ($metadata['tables'] as $table) {
 			$name = $this->validateTableMetadata($table);
 			$this->writeExport($handle, 'DROP TABLE IF EXISTS `' . $name . "`;\n" . $schema[$name] . ";\n");
-			$this->exportStructuredRows($directory, $table, $handle);
+			$this->exportStructuredRows($directory, $table, $schema[$name], $handle);
 			$this->writeExport($handle, "\n");
 		}
 		$this->writeExport($handle, "SET FOREIGN_KEY_CHECKS = 1;\n");
@@ -441,13 +441,46 @@ class Backup extends \Opencart\System\Engine\Model {
 		});
 	}
 
-	private function exportStructuredRows(string $directory, array $table, $handle): void {
+	private function exportStructuredRows(string $directory, array $table, string $create, $handle): void {
 		$name = $this->validateTableMetadata($table);
 		$columns = implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $table['columns']));
-		$this->readStructuredRows($directory, $table, function(array $values) use ($name, $columns, $handle): void {
-			$sql = array_map(static fn($value): string => $value === null ? 'NULL' : "X'" . bin2hex($value) . "'", $values);
+		$types = $this->getSchemaColumnTypes($create, $table['columns']);
+		$this->readStructuredRows($directory, $table, function(array $values) use ($name, $columns, $types, $handle): void {
+			$sql = [];
+			foreach ($values as $index => $value) $sql[] = $this->getSqlExportLiteral($value, $types[$index]);
 			$this->writeExport($handle, 'INSERT INTO `' . $name . '` (' . $columns . ') VALUES (' . implode(', ', $sql) . ");\n");
 		});
+	}
+
+	private function getSchemaColumnTypes(string $create, array $columns): array {
+		preg_match_all('/^\s*`([a-zA-Z0-9_]+)`\s+([a-zA-Z]+)/m', $create, $matches, PREG_SET_ORDER);
+		$types = [];
+		foreach ($matches as $match) $types[$match[1]] = strtolower($match[2]);
+		if (array_keys($types) !== $columns) throw new \RuntimeException('SQL export column type metadata is inconsistent.');
+		return array_values($types);
+	}
+
+	private function getSqlExportLiteral(?string $value, string $type): string {
+		if ($value === null) return 'NULL';
+		if (in_array($type, ['tinyint', 'smallint', 'mediumint', 'int', 'integer', 'bigint'], true)) {
+			if (!preg_match('/^-?[0-9]+$/D', $value)) throw new \RuntimeException('SQL export integer value is invalid.');
+			return $value;
+		}
+		if (in_array($type, ['decimal', 'numeric'], true)) {
+			if (!preg_match('/^-?[0-9]+(?:\.[0-9]+)?$/D', $value)) throw new \RuntimeException('SQL export decimal value is invalid.');
+			return $value;
+		}
+		if (in_array($type, ['float', 'double', 'real'], true)) {
+			if (!preg_match('/^-?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/D', $value)) throw new \RuntimeException('SQL export floating-point value is invalid.');
+			return $value;
+		}
+		if (in_array($type, ['binary', 'varbinary', 'tinyblob', 'blob', 'mediumblob', 'longblob', 'bit'], true)) return "X'" . bin2hex($value) . "'";
+		if (in_array($type, ['char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext', 'enum', 'set', 'json', 'date', 'time', 'datetime', 'timestamp', 'year'], true)) {
+			if (preg_match('//u', $value) !== 1) throw new \RuntimeException('SQL export text value is not valid UTF-8.');
+			if ($type === 'json') json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+			return "'" . $this->db->escape($value) . "'";
+		}
+		throw new \RuntimeException('SQL export does not support a backed-up column type: ' . $type);
 	}
 
 	private function writeExport($handle, string $content): void {
