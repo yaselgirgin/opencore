@@ -25,8 +25,11 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 		$data['check'] = $this->url->link('tool/upgrade.check', 'user_token=' . $this->session->data['user_token']);
 		$data['prepare'] = $this->url->link('tool/upgrade.prepare', 'user_token=' . $this->session->data['user_token']);
 		$data['apply'] = $this->url->link('tool/upgrade.apply', 'user_token=' . $this->session->data['user_token']);
+		$data['database'] = $this->url->link('tool/upgrade.database', 'user_token=' . $this->session->data['user_token']);
 		$data['recover'] = $this->url->link('tool/upgrade.recover', 'user_token=' . $this->session->data['user_token']);
 		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/upgrade');
+		$gate_state = function_exists('oc_update_gate_state') ? oc_update_gate_state(DIR_STORAGE) : [];
+		$data['pending_database_version'] = ($gate_state['status'] ?? '') === 'DATABASE_PENDING' ? (string)($gate_state['target_version'] ?? '') : '';
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -96,6 +99,10 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 		$this->mutate('recover');
 	}
 
+	public function database(): void {
+		$this->mutate('database');
+	}
+
 	private function mutate(string $operation): void {
 		$this->load->language('tool/upgrade');
 		$json = [];
@@ -108,7 +115,13 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 			$json = ['success' => false, 'error' => $this->language->get('error_apply')];
 		} else {
 			$this->load->model('tool/upgrade');
-			$result = $operation === 'apply' ? $this->model_tool_upgrade->apply($this->request->post['version'], VERSION) : $this->model_tool_upgrade->recover($this->request->post['version']);
+			if ($operation === 'apply') {
+				$result = $this->model_tool_upgrade->apply($this->request->post['version'], VERSION);
+			} elseif ($operation === 'database') {
+				$result = $this->model_tool_upgrade->continueDatabase($this->request->post['version'], VERSION);
+			} else {
+				$result = $this->model_tool_upgrade->recover($this->request->post['version']);
+			}
 			$json = $result;
 			if (!$result['success']) {
 				$json['error'] = $this->language->get('error_' . strtolower($result['status']));

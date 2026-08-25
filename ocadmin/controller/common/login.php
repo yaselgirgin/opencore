@@ -20,7 +20,8 @@ class Login extends \Opencart\System\Engine\Controller {
 
 		// Check to see if user is already logged
 		if ($this->user->isLogged() && isset($this->request->get['user_token']) && isset($this->session->data['user_token']) && ($this->request->get['user_token'] == $this->session->data['user_token'])) {
-			$this->response->redirect($this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true));
+			$route = (function_exists('oc_update_gate_active') && oc_update_gate_active(DIR_STORAGE)) || (function_exists('oc_update_database_compatible') && !oc_update_database_compatible($this->config)) ? 'tool/upgrade' : 'common/dashboard';
+			$this->response->redirect($this->url->link($route, 'user_token=' . $this->session->data['user_token'], true));
 		}
 
 		// Check to see if user is using incorrect token
@@ -78,7 +79,8 @@ class Login extends \Opencart\System\Engine\Controller {
 		$post_info = $this->request->post + $required;
 
 		if ($this->user->isLogged() && isset($this->request->get['user_token']) && isset($this->session->data['user_token']) && ($this->request->get['user_token'] == $this->session->data['user_token'])) {
-			$json['redirect'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);
+			$route = (function_exists('oc_update_gate_active') && oc_update_gate_active(DIR_STORAGE)) || (function_exists('oc_update_database_compatible') && !oc_update_database_compatible($this->config)) ? 'tool/upgrade' : 'common/dashboard';
+			$json['redirect'] = $this->url->link($route, 'user_token=' . $this->session->data['user_token'], true);
 		}
 
 		if (!isset($this->request->get['login_token']) || !isset($this->session->data['login_token']) || $this->request->get['login_token'] != $this->session->data['login_token']) {
@@ -106,7 +108,8 @@ class Login extends \Opencart\System\Engine\Controller {
 
 			$this->model_user_user->addLogin($this->user->getId(), $login_data);
 
-			$json['redirect'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true);
+			$route = (function_exists('oc_update_gate_active') && oc_update_gate_active(DIR_STORAGE)) || (function_exists('oc_update_database_compatible') && !oc_update_database_compatible($this->config)) ? 'tool/upgrade' : 'common/dashboard';
+			$json['redirect'] = $this->url->link($route, 'user_token=' . $this->session->data['user_token'], true);
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

@@ -31,7 +31,8 @@ $_['action_pre_action'] = [
 	'startup/event',
 	'startup/login',
 	'startup/authorize',
-	'startup/permission'
+	'startup/permission',
+	'startup/update'
 ];
 
 // Actions

@@ -7,6 +7,13 @@ if (!is_file('config.php')) {
 // Config
 require_once('config.php');
 
+require_once(DIR_SYSTEM . 'helper/update_gate.php');
+
+if (oc_update_gate_active(DIR_STORAGE)) {
+	fwrite(STDERR, 'OpenCore update recovery is in progress.' . PHP_EOL);
+	exit(1);
+}
+
 $cron_id = null;
 
 if (PHP_SAPI === 'cli') {
@@ -233,6 +240,11 @@ $registry->set('url', new \Opencart\System\Library\Url($config->get('site_url'))
 
 // Startup
 $loader->controller('startup/setting');
+
+if (!oc_update_database_compatible($config)) {
+	fwrite(STDERR, 'OpenCore database compatibility recovery is required.' . PHP_EOL);
+	exit(1);
+}
 
 // Dispatch
 $result = $loader->controller('cron/cron', $cron_id);

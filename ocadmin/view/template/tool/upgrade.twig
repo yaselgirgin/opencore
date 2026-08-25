@@ -33,6 +33,7 @@
         {% if can_modify %}
           <button type="button" id="button-prepare" class="btn btn-warning" disabled><i class="fa-solid fa-box-archive"></i> {{ button_prepare }}</button>
           <button type="button" id="button-apply" class="btn btn-danger" disabled><i class="fa-solid fa-play"></i> {{ button_apply }}</button>
+          <button type="button" id="button-database" class="btn btn-danger{% if not pending_database_version %} d-none{% endif %}" data-version="{{ pending_database_version }}"><i class="fa-solid fa-database"></i> {{ button_database }}</button>
           <button type="button" id="button-recover" class="btn btn-outline-danger d-none"><i class="fa-solid fa-rotate-left"></i> {{ button_recover }}</button>
         {% endif %}
       </div>
@@ -122,15 +123,16 @@ function mutateUpdate(url, version, element) {
 
             if (!json.success) {
                 $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-                if (json.status === 'ROLLBACK_FAILED' || json.status === 'RECOVERY_REQUIRED') {
+                if (json.status === 'ROLLBACK_FAILED' || json.status === 'RECOVERY_REQUIRED' || json.status === 'DATABASE_RECOVERY_REQUIRED' || json.status === 'DATABASE_RESTORE_REQUIRED' || json.status === 'DATABASE_RESTORE_FAILED') {
                     $('#button-recover').data('version', version).removeClass('d-none');
                 }
                 return;
             }
 
-            var message = json.status === 'APPLIED' ? '{{ text_applied|escape('js') }}' : '{{ text_recovered|escape('js') }}';
+            var message = json.status === 'APPLIED' ? '{{ text_applied|escape('js') }}' : (json.status === 'DATABASE_PENDING' ? '{{ text_database_pending|escape('js') }}' : '{{ text_recovered|escape('js') }}');
             $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + message + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-            $('#button-recover').addClass('d-none');
+            $('#button-database').data('version', version).toggleClass('d-none', json.status !== 'DATABASE_PENDING');
+            $('#button-recover').toggleClass('d-none', json.status === 'DATABASE_PENDING');
         },
         error: function() {
             $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_apply|escape('js') }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
@@ -140,6 +142,10 @@ function mutateUpdate(url, version, element) {
 
 $('#button-apply').on('click', function() {
     mutateUpdate('{{ apply }}', $(this).data('version'), this);
+});
+
+$('#button-database').on('click', function() {
+    mutateUpdate('{{ database }}', $(this).data('version'), this);
 });
 
 $('#button-recover').on('click', function() {

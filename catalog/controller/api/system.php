@@ -30,4 +30,13 @@ class System extends \Opencart\System\Engine\Controller {
 			'error'   => 'Not Found'
 		]));
 	}
+
+	public function unavailable(): void {
+		$this->response->addHeader($this->request->server['SERVER_PROTOCOL'] . ' 503 Service Unavailable');
+		$this->response->addHeader('Retry-After: 60');
+		$this->response->setOutput(json_encode([
+			'success' => false,
+			'error'   => 'OpenCore database compatibility recovery is required.'
+		]));
+	}
 }

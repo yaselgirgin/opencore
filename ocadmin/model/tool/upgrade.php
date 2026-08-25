@@ -14,6 +14,92 @@ class Upgrade extends \Opencart\System\Engine\Model {
 	private const MAX_ARTIFACT_SIZE = 536870912;
 	private const MAX_MANIFEST_SIZE = 1048576;
 	private const MAX_STAGING_SIZE = 1073741824;
+	private const DATABASE_UPDATE_HANDLERS = [];
+	private const DATABASE_UPDATE_PLANS = [];
+
+	public function getDatabaseVersion(): ?string {
+		$query = $this->db->query("SELECT `value` FROM `" . DB_PREFIX . "setting` WHERE `code` = 'system' AND `key` = 'database_version'");
+
+		if ($query->num_rows > 1) {
+			throw new \RuntimeException('Database version metadata is duplicated.');
+		}
+
+		return $query->num_rows ? (string)$query->row['value'] : null;
+	}
+
+	public function setDatabaseVersion(string $version, string $source_version): void {
+		if ($this->normalizeVersion($version) !== $version || $this->normalizeVersion($source_version) !== $source_version || $this->getDatabaseVersion() !== $source_version) {
+			throw new \RuntimeException('Database version metadata precondition failed.');
+		}
+
+		$this->db->query("UPDATE `" . DB_PREFIX . "setting` SET `value` = '" . $this->db->escape($version) . "' WHERE `code` = 'system' AND `key` = 'database_version' AND `value` = '" . $this->db->escape($source_version) . "'");
+
+		if ($this->db->countAffected() !== 1) {
+			throw new \RuntimeException('Database version metadata update failed.');
+		}
+	}
+
+	public function getDatabaseRecoveryPlan(string $source_version): array {
+		return $this->resolveDatabaseRecoveryPlan(self::DATABASE_UPDATE_HANDLERS, self::DATABASE_UPDATE_PLANS, $source_version, VERSION);
+	}
+
+	private function resolveDatabaseRecoveryPlan(array $handlers, array $plans, string $source_version, string $target_version): array {
+		if ($this->normalizeVersion($source_version) !== $source_version || $this->normalizeVersion($target_version) !== $target_version || $this->compareVersions($source_version, $target_version) >= 0) {
+			throw new \RuntimeException('Database recovery version boundary is unsupported.');
+		}
+
+		foreach ($handlers as $identifier => $route) {
+			if (!is_string($identifier) || !is_string($route) || $route === '') {
+				throw new \RuntimeException('Database update handler allowlist is invalid.');
+			}
+		}
+
+		foreach ($plans as $plan_source => $identifiers) {
+			if (!is_string($plan_source) || !is_array($identifiers) || !$identifiers || $this->normalizeVersion($plan_source) !== $plan_source) {
+				throw new \RuntimeException('Database recovery plan contract is invalid.');
+			}
+
+			$validated = $this->validateDatabaseIdentifiers($identifiers, $plan_source, $target_version);
+
+			foreach ($validated as $identifier) {
+				if (!array_key_exists($identifier, $handlers)) {
+					throw new \RuntimeException('Database recovery plan references an unknown handler.');
+				}
+			}
+		}
+
+		if (!isset($plans[$source_version])) {
+			throw new \RuntimeException('Database recovery source version is not supported by this release.');
+		}
+
+		return array_values($plans[$source_version]);
+	}
+
+	private function createDatabaseBackup(string $root, string $source_version, string $target_version, string $database_version, array $updates): array {
+		$this->load->model('tool/backup');
+
+		return $this->model_tool_backup->createCompleteBackup($root . 'backup/database/', [
+			'source_version'          => $source_version,
+			'source_database_version' => $database_version,
+			'target_version'          => $target_version,
+			'updates'                 => $updates
+		]);
+	}
+
+	private function validateDatabaseBackupEvidence(string $root, array $evidence): void {
+		$this->load->model('tool/backup');
+		$validated = $this->model_tool_backup->validateCompleteBackup($root . 'backup/database/', DB_DATABASE);
+
+		if ($validated !== $evidence) {
+			throw new \RuntimeException('Database backup evidence does not match its dump.');
+		}
+	}
+
+	private function restoreDatabaseBackup(string $root): array {
+		$this->load->model('tool/backup');
+
+		return $this->model_tool_backup->restoreCompleteBackup($root . 'backup/database/', DB_DATABASE);
+	}
 
 	public function discover(string $current_version): array {
 		$releases = $this->requestReleases();
@@ -187,12 +273,19 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			return ['success' => false, 'status' => 'RECOVERY_REQUIRED'];
 		}
 
+		$database_version = null;
+
 		try {
 			$this->revalidateStagedState($root, $state, $version, $current_version);
 			$manifest = $this->validateStaging($root . 'staging/', $version, $current_version);
 
 			if ($manifest['database']['required']) {
-				return ['success' => false, 'status' => 'DATABASE_UPDATE_NOT_SUPPORTED'];
+				$database_version = $this->getDatabaseVersion();
+
+				if ($database_version !== $current_version) {
+					throw new \RuntimeException('Database version metadata does not match the source release.');
+				}
+
 			}
 			foreach (['backup/', 'vendor-candidate/', 'vendor-swap/', 'vendor-restore/', 'vendor-failed/'] as $workspace) {
 				if (file_exists($root . $workspace)) {
@@ -208,6 +301,13 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			$this->acquireLock($lock_file, $version);
 			try {
 				$journal = $this->createApplyJournal($root, $manifest, $version, $current_version);
+
+				if ($manifest['database']['required']) {
+					$journal['database']['source_database_version'] = $database_version;
+					$journal['database']['backup'] = $this->createDatabaseBackup($root, $current_version, $version, (string)$database_version, $manifest['database']['updates']);
+					$journal['database']['status'] = 'DATABASE_BACKUP_VERIFIED';
+				}
+
 				$this->writeState($journal_file, $journal);
 			} catch (\Throwable $throwable) {
 				$this->discardUnstartedApply($root, $version);
@@ -237,6 +337,25 @@ class Upgrade extends \Opencart\System\Engine\Model {
 
 			if ($journal['vendor']['included']) {
 				$this->applyVendor($root, $journal, $journal_file);
+			}
+
+			if ($journal['database']['required']) {
+				$journal['status'] = 'DATABASE_PENDING';
+				$journal['database']['status'] = 'DATABASE_PENDING';
+				$journal['database']['pending_at'] = gmdate('c');
+				$this->writeState($journal_file, $journal);
+				$this->writeState($state_file, [
+					'status'                  => 'DATABASE_PENDING',
+					'source_version'          => $current_version,
+					'source_database_version' => $database_version,
+					'target_version'          => $version,
+					'updates'                 => $journal['database']['updates'],
+					'backup'                  => 'backup/database',
+					'backup_sha256'           => $journal['database']['backup']['evidence_sha256'],
+					'pending_at'               => gmdate('c')
+				]);
+
+				return ['success' => true, 'status' => 'DATABASE_PENDING', 'version' => $version];
 			}
 
 			foreach ($journal['operations'] as $index => $operation) {
@@ -276,6 +395,84 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		}
 	}
 
+	public function continueDatabase(string $version, string $current_version): array {
+		if ($this->normalizeVersion($version) !== $version || $this->normalizeVersion($current_version) !== $current_version) {
+			return ['success' => false, 'status' => 'DATABASE_RECOVERY_REQUIRED'];
+		}
+
+		$update_root = rtrim(DIR_STORAGE, '/\\') . '/updates/';
+		$root = $update_root . $version . '/';
+		$state_file = $root . 'state/state.json';
+		$journal_file = $root . 'state/journal.json';
+		$lock_file = $update_root . 'apply.lock';
+
+		if (!is_file($state_file) && !is_file($lock_file)) {
+			try {
+				if ($version !== $current_version) {
+					throw new \RuntimeException('Restore recovery target must be the deployed application version.');
+				}
+
+				$database_version = $this->getDatabaseVersion();
+
+				if ($database_version === null) {
+					throw new \RuntimeException('Database version metadata is missing.');
+				}
+
+				$this->getDatabaseRecoveryPlan($database_version);
+				throw new \RuntimeException('Restore recovery requires an explicit backed-up recovery operation.');
+			} catch (\Throwable $throwable) {
+				$this->log->write('OpenCore restore recovery planning blocked: ' . $throwable->getMessage());
+
+				return ['success' => false, 'status' => 'DATABASE_RECOVERY_REQUIRED'];
+			}
+		}
+
+		try {
+			$state = $this->readState($state_file);
+			$journal = $this->readState($journal_file);
+			$this->assertLockOwner($lock_file, $version);
+
+			if (($state['status'] ?? '') !== 'DATABASE_PENDING' || ($state['target_version'] ?? '') !== $version || ($state['source_version'] ?? '') !== $current_version || ($journal['status'] ?? '') !== 'DATABASE_PENDING' || ($journal['target_version'] ?? '') !== $version || ($journal['source_version'] ?? '') !== $current_version) {
+				throw new \RuntimeException('Database continuation state is inconsistent.');
+			}
+
+			$database = $journal['database'] ?? null;
+
+			if (!is_array($database) || ($database['required'] ?? null) !== true || ($database['status'] ?? '') !== 'DATABASE_PENDING' || ($database['source_database_version'] ?? '') !== $current_version || $this->getDatabaseVersion() !== $current_version) {
+				throw new \RuntimeException('Database continuation precondition failed.');
+			}
+
+			$updates = $this->validateDatabaseIdentifiers($database['updates'] ?? [], $current_version, $version);
+			if ($updates !== ($state['updates'] ?? null) || !is_array($database['backup'] ?? null)) {
+				throw new \RuntimeException('Database continuation identifiers are inconsistent.');
+			}
+
+			$this->validateDatabaseBackupEvidence($root, $database['backup']);
+			$metadata = $database['backup']['metadata'] ?? null;
+			if (!is_array($metadata) || ($metadata['source_version'] ?? '') !== $current_version || ($metadata['source_database_version'] ?? '') !== $current_version || ($metadata['target_version'] ?? '') !== $version || ($metadata['updates'] ?? null) !== $updates || ($state['backup'] ?? '') !== 'backup/database' || ($state['backup_sha256'] ?? '') !== ($database['backup']['evidence_sha256'] ?? '')) {
+				throw new \RuntimeException('Database backup identity does not match the handoff.');
+			}
+			$this->validateDatabaseHandoff($root, $journal);
+
+			foreach ($updates as $identifier) {
+				if (!isset(self::DATABASE_UPDATE_HANDLERS[$identifier])) {
+					throw new \RuntimeException('Database update identifier is not allowed by the target release.');
+				}
+			}
+
+			throw new \RuntimeException('No database update handlers are available in this release.');
+		} catch (\Throwable $throwable) {
+			$this->log->write('OpenCore database continuation blocked for ' . $version . ': ' . $throwable->getMessage());
+
+			try {
+				$this->writeState($state_file, ['status' => 'DATABASE_RECOVERY_REQUIRED', 'source_version' => $current_version, 'target_version' => $version, 'failed_at' => gmdate('c')]);
+			} catch (\Throwable) {
+			}
+
+			return ['success' => false, 'status' => 'DATABASE_RECOVERY_REQUIRED'];
+		}
+	}
+
 	public function recover(string $version): array {
 		if ($this->normalizeVersion($version) !== $version) {
 			return ['success' => false, 'status' => 'RECOVERY_FAILED'];
@@ -286,6 +483,53 @@ class Upgrade extends \Opencart\System\Engine\Model {
 		$state_file = $root . 'state/state.json';
 		$lock_file = $update_root . 'apply.lock';
 		$state = $this->readState($state_file);
+
+		if (in_array($state['status'] ?? '', ['DATABASE_PENDING', 'DATABASE_APPLYING', 'DATABASE_RECOVERY_REQUIRED', 'DATABASE_RESTORE_REQUIRED', 'DATABASE_RESTORING', 'DATABASE_RESTORE_FAILED', 'DATABASE_RESTORED'], true)) {
+			try {
+				$this->assertLockOwner($lock_file, $version);
+
+				if (($state['status'] ?? '') === 'DATABASE_PENDING') {
+					$journal = $this->readState($root . 'state/journal.json');
+					if (!is_array($journal['database']['backup'] ?? null)) {
+						throw new \RuntimeException('Database backup evidence is missing.');
+					}
+					$this->validateDatabaseBackupEvidence($root, $journal['database']['backup']);
+					if (($state['source_version'] ?? '') !== ($journal['source_version'] ?? '') || ($state['source_database_version'] ?? '') !== ($journal['database']['source_database_version'] ?? '') || ($state['updates'] ?? null) !== ($journal['database']['updates'] ?? null) || ($state['backup'] ?? '') !== 'backup/database' || ($state['backup_sha256'] ?? '') !== ($journal['database']['backup']['evidence_sha256'] ?? '')) {
+						throw new \RuntimeException('Database recovery evidence does not match the handoff.');
+					}
+					$this->validateDatabaseHandoff($root, $journal);
+
+					return ['success' => true, 'status' => 'DATABASE_PENDING', 'version' => $version];
+				}
+
+				if (($state['status'] ?? '') === 'DATABASE_RESTORE_REQUIRED') {
+					$journal = $this->readState($root . 'state/journal.json');
+					if (!is_array($journal['database']['backup'] ?? null)) {
+						throw new \RuntimeException('Database restore evidence is missing.');
+					}
+					$this->validateDatabaseBackupEvidence($root, $journal['database']['backup']);
+					$this->writeState($state_file, ['status' => 'DATABASE_RESTORING', 'source_version' => $journal['source_version'], 'target_version' => $version, 'started_at' => gmdate('c')]);
+					try {
+						$restored = $this->restoreDatabaseBackup($root);
+					} catch (\Throwable $throwable) {
+						$this->writeState($state_file, ['status' => 'DATABASE_RESTORE_FAILED', 'source_version' => $journal['source_version'], 'target_version' => $version, 'failed_at' => gmdate('c')]);
+						$this->log->write('OpenCore database restore failed for ' . $version . ': ' . $throwable->getMessage());
+
+						return ['success' => false, 'status' => 'DATABASE_RESTORE_FAILED'];
+					}
+					$this->writeState($state_file, ['status' => 'DATABASE_RESTORED', 'source_version' => $journal['source_version'], 'target_version' => $version, 'database_version' => $restored['database_version'], 'restored_at' => gmdate('c')]);
+
+					return ['success' => true, 'status' => 'DATABASE_RESTORED', 'version' => $version];
+				}
+
+				return ['success' => false, 'status' => $state['status']];
+			} catch (\Throwable $throwable) {
+				$this->log->write('OpenCore database recovery evidence failed for ' . $version . ': ' . $throwable->getMessage());
+				$this->writeState($state_file, ['status' => 'DATABASE_RECOVERY_REQUIRED', 'target_version' => $version, 'failed_at' => gmdate('c')]);
+
+				return ['success' => false, 'status' => 'DATABASE_RECOVERY_REQUIRED'];
+			}
+		}
 
 		if (($state['status'] ?? '') === 'STAGED' && ($state['target_version'] ?? '') === $version && is_file($lock_file)) {
 			try {
@@ -413,7 +657,16 @@ class Upgrade extends \Opencart\System\Engine\Model {
 
 		$vendor = $this->createVendorJournal($root, $manifest['vendor']);
 
-		return ['status' => 'PLANNED', 'target_version' => $version, 'source_version' => $current_version, 'created_at' => gmdate('c'), 'operations' => $operations, 'vendor' => $vendor];
+		$database = [
+			'required'                => (bool)$manifest['database']['required'],
+			'updates'                 => $manifest['database']['updates'],
+			'source_database_version' => null,
+			'backup'                  => null,
+			'status'                  => $manifest['database']['required'] ? 'DATABASE_BACKUP_PENDING' : 'NOT_REQUIRED',
+			'handlers'                => []
+		];
+
+		return ['status' => 'PLANNED', 'target_version' => $version, 'source_version' => $current_version, 'created_at' => gmdate('c'), 'operations' => $operations, 'vendor' => $vendor, 'database' => $database];
 	}
 
 	private function createVendorJournal(string $root, array $manifest_vendor): array {
@@ -559,52 +812,12 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			throw new \RuntimeException('Vendor bootstrap or Composer metadata is missing.');
 		}
 
-		$probe = <<<'PHP'
-$autoload = $argv[1];
-$loader = require $autoload;
-$composer = dirname($autoload) . '/composer/installed.php';
-$composer_json = dirname($autoload) . '/composer/installed.json';
-$metadata = is_file($composer) ? require $composer : json_decode((string)file_get_contents($composer_json), true);
-if (!$loader instanceof Composer\Autoload\ClassLoader || !is_array($metadata) || !class_exists('Composer\\InstalledVersions') || !class_exists('Twig\\Environment')) {
-	exit(2);
-}
-echo 'OPENCORE_VENDOR_OK';
-PHP;
-		$process = proc_open([PHP_BINARY, '-r', $probe, $autoload], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, null, ['bypass_shell' => true]);
-		if (!is_resource($process)) {
-			throw new \RuntimeException('Vendor runtime probe could not start.');
-		}
-		stream_set_blocking($pipes[1], false);
-		stream_set_blocking($pipes[2], false);
-		$output = '';
-		$error = '';
-		$deadline = microtime(true) + 30;
-		$exit_code = null;
-		do {
-			$output .= stream_get_contents($pipes[1], 8192);
-			$error .= stream_get_contents($pipes[2], 8192);
-			$status = proc_get_status($process);
-			if (!$status['running']) {
-				$exit_code = $status['exitcode'];
-				break;
-			}
-			if (microtime(true) >= $deadline) {
-				proc_terminate($process);
-				throw new \RuntimeException('Vendor runtime probe timed out.');
-			}
-			if (strlen($output) + strlen($error) >= 65536) {
-				proc_terminate($process);
-				throw new \RuntimeException('Vendor runtime probe output exceeded its limit.');
-			}
-			usleep(10000);
-		} while (true);
-		$output .= stream_get_contents($pipes[1], 8192);
-		$error .= stream_get_contents($pipes[2], 8192);
-		fclose($pipes[1]);
-		fclose($pipes[2]);
-		$closed = proc_close($process);
-		$exit_code = $exit_code ?? $closed;
-		if ($exit_code !== 0 || trim($output) !== 'OPENCORE_VENDOR_OK') {
+		$metadata = is_file($installed_json) ? json_decode((string)file_get_contents($installed_json), true) : require $installed_php;
+		$loader = require $autoload;
+
+		$twig = $loader instanceof \Composer\Autoload\ClassLoader ? $loader->findFile('Twig\\Environment') : false;
+
+		if (!is_array($metadata) || !$loader instanceof \Composer\Autoload\ClassLoader || !is_file(rtrim($vendor_root, '/\\') . '/composer/InstalledVersions.php') || !is_string($twig) || str_replace('\\', '/', $twig) !== str_replace('\\', '/', rtrim($vendor_root, '/\\') . '/twig/twig/src/Environment.php')) {
 			throw new \RuntimeException('Vendor runtime probe failed.');
 		}
 	}
@@ -789,6 +1002,39 @@ PHP;
 			} elseif (file_exists($this->getLiveVendorRoot())) {
 				throw new \RuntimeException('Rolled-back vendor evidence is inconsistent.');
 			}
+		}
+	}
+
+	private function validateDatabaseHandoff(string $root, array $journal): void {
+		if (($journal['status'] ?? '') !== 'DATABASE_PENDING' || !isset($journal['operations'], $journal['vendor']) || !is_array($journal['operations']) || !is_array($journal['vendor'])) {
+			throw new \RuntimeException('Database handoff journal is invalid.');
+		}
+
+		foreach ($journal['operations'] as $operation) {
+			$path = $this->validateJournalOperation($operation);
+			$live = $this->resolveLivePath($path);
+
+			if ($path === 'system/version.php') {
+				if (($operation['status'] ?? '') !== 'PENDING' || !$operation['old_exists'] || !is_file($live) || !hash_equals((string)$operation['old_hash'], hash_file('sha256', $live))) {
+					throw new \RuntimeException('Canonical version file advanced before database completion.');
+				}
+			} elseif (($operation['status'] ?? '') !== 'COMPLETED') {
+				throw new \RuntimeException('Target application handoff is incomplete.');
+			} elseif ($operation['operation'] === 'REMOVE') {
+				if (file_exists($live)) {
+					throw new \RuntimeException('Target application removal is incomplete.');
+				}
+			} elseif (!is_file($live) || !hash_equals((string)$operation['new_hash'], hash_file('sha256', $live))) {
+				throw new \RuntimeException('Target application file identity is invalid.');
+			}
+		}
+
+		if (($journal['vendor']['included'] ?? false) === true) {
+			$vendor = $this->validateVendorJournal($journal['vendor']);
+			if ($vendor['status'] !== 'VENDOR_VERIFIED') {
+				throw new \RuntimeException('Target vendor handoff is incomplete.');
+			}
+			$this->assertVendorIdentity($this->getLiveVendorRoot(), $vendor['new_identity']);
 		}
 	}
 
@@ -1114,7 +1360,7 @@ PHP;
 	private function findUnresolvedUpdate(string $update_root): bool {
 		foreach (glob(rtrim($update_root, '/\\') . '/*/state/state.json') ?: [] as $state_file) {
 			$state = $this->readState($state_file);
-			if (in_array($state['status'] ?? '', ['APPLYING', 'ROLLBACK_REQUIRED', 'ROLLBACK_FAILED'], true)) {
+			if (in_array($state['status'] ?? '', ['APPLYING', 'ROLLBACK_REQUIRED', 'ROLLBACK_FAILED', 'DATABASE_PENDING', 'DATABASE_APPLYING', 'DATABASE_RECOVERY_REQUIRED', 'DATABASE_RESTORE_REQUIRED', 'DATABASE_RESTORING', 'DATABASE_RESTORE_FAILED', 'DATABASE_RESTORED'], true)) {
 				return true;
 			}
 		}
@@ -1199,11 +1445,7 @@ PHP;
 		}
 
 		$this->assertKeys($manifest['database'], ['required', 'updates']);
-		foreach ($manifest['database']['updates'] as $update) {
-			if (!is_string($update) || !preg_match('/^[a-z0-9][a-z0-9._-]*$/', $update)) {
-				throw new \RuntimeException('Database update identifier is invalid.');
-			}
-		}
+		$manifest['database']['updates'] = $this->validateDatabaseIdentifiers($manifest['database']['updates'], $current_version, $version);
 		if ($manifest['database']['required'] !== (bool)$manifest['database']['updates']) {
 			throw new \RuntimeException('Database update requirement is inconsistent.');
 		}
@@ -1376,6 +1618,42 @@ PHP;
 			return null;
 		}
 		return $matches[1] . '.' . $matches[2] . '.' . $matches[3];
+	}
+
+	public function validateDatabaseIdentifiers(array $identifiers, string $source_version, string $target_version): array {
+		if ($this->normalizeVersion($source_version) !== $source_version || $this->normalizeVersion($target_version) !== $target_version || $this->compareVersions($source_version, $target_version) >= 0) {
+			throw new \RuntimeException('Database update version boundary is invalid.');
+		}
+
+		$pattern = '/^(\d{4}\.(?:0[1-9]|1[0-2])\.[1-9]\d*)\.(00[1-9]|0[1-9][0-9]|[1-9][0-9]{2})$/';
+		$validated = [];
+		$previous_version = null;
+		$previous_sequence = 0;
+
+		foreach ($identifiers as $identifier) {
+			if (!is_string($identifier) || !preg_match($pattern, $identifier, $matches)) {
+				throw new \RuntimeException('Database update identifier is malformed.');
+			}
+
+			$step_version = $matches[1];
+			$sequence = (int)$matches[2];
+
+			if ($this->normalizeVersion($step_version) !== $step_version || $this->compareVersions($step_version, $source_version) <= 0 || $this->compareVersions($step_version, $target_version) > 0) {
+				throw new \RuntimeException('Database update step version is outside the source and target boundary.');
+			}
+
+			$version_order = $previous_version === null ? 1 : $this->compareVersions($step_version, $previous_version);
+
+			if (isset($validated[$identifier]) || $version_order < 0 || ($version_order === 0 && $sequence <= $previous_sequence)) {
+				throw new \RuntimeException('Database update identifiers are duplicated or out of order.');
+			}
+
+			$validated[$identifier] = $identifier;
+			$previous_version = $step_version;
+			$previous_sequence = $sequence;
+		}
+
+		return array_values($validated);
 	}
 
 	public function compareVersions(string $version1, string $version2): int {

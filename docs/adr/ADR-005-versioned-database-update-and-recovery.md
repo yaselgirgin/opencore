@@ -145,12 +145,19 @@ Mevcut kapalı şekil korunur:
 {
   "database": {
     "required": true,
-    "updates": ["2026.08.2-001"]
+    "updates": ["2026.08.2.001"]
   }
 }
 ```
 
 Manifest yalnız identifier taşır; SQL, PHP, script body veya DB logic URL'si taşıyamaz. Identifier formatı implementation phase'inde exact, kapalı ve versioned hale getirilir.
+
+Exact identifier biçimi `<step-version>.NNN` olur. `step-version`, canonical
+`YYYY.MM.RELEASE` biçimindedir; `NNN` tam üç basamaklı ve en az `001` olur.
+Step version source `database_version` değerinden büyük, final target version
+değerinden küçük veya ona eşit olmalıdır. Identifier listesi önce step version
+numeric bileşenlerine, sonra aynı step içindeki sequence değerine göre strictly
+increasing olmak zorundadır.
 
 Şunlar reddedilir:
 
@@ -163,6 +170,13 @@ Manifest yalnız identifier taşır; SQL, PHP, script body veya DB logic URL'si 
 ## 12. Cumulative Release Politikası
 
 OpenCore cumulative target package kullanır. Örneğin `2026.08.1 -> 2026.08.3` doğrudan destekleniyorsa 2026.08.3 manifesti gerekli handler'ları exact sırayla ilan eder; 2026.08.3 target source bunların implementasyon ve allowlist sahibidir.
+
+Bu durumda target manifest ve allowlist ara step identifier'larını açıkça
+içerebilir. Örneğin `2026.08.1 -> 2026.08.3` zinciri
+`2026.08.2.001`, `2026.08.2.002`, `2026.08.3.001` identifier'larını
+kullanabilir. Encoded version final target zorunluluğu taşımaz; DB step version'ı
+ifade eder. Buna rağmen bütün handler eşleşmeleri final target release'in exact
+allowlist'inden gelir; scanning veya automatic discovery yapılmaz.
 
 `compatible_source_versions` doğrudan upgrade desteğinin otoritesidir. Historical migration directory discovery yapılmaz.
 
@@ -217,31 +231,45 @@ Evidence en az şunları içerir:
 - target version,
 - ordered update identifiers,
 - creation timestamp,
-- backup filename/size/SHA-256,
-- provider identity ve exit/validation status.
+- backup format version ve DB prefix,
+- database server driver/version,
+- base-table/object inventory,
+- `database.sql` byte size/SHA-256,
+- terminal validation status.
 
 Backup yoksa, boşsa, okunamıyorsa veya hash doğrulanamıyorsa DB mutation başlamaz.
 
 ## 16. Backup Provider
 
-Production-grade logical dump/restore için native MySQL/MariaDB client tooling kullanılır; PHP içinde ikinci bir SQL dump engine yazılmaz.
+Core OpenCore DB backup/restore PHP/MySQLi-native'dir ve normal OpenCore database connection üzerinden çalışır. Shell/process capability, SSH, `proc_open`, `exec`, `mysqldump`, `mysql` client veya executable path configuration core updater contract'ının parçası değildir.
 
-Deployment protected configuration içinde dump ve client executable'larının absolute path'lerini açıkça sağlar. Exact constant adları implementation audit'inde kesinleştirilebilir; kavramsal değerler:
+Authoritative ownership native `Admin Model Tool Backup` içindedir. Updater ve Manual Admin Backup/Restore aynı complete SQL writer/restore contract'ını kullanır; release manifest SQL, backup path veya executable seçemez.
+
+Updater backup formatı source-controlled ve streaming'dir:
 
 ```text
-DB_DUMP_EXECUTABLE
-DB_CLIENT_EXECUTABLE
+backup/database/
+    database.sql
+    evidence.json
 ```
+
+Manual Backup/Restore kullanıcıya `.sql` dosyası sunar. Yeni manual backup'lar aynı Model tarafından schema + data içerecek şekilde üretilir. Historical data-only `.sql` dosyaları history/download/delete akışında korunur; güvenli legacy restore davranışı updater trust boundary'sine dahil edilmeden devam edebilir.
 
 Kurallar:
 
-- XAMPP path'i veya PATH availability hard-code edilmez,
-- executable mutation öncesi doğrulanır,
-- shell command string concatenation yapılmaz,
-- credentials doğrudan command-line argument'e konmaz,
-- araç yoksa updater fail closed çalışır,
-- protected deployment config release artifact tarafından değiştirilmez,
-- Composer çalıştırılmaz.
+- schema actual database state'ten `SHOW CREATE TABLE` ile alınır; repository schema'dan üretilmez,
+- rows primary-key order'da bounded batches halinde stream edilir,
+- `NULL` SQL `NULL` olarak, diğer scalar/UTF-8/binary bytes hexadecimal SQL literal olarak taşınır,
+- `database.sql` standalone MySQL/MariaDB SQL'dir; PHP serialization veya executable PHP içermez,
+- her statement `-- OPENCORE-SQL-STATEMENT <byte-length> <sha256>` comment frame'iyle sınırlandırılır; restore yalnız exact byte count/hash doğrulanmış OpenCore statement sırasını replay eder ve generic SQL parser olmaz,
+- metadata database identity, prefix, source/DB/target versions, ordered update identifiers, server identity ve object/table inventory içerir,
+- evidence `database.sql` byte size ve SHA-256 değerini doğrular,
+- temporary workspace yalnız tam doğrulamadan sonra atomic directory rename ile aktive edilir,
+- mevcut verified backup körlemesine overwrite edilmez,
+- core format base tables'ı destekler; view, trigger, routine, event veya primary key'siz table görülürse complete backup oluşturulmaz ve updater fail closed kalır,
+- restore yalnız fixed updater workspace'teki doğrulanmış OpenCore formatını kabul eder; arbitrary SQL upload updater recovery input'u değildir.
+
+Native client tabanlı alternatif provider ancak gelecekte ayrı ADR ile optional optimization olarak değerlendirilebilir; core correctness ona bağlanamaz.
 
 ## 17. Failure ve Recovery Politikası
 
@@ -261,6 +289,45 @@ Kurallar:
 5. State `DATABASE_RECOVERY_REQUIRED`, `DATABASE_RESTORE_REQUIRED` veya `DATABASE_RESTORE_FAILED` olur.
 
 Restore/recovery başarıyla doğrulanmadan gate ve updater lock kaldırılmaz.
+
+Full logical restore MySQL/MariaDB DDL implicit-commit kuralları nedeniyle atomic değildir. Restore başlamadan evidence/hash/database identity yeniden doğrulanır ve durable state sırasıyla `DATABASE_RESTORE_REQUIRED` -> `DATABASE_RESTORING` -> `DATABASE_RESTORED` olur. Herhangi bir failure `DATABASE_RESTORE_FAILED` bırakır; backup, journal, updater lock ve request gate korunur. `DATABASE_RESTORED` başarılı physical restore kanıtıdır, application/DB compatibility kanıtı değildir ve tek başına gate/lock kaldırmaz.
+
+Full logical DB restore, `oc_setting` içindeki system-owned
+`database_version` satırını backup'ta bulunduğu haliyle restore eder. Restore
+kodu bu değeri deployed application `VERSION` değeriyle eşleştirmek için
+otomatik olarak yeniden yazmaz. Örneğin `system/version.php = 2026.08.3` ve
+`database_version = 2026.08.1` durumu application/DB contract mismatch'tir ve
+native Upgrade/Recovery uyumluluğu yeniden kanıtlayana kadar fail closed kalır.
+
+Bu compatibility guard, `DIR_STORAGE/updates/` durable state gate'inden ayrı
+bir sinyaldir. Durable state gate DB erişilemese bile pending/interrupted update'i
+tespit eder. Compatibility guard ise aktif unresolved updater state yokken
+`VERSION` ile system-owned `database_version` değerini karşılaştırır. DB marker'ın
+eksik olması da, ayrı onaylı legacy baseline initialization dışında, unresolved
+uyumluluk durumudur. `DATABASE_PENDING` handoff sırasında target application
+dosyaları aktif olsa bile hem `VERSION` hem `database_version` bilinçli olarak
+source version'da kalır; bu nedenle filesystem state otoritesi korunur.
+
+Full-restore veya out-of-band mismatch durumunda aktif updater manifest/state
+snapshot'ı bulunmayabilir. Bu durumda target Upgrade Model, desteklediği exact
+source `database_version` değerlerini source-controlled recovery plan'larında
+ilan eder. Her plan ordered `<step-version>.NNN` identifier listesidir ve her
+identifier aynı target source içindeki exact handler allowlist'inde bulunmak
+zorundadır. Plan key'i bulunamazsa kısmi handler subset'i çıkarılmaz; recovery
+fail closed kalır. Directory scanning, filesystem discovery ve manifest dışında
+handler türetme yapılmaz.
+
+Aktif `DATABASE_PENDING` handoff identifier'larını validated durable manifest
+snapshot'ından alır. Durable updater state bulunmayan restore mismatch ise
+identifier'larını yalnız target-owned recovery plan'ın exact source-version
+entry'sinden alır; sırf mismatch bulunduğu için sahte `DATABASE_PENDING`
+oluşturulmaz. `database_version > VERSION` downgrade, reverse migration veya
+metadata rewrite başlatmaz ve operator recovery gerektirir.
+
+Desteklenen forward restore-recovery plan'ı explicit olarak başlatıldığında,
+herhangi bir DB handler çalışmadan önce restored current DB için yeni bir full
+logical backup oluşturulup Phase 3E-B evidence contract'ıyla doğrulanır. Eski
+restore kaynağı bu yeni pre-mutation recovery backup'ının yerine geçmez.
 
 ## 18. Filesystem ve DB Atomicity
 
@@ -323,7 +390,7 @@ Bu ADR aşağıdakileri oluşturmaz:
 - updater-specific request gate,
 - strengthened identifier validation,
 - target-owned explicit handler allowlist plumbing,
-- native dump/client provider preflight ve backup evidence,
+- PHP/MySQLi-native full SQL backup/restore ve `database.sql` evidence,
 - durable DB state/journal,
 - safe second-request continuation.
 
@@ -342,7 +409,7 @@ Fake production migration eklenmez. İlk gerçek schema-changing handler, gerçe
 ### Maliyet ve sınırlar
 
 - DB-changing release build'i boot compatibility kanıtı ister.
-- Deployment native dump/restore araçlarını güvenli biçimde yapılandırmalıdır.
+- Deployment normal DB metadata/data privileges ve writable external updater storage sağlamalıdır.
 - DB update sırasında normal Admin/API/Cron erişimi gate edilir.
 - Non-transactional DDL failure otomatik rollback yerine verified restore veya açık recovery gerektirebilir.
 - Her gerçek DB handler kendi contract ve review'una ihtiyaç duyar.

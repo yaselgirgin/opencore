@@ -16,11 +16,13 @@ $_['text_already_staged']   = 'This update is already staged and validated.';
 $_['text_applied']          = 'The OpenCore application update was applied successfully.';
 $_['text_rolled_back']      = 'The update failed and all application file changes were rolled back.';
 $_['text_recovered']        = 'The interrupted application update was rolled back successfully.';
+$_['text_database_pending']  = 'Application files are ready. Continue the required database update in a new request.';
 
 // Button
 $_['button_check']         = 'Check for Updates';
 $_['button_prepare']       = 'Download & Validate';
 $_['button_apply']          = 'Apply Update';
+$_['button_database']       = 'Continue Database Update';
 $_['button_recover']        = 'Recover Update';
 
 // Error
@@ -35,7 +37,7 @@ $_['error_apply']           = 'Unable to apply the staged update.';
 $_['error_preflight_failed'] = 'The staged update failed the final preflight validation.';
 $_['error_recovery_required'] = 'A prior update requires recovery before another update can be applied.';
 $_['error_rollback_failed'] = 'Automatic rollback could not be completed. Recovery is required.';
-$_['error_database_update_not_supported'] = 'This release requires a database update that is not supported in this phase.';
+$_['error_database_recovery_required'] = 'Database update recovery evidence requires review before this update can continue.';
 $_['error_vendor_apply_not_supported'] = 'This release requires a vendor update that is not supported in this phase.';
 $_['error_recovery_not_required'] = 'This update does not require recovery.';
 $_['error_recovery_failed'] = 'The interrupted update could not be recovered.';
