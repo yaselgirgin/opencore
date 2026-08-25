@@ -22,11 +22,9 @@ class Backup extends \Opencart\System\Engine\Model {
 		}
 
 		try {
-			$metadata = $this->createSqlBackup($temporary . 'database.sql', $context, $this->getCompleteObjectInventory()['tables']);
-			$evidence = $metadata + [
-				'database_sql' => ['size' => filesize($temporary . 'database.sql'), 'sha256' => hash_file('sha256', $temporary . 'database.sql')],
-				'status'       => 'VERIFIED'
-			];
+			$metadata = $this->createStructuredBackup($temporary, $context, $this->getCompleteObjectInventory()['tables']);
+			$this->writeJsonFile($temporary . 'metadata.json', $metadata);
+			$evidence = $this->createEvidence($temporary, $metadata);
 			$this->writeJsonFile($temporary . 'evidence.json', $evidence);
 			$this->validateCompleteBackup($temporary, DB_DATABASE);
 
@@ -41,8 +39,8 @@ class Backup extends \Opencart\System\Engine\Model {
 		}
 	}
 
-	public function createManualBackup(string $file, array $tables): array {
-		$this->assertManualBackupFile($file, false);
+	public function createManualBackup(string $directory, array $tables): array {
+		$this->assertBackupDirectory($directory, false);
 		$available = $this->getCompleteObjectInventory()['tables'];
 		$tables = array_values(array_unique($tables));
 		sort($tables, SORT_STRING);
@@ -53,56 +51,60 @@ class Backup extends \Opencart\System\Engine\Model {
 
 		$query = $this->db->query("SELECT `value` FROM `" . DB_PREFIX . "setting` WHERE `code` = 'system' AND `key` = 'database_version'");
 		$context = ['source_version' => VERSION, 'source_database_version' => $query->num_rows === 1 ? (string)$query->row['value'] : null, 'target_version' => VERSION, 'updates' => []];
-		$temporary = $file . '.tmp-' . bin2hex(random_bytes(8));
+		return $this->createCompleteBackupForTables($directory, $context, $tables);
+	}
 
+	private function createCompleteBackupForTables(string $directory, array $context, array $tables): array {
+		$this->assertBackupDirectory($directory, false);
+		$this->assertContext($context);
+		$temporary = rtrim($directory, '/\\') . '.tmp-' . bin2hex(random_bytes(8)) . '/';
+		if (!mkdir($temporary, 0750, true)) throw new \RuntimeException('Database backup workspace could not be created.');
 		try {
-			$metadata = $this->createSqlBackup($temporary, $context, $tables);
-			if (!rename($temporary, $file)) {
-				throw new \RuntimeException('Manual SQL backup could not be activated.');
-			}
-			return $metadata;
+			$metadata = $this->createStructuredBackup($temporary, $context, $tables);
+			$this->writeJsonFile($temporary . 'metadata.json', $metadata);
+			$evidence = $this->createEvidence($temporary, $metadata);
+			$this->writeJsonFile($temporary . 'evidence.json', $evidence);
+			$this->validateCompleteBackup($temporary, DB_DATABASE);
+			if (!rename(rtrim($temporary, '/\\'), rtrim($directory, '/\\'))) throw new \RuntimeException('Verified database backup could not be activated.');
+			return $this->validateCompleteBackup($directory, DB_DATABASE);
 		} catch (\Throwable $throwable) {
-			@unlink($temporary);
+			$this->removeBackupTree($temporary);
 			throw $throwable;
 		}
 	}
 
 	public function validateCompleteBackup(string $directory, string $expected_database): array {
 		$this->assertBackupDirectory($directory, true);
+		$metadata = $this->readJsonFile(rtrim($directory, '/\\') . '/metadata.json');
 		$evidence = $this->readJsonFile(rtrim($directory, '/\\') . '/evidence.json');
-		$sql = rtrim($directory, '/\\') . '/database.sql';
 
-		if (($evidence['format_version'] ?? null) !== self::FORMAT_VERSION || ($evidence['database'] ?? '') !== $expected_database || ($evidence['db_prefix'] ?? null) !== DB_PREFIX || ($evidence['status'] ?? '') !== 'VERIFIED' || !is_array($evidence['tables'] ?? null) || array_keys($evidence['database_sql'] ?? []) !== ['size', 'sha256'] || !is_file($sql) || filesize($sql) !== $evidence['database_sql']['size'] || !hash_equals((string)$evidence['database_sql']['sha256'], hash_file('sha256', $sql))) {
+		if (($metadata['format_version'] ?? null) !== self::FORMAT_VERSION || ($metadata['database'] ?? '') !== $expected_database || ($metadata['db_prefix'] ?? null) !== DB_PREFIX || ($evidence['format_version'] ?? null) !== self::FORMAT_VERSION || ($evidence['database'] ?? '') !== $expected_database || ($evidence['db_prefix'] ?? null) !== DB_PREFIX || ($evidence['source_version'] ?? null) !== ($metadata['source_version'] ?? null) || ($evidence['source_database_version'] ?? null) !== ($metadata['source_database_version'] ?? null) || ($evidence['target_version'] ?? null) !== ($metadata['target_version'] ?? null) || ($evidence['updates'] ?? null) !== ($metadata['updates'] ?? null) || ($evidence['created_at'] ?? null) !== ($metadata['created_at'] ?? null) || ($evidence['status'] ?? '') !== 'VERIFIED' || ($evidence['tables'] ?? null) !== ($metadata['tables'] ?? null) || !is_array($evidence['components'] ?? null)) {
 			throw new \RuntimeException('Database backup identity is invalid.');
 		}
-		$files = array_values(array_diff(scandir(rtrim($directory, '/\\')) ?: [], ['.', '..']));
-		sort($files, SORT_STRING);
-		if ($files !== ['database.sql', 'evidence.json']) {
-			throw new \RuntimeException('Database backup contains undeclared components.');
-		}
-		$this->validateSqlContract($sql, $evidence);
+		if ($this->getComponentEvidence($directory, $metadata) !== $evidence['components']) throw new \RuntimeException('Database backup component evidence is invalid.');
 
-		return ['metadata' => $evidence, 'evidence' => $evidence, 'evidence_sha256' => hash_file('sha256', rtrim($directory, '/\\') . '/evidence.json')];
+		return ['metadata' => $metadata, 'evidence' => $evidence, 'evidence_sha256' => hash_file('sha256', rtrim($directory, '/\\') . '/evidence.json')];
 	}
 
-	public function restoreCompleteBackup(string $directory, string $expected_database): array {
+	public function restoreCompleteBackup(string $directory, string $expected_database, bool $replace_database = true): array {
 		$backup = $this->validateCompleteBackup($directory, $expected_database);
 		$metadata = $backup['metadata'];
-		$sql = rtrim($directory, '/\\') . '/database.sql';
+		$schema = $this->readSchema(rtrim($directory, '/\\') . '/schema.ndjson');
 		$current = $this->getCompleteObjectInventory();
 		$foreign_key_checks = (int)$this->db->query('SELECT @@FOREIGN_KEY_CHECKS AS `value`')->row['value'];
 		$expected_tables = array_column($metadata['tables'], 'table');
+		if (array_keys($schema) !== $expected_tables) throw new \RuntimeException('Database backup schema inventory is inconsistent.');
 
 		$this->db->query('SET FOREIGN_KEY_CHECKS = 0');
 
 		try {
-			foreach (array_reverse($current['tables']) as $table) {
-				$this->db->query('DROP TABLE `' . $this->db->escape($table) . '`');
+			$drop_tables = $replace_database ? $current['tables'] : $expected_tables;
+			foreach (array_reverse($drop_tables) as $table) {
+				$this->db->query('DROP TABLE IF EXISTS `' . $this->db->escape($table) . '`');
 			}
 
-			$this->readSqlStatements($sql, function(string $statement): void {
-				$this->db->query(substr($statement, 0, -1));
-			});
+			foreach ($metadata['tables'] as $table) $this->db->query($schema[$this->validateTableMetadata($table)]);
+			foreach ($metadata['tables'] as $table) $this->restoreStructuredTable($directory, $table);
 		} catch (\Throwable $throwable) {
 			throw new \RuntimeException('Database restore failed and may be partial.', 0, $throwable);
 		} finally {
@@ -110,14 +112,16 @@ class Backup extends \Opencart\System\Engine\Model {
 		}
 
 		$restored = $this->getCompleteObjectInventory();
-		if ($restored['tables'] !== $expected_tables) {
+		if ($replace_database && $restored['tables'] !== $expected_tables) {
 			throw new \RuntimeException('Restored database inventory is inconsistent.');
 		}
 
-		$query = $this->db->query("SELECT `value` FROM `" . DB_PREFIX . "setting` WHERE `code` = 'system' AND `key` = 'database_version'");
 		$expected_version = $metadata['source_database_version'];
-		if (($expected_version === null && $query->num_rows !== 0) || ($expected_version !== null && ($query->num_rows !== 1 || $query->row['value'] !== $expected_version))) {
-			throw new \RuntimeException('Restored database version metadata is inconsistent.');
+		if ($replace_database || in_array(DB_PREFIX . 'setting', $expected_tables, true)) {
+			$query = $this->db->query("SELECT `value` FROM `" . DB_PREFIX . "setting` WHERE `code` = 'system' AND `key` = 'database_version'");
+			if (($expected_version === null && $query->num_rows !== 0) || ($expected_version !== null && ($query->num_rows !== 1 || $query->row['value'] !== $expected_version))) {
+				throw new \RuntimeException('Restored database version metadata is inconsistent.');
+			}
 		}
 		foreach ($metadata['tables'] as $table) {
 			$name = $this->validateTableMetadata($table);
@@ -129,35 +133,24 @@ class Backup extends \Opencart\System\Engine\Model {
 		return ['status' => 'DATABASE_RESTORED', 'database_version' => $expected_version, 'tables' => count($metadata['tables'])];
 	}
 
-	public function isCompleteSqlBackup(string $file): bool {
-		if (!is_file($file)) {
-			return false;
+	public function exportSqlBackup(string $directory, $handle): array {
+		$backup = $this->validateCompleteBackup($directory, DB_DATABASE);
+		$metadata = $backup['metadata'];
+		$schema = $this->readSchema(rtrim($directory, '/\\') . '/schema.ndjson');
+		$this->writeExport($handle, "-- OpenCore Database Backup\n-- OpenCore Version: " . $metadata['source_version'] . "\n-- Database Version: " . ($metadata['source_database_version'] ?? 'not-provisioned') . "\n-- Created: " . $metadata['created_at'] . "\n\nSET FOREIGN_KEY_CHECKS = 0;\n\n");
+		foreach ($metadata['tables'] as $table) {
+			$name = $this->validateTableMetadata($table);
+			$this->writeExport($handle, 'DROP TABLE IF EXISTS `' . $name . "`;\n" . $schema[$name] . ";\n");
+			$this->exportStructuredRows($directory, $table, $handle);
+			$this->writeExport($handle, "\n");
 		}
-		$handle = fopen($file, 'rb');
-		if (!$handle) {
-			return false;
-		}
-		$complete = trim((string)fgets($handle)) === '-- OpenCore SQL Backup Format ' . self::FORMAT_VERSION;
-		fclose($handle);
-		return $complete;
+		$this->writeExport($handle, "SET FOREIGN_KEY_CHECKS = 1;\n");
+		return $metadata;
 	}
 
-	public function restoreManualBackup(string $file): array {
-		$this->assertManualBackupFile($file, true);
-		$metadata = $this->readSqlMetadata($file);
-		if (($metadata['database'] ?? '') !== DB_DATABASE || ($metadata['db_prefix'] ?? '') !== DB_PREFIX) {
-			throw new \RuntimeException('Manual SQL backup database identity is invalid.');
-		}
-		$this->validateSqlContract($file, $metadata);
-		$foreign_key_checks = (int)$this->db->query('SELECT @@FOREIGN_KEY_CHECKS AS `value`')->row['value'];
-		try {
-			$this->readSqlStatements($file, function(string $statement): void {
-				$this->db->query(substr($statement, 0, -1));
-			});
-		} finally {
-			$this->db->query('SET FOREIGN_KEY_CHECKS = ' . $foreign_key_checks);
-		}
-		return $metadata;
+	public function deleteCompleteBackup(string $directory): void {
+		$this->validateCompleteBackup($directory, DB_DATABASE);
+		$this->removeBackupTree($directory);
 	}
 	/**
 	 * Get Tables
@@ -316,91 +309,57 @@ class Backup extends \Opencart\System\Engine\Model {
 		return array_values($primary);
 	}
 
-	private function createSqlBackup(string $file, array $context, array $tables): array {
-		$this->assertContext($context);
-		$handle = fopen($file, 'xb');
-		if (!$handle) {
-			throw new \RuntimeException('SQL backup file could not be created.');
-		}
-
+	private function createStructuredBackup(string $directory, array $context, array $tables): array {
+		$schema = fopen($directory . 'schema.ndjson', 'xb');
+		if (!$schema) throw new \RuntimeException('Structured backup schema could not be created.');
+		if (!mkdir($directory . 'data/', 0750)) { fclose($schema); throw new \RuntimeException('Structured backup data directory could not be created.'); }
+		$inventory = [];
 		$this->db->query('START TRANSACTION WITH CONSISTENT SNAPSHOT');
 		try {
-			$inventory = [];
 			foreach ($tables as $table) {
-				$this->assertIdentifier($table);
 				$columns = $this->getTableColumns($table);
 				$primary = $this->getTablePrimaryKey($table);
-				if (!$primary) {
-					throw new \RuntimeException('Complete backup requires a primary key for every table.');
-				}
-				$rows = (int)$this->db->query('SELECT COUNT(*) AS `total` FROM `' . $this->db->escape($table) . '`')->row['total'];
-				$inventory[] = ['table' => $table, 'columns' => $columns, 'primary_key' => $primary, 'rows' => $rows];
-			}
-
-			$server = $this->db->query('SELECT VERSION() AS `version`');
-			$metadata = [
-				'format_version'          => self::FORMAT_VERSION,
-				'database'                => DB_DATABASE,
-				'db_prefix'               => DB_PREFIX,
-				'source_version'          => $context['source_version'],
-				'source_database_version' => $context['source_database_version'],
-				'target_version'          => $context['target_version'],
-				'updates'                 => $context['updates'],
-				'server'                  => ['driver' => DB_DRIVER, 'version' => (string)$server->row['version']],
-				'created_at'              => gmdate('c'),
-				'objects'                 => ['base_tables' => count($inventory), 'views' => 0, 'triggers' => 0, 'routines' => 0, 'events' => 0],
-				'tables'                  => $inventory
-			];
-			$header = '-- OpenCore SQL Backup Format ' . self::FORMAT_VERSION . "\n-- OPENCORE-METADATA " . base64_encode(json_encode($metadata, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)) . "\n";
-			if (fwrite($handle, $header) !== strlen($header)) {
-				throw new \RuntimeException('SQL backup header write failed.');
-			}
-
-			$this->writeSqlStatement($handle, 'SET FOREIGN_KEY_CHECKS = 0;');
-			foreach ($inventory as $table_data) {
-				$table = $table_data['table'];
+				if (!$primary) throw new \RuntimeException('Complete backup requires a primary key for every table.');
 				$create = (string)($this->db->query('SHOW CREATE TABLE `' . $this->db->escape($table) . '`')->row['Create Table'] ?? '');
-				if (!str_starts_with($create, 'CREATE TABLE `' . $table . '`')) {
-					throw new \RuntimeException('Database table definition could not be captured.');
-				}
-				$this->writeSqlStatement($handle, 'DROP TABLE IF EXISTS `' . $table . '`;');
-				$this->writeSqlStatement($handle, $create . ';');
-				$columns = implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $table_data['columns']));
-				$order = implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $table_data['primary_key']));
-				$offset = 0;
+				if (!str_starts_with($create, 'CREATE TABLE `' . $table . '`')) throw new \RuntimeException('Database table definition could not be captured.');
+				$this->writeJsonLine($schema, ['table' => $table, 'create_base64' => base64_encode($create)]);
+				$data_path = 'data/' . $table . '.ndjson';
+				$data = fopen($directory . $data_path, 'xb');
+				if (!$data) throw new \RuntimeException('Structured table data could not be created.');
 				$count = 0;
+				$offset = 0;
+				$order = implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $primary));
 				do {
 					$query = $this->db->query('SELECT * FROM `' . $this->db->escape($table) . '` ORDER BY ' . $order . ' LIMIT ' . $offset . ',' . self::ROW_BATCH_SIZE);
 					foreach ($query->rows as $row) {
 						$values = [];
-						foreach ($table_data['columns'] as $column) {
-							$values[] = $row[$column] === null ? 'NULL' : "X'" . bin2hex((string)$row[$column]) . "'";
-						}
-						$this->writeSqlStatement($handle, 'INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . implode(', ', $values) . ');');
+						foreach ($columns as $column) $values[] = $row[$column] === null ? ['type' => 'null'] : ['type' => 'base64', 'value' => base64_encode((string)$row[$column])];
+						$this->writeJsonLine($data, $values);
 						$count++;
 					}
 					$offset += $query->num_rows;
 				} while ($query->num_rows === self::ROW_BATCH_SIZE);
-				if ($count !== $table_data['rows']) {
-					throw new \RuntimeException('Database changed while the SQL backup was being captured.');
-				}
+				fclose($data);
+				$inventory[] = ['table' => $table, 'columns' => $columns, 'primary_key' => $primary, 'rows' => $count, 'data' => $data_path];
 			}
-			$this->writeSqlStatement($handle, 'SET FOREIGN_KEY_CHECKS = 1;');
 			$this->db->query('COMMIT');
-			fclose($handle);
-			return $metadata;
 		} catch (\Throwable $throwable) {
 			$this->db->query('ROLLBACK');
-			if (is_resource($handle)) {
-				fclose($handle);
-			}
 			throw $throwable;
+		} finally {
+			if (is_resource($schema)) fclose($schema);
 		}
+		$server = $this->db->query('SELECT VERSION() AS `version`');
+		return ['format_version' => self::FORMAT_VERSION, 'database' => DB_DATABASE, 'db_prefix' => DB_PREFIX, 'source_version' => $context['source_version'], 'source_database_version' => $context['source_database_version'], 'target_version' => $context['target_version'], 'updates' => $context['updates'], 'server' => ['driver' => DB_DRIVER, 'version' => (string)$server->row['version']], 'created_at' => gmdate('c'), 'objects' => ['base_tables' => count($inventory), 'views' => 0, 'triggers' => 0, 'routines' => 0, 'events' => 0], 'tables' => $inventory];
+	}
+
+	private function createEvidence(string $directory, array $metadata): array {
+		return ['format_version' => self::FORMAT_VERSION, 'database' => $metadata['database'], 'db_prefix' => $metadata['db_prefix'], 'source_version' => $metadata['source_version'], 'source_database_version' => $metadata['source_database_version'], 'target_version' => $metadata['target_version'], 'updates' => $metadata['updates'], 'created_at' => $metadata['created_at'], 'components' => $this->getComponentEvidence($directory, $metadata), 'tables' => $metadata['tables'], 'status' => 'VERIFIED'];
 	}
 
 	private function validateTableMetadata(array $table): string {
-		$required = ['table', 'columns', 'primary_key', 'rows'];
-		if (array_keys($table) !== $required || !is_string($table['table']) || !str_starts_with($table['table'], DB_PREFIX) || !is_array($table['columns']) || !$table['columns'] || !is_array($table['primary_key']) || !$table['primary_key'] || !is_int($table['rows']) || $table['rows'] < 0) {
+		$required = ['table', 'columns', 'primary_key', 'rows', 'data'];
+		if (array_keys($table) !== $required || !is_string($table['table']) || !str_starts_with($table['table'], DB_PREFIX) || !is_array($table['columns']) || !$table['columns'] || !is_array($table['primary_key']) || !$table['primary_key'] || !is_int($table['rows']) || $table['rows'] < 0 || $table['data'] !== 'data/' . $table['table'] . '.ndjson') {
 			throw new \RuntimeException('Database backup table metadata is invalid.');
 		}
 		$this->assertIdentifier($table['table']);
@@ -414,112 +373,85 @@ class Backup extends \Opencart\System\Engine\Model {
 		return $table['table'];
 	}
 
-	private function writeSqlStatement($handle, string $statement): void {
-		$frame = '-- OPENCORE-SQL-STATEMENT ' . strlen($statement) . ' ' . hash('sha256', $statement) . "\n" . $statement . "\n";
-		if (fwrite($handle, $frame) !== strlen($frame)) {
-			throw new \RuntimeException('SQL backup stream write failed.');
+	private function getComponentEvidence(string $directory, array $metadata): array {
+		$directory = rtrim($directory, '/\\') . '/';
+		$paths = ['metadata.json', 'schema.ndjson'];
+		foreach ($metadata['tables'] as $table) { $this->validateTableMetadata($table); $paths[] = $table['data']; }
+		sort($paths, SORT_STRING);
+		$components = [];
+		foreach ($paths as $path) {
+			$file = $directory . $path;
+			if (!is_file($file)) throw new \RuntimeException('Structured backup component is missing.');
+			$components[] = ['path' => $path, 'size' => filesize($file), 'sha256' => hash_file('sha256', $file)];
 		}
+		$actual = [];
+		foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS)) as $file) {
+			if ($file->isLink() || !$file->isFile()) throw new \RuntimeException('Structured backup contains an unsupported filesystem entry.');
+			$relative = str_replace('\\', '/', substr($file->getPathname(), strlen($directory)));
+			if ($relative !== 'evidence.json') $actual[] = $relative;
+		}
+		sort($actual, SORT_STRING);
+		if ($actual !== $paths) throw new \RuntimeException('Structured backup contains undeclared components.');
+		return $components;
 	}
 
-	private function readSqlMetadata(string $file): array {
+	private function readSchema(string $file): array {
 		$handle = fopen($file, 'rb');
-		if (!$handle || trim((string)fgets($handle)) !== '-- OpenCore SQL Backup Format ' . self::FORMAT_VERSION) {
-			throw new \RuntimeException('OpenCore SQL backup header is invalid.');
-		}
-		$line = trim((string)fgets($handle));
-		fclose($handle);
-		if (!str_starts_with($line, '-- OPENCORE-METADATA ')) {
-			throw new \RuntimeException('OpenCore SQL backup metadata is missing.');
-		}
-		$data = base64_decode(substr($line, 21), true);
-		$metadata = is_string($data) ? json_decode($data, true, 512, JSON_THROW_ON_ERROR) : null;
-		if (!is_array($metadata)) {
-			throw new \RuntimeException('OpenCore SQL backup metadata is invalid.');
-		}
-		return $metadata;
-	}
-
-	private function readSqlStatements(string $file, callable $callback): void {
-		$handle = fopen($file, 'rb');
-		if (!$handle) {
-			throw new \RuntimeException('OpenCore SQL backup cannot be read.');
-		}
-		fgets($handle);
-		fgets($handle);
+		if (!$handle) throw new \RuntimeException('Structured schema cannot be read.');
+		$schema = [];
 		while (($line = fgets($handle)) !== false) {
-			if (!preg_match('/^-- OPENCORE-SQL-STATEMENT ([1-9][0-9]*) ([a-f0-9]{64})\n$/', $line, $matches)) {
-				fclose($handle);
-				throw new \RuntimeException('OpenCore SQL statement frame is invalid.');
-			}
-			$remaining = (int)$matches[1];
-			$statement = '';
-			while ($remaining > 0 && !feof($handle)) {
-				$chunk = fread($handle, min(8192, $remaining));
-				if ($chunk === false || $chunk === '') {
-					break;
-				}
-				$statement .= $chunk;
-				$remaining -= strlen($chunk);
-			}
-			if ($remaining !== 0 || fread($handle, 1) !== "\n" || !hash_equals($matches[2], hash('sha256', $statement)) || !str_ends_with($statement, ';')) {
-				fclose($handle);
-				throw new \RuntimeException('OpenCore SQL statement evidence is invalid.');
-			}
-			$callback($statement);
+			$row = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+			$table = is_array($row) ? (string)($row['table'] ?? '') : '';
+			$create = is_array($row) && is_string($row['create_base64'] ?? null) ? base64_decode($row['create_base64'], true) : false;
+			$this->assertIdentifier($table);
+			if (isset($schema[$table]) || !is_string($create) || !str_starts_with($create, 'CREATE TABLE `' . $table . '`')) throw new \RuntimeException('Structured schema record is invalid.');
+			$schema[$table] = $create;
 		}
 		fclose($handle);
+		return $schema;
 	}
 
-	private function validateSqlContract(string $file, array $metadata): void {
-		$header = $this->readSqlMetadata($file);
-		foreach (array_keys($header) as $key) {
-			if (!array_key_exists($key, $metadata) || $metadata[$key] !== $header[$key]) {
-				throw new \RuntimeException('OpenCore SQL metadata does not match its evidence.');
+	private function readStructuredRows(string $directory, array $table, callable $callback): void {
+		$this->validateTableMetadata($table);
+		$handle = fopen(rtrim($directory, '/\\') . '/' . $table['data'], 'rb');
+		if (!$handle) throw new \RuntimeException('Structured table data cannot be read.');
+		$count = 0;
+		while (($line = fgets($handle)) !== false) {
+			$values = json_decode($line, true, 512, JSON_THROW_ON_ERROR);
+			if (!is_array($values) || count($values) !== count($table['columns'])) throw new \RuntimeException('Structured backup row is invalid.');
+			$decoded = [];
+			foreach ($values as $value) {
+				if (is_array($value) && ($value['type'] ?? '') === 'null' && count($value) === 1) $decoded[] = null;
+				elseif (is_array($value) && ($value['type'] ?? '') === 'base64' && count($value) === 2 && is_string($value['value'] ?? null) && base64_decode($value['value'], true) !== false) $decoded[] = base64_decode($value['value'], true);
+				else throw new \RuntimeException('Structured backup value encoding is invalid.');
 			}
+			$callback($decoded);
+			$count++;
 		}
-		$tables = $metadata['tables'] ?? null;
-		if (!is_array($tables)) {
-			throw new \RuntimeException('OpenCore SQL table inventory is invalid.');
-		}
-		foreach ($tables as $table) {
-			$this->validateTableMetadata($table);
-		}
-		$stage = 'off';
-		$table_index = 0;
-		$row_index = 0;
-		$this->readSqlStatements($file, function(string $statement) use (&$stage, &$table_index, &$row_index, $tables): void {
-			while (true) {
-				if ($stage === 'done') {
-					throw new \RuntimeException('OpenCore SQL backup contains trailing statements.');
-				}
-				if ($stage === 'off') {
-					if ($statement !== 'SET FOREIGN_KEY_CHECKS = 0;') throw new \RuntimeException('OpenCore SQL prologue is invalid.');
-					$stage = 'drop'; return;
-				}
-				if ($table_index >= count($tables)) {
-					if ($statement !== 'SET FOREIGN_KEY_CHECKS = 1;') throw new \RuntimeException('OpenCore SQL epilogue is invalid.');
-					$stage = 'done'; return;
-				}
-				$table = $tables[$table_index];
-				$name = $table['table'];
-				if ($stage === 'drop') {
-					if ($statement !== 'DROP TABLE IF EXISTS `' . $name . '`;') throw new \RuntimeException('OpenCore SQL DROP contract is invalid.');
-					$stage = 'create'; return;
-				}
-				if ($stage === 'create') {
-					if (!str_starts_with($statement, 'CREATE TABLE `' . $name . '`') || !str_ends_with($statement, ';')) throw new \RuntimeException('OpenCore SQL CREATE contract is invalid.');
-					$stage = 'insert'; $row_index = 0; return;
-				}
-				if ($row_index < $table['rows']) {
-					if (!str_starts_with($statement, 'INSERT INTO `' . $name . '` (')) throw new \RuntimeException('OpenCore SQL INSERT contract is invalid.');
-					$row_index++; return;
-				}
-				$table_index++; $stage = 'drop';
-			}
+		fclose($handle);
+		if ($count !== $table['rows']) throw new \RuntimeException('Structured backup row count is inconsistent.');
+	}
+
+	private function restoreStructuredTable(string $directory, array $table): void {
+		$name = $this->validateTableMetadata($table);
+		$columns = implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $table['columns']));
+		$this->readStructuredRows($directory, $table, function(array $values) use ($name, $columns): void {
+			$sql = array_map(fn($value): string => $value === null ? 'NULL' : "'" . $this->db->escape($value) . "'", $values);
+			$this->db->query('INSERT INTO `' . $this->db->escape($name) . '` (' . $columns . ') VALUES (' . implode(', ', $sql) . ')');
 		});
-		if ($stage !== 'done') {
-			throw new \RuntimeException('OpenCore SQL backup is incomplete.');
-		}
+	}
+
+	private function exportStructuredRows(string $directory, array $table, $handle): void {
+		$name = $this->validateTableMetadata($table);
+		$columns = implode(', ', array_map(static fn(string $column): string => '`' . $column . '`', $table['columns']));
+		$this->readStructuredRows($directory, $table, function(array $values) use ($name, $columns, $handle): void {
+			$sql = array_map(static fn($value): string => $value === null ? 'NULL' : "X'" . bin2hex($value) . "'", $values);
+			$this->writeExport($handle, 'INSERT INTO `' . $name . '` (' . $columns . ') VALUES (' . implode(', ', $sql) . ");\n");
+		});
+	}
+
+	private function writeExport($handle, string $content): void {
+		if (!is_resource($handle) || fwrite($handle, $content) !== strlen($content)) throw new \RuntimeException('SQL export stream write failed.');
 	}
 
 	private function assertContext(array $context): void {
@@ -549,12 +481,9 @@ class Backup extends \Opencart\System\Engine\Model {
 		}
 	}
 
-	private function assertManualBackupFile(string $file, bool $must_exist): void {
-		$root = rtrim(str_replace('\\', '/', (string)realpath(DIR_STORAGE . 'backup/')), '/') . '/';
-		$normalized = str_replace('\\', '/', $file);
-		if ($root === '/' || dirname($normalized) . '/' !== $root || strtolower(pathinfo($normalized, PATHINFO_EXTENSION)) !== 'sql' || ($must_exist && (!is_file($normalized) || is_link($normalized))) || (!$must_exist && file_exists($normalized))) {
-			throw new \RuntimeException('Manual SQL backup path is invalid.');
-		}
+	private function writeJsonLine($handle, array $data): void {
+		$line = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
+		if (fwrite($handle, $line) !== strlen($line)) throw new \RuntimeException('Structured backup stream write failed.');
 	}
 
 	private function writeJsonFile(string $file, array $data): void {

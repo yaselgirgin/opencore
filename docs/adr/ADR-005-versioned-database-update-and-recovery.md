@@ -234,7 +234,7 @@ Evidence en az şunları içerir:
 - backup format version ve DB prefix,
 - database server driver/version,
 - base-table/object inventory,
-- `database.sql` byte size/SHA-256,
+- structured component path/size/SHA-256 inventory,
 - terminal validation status.
 
 Backup yoksa, boşsa, okunamıyorsa veya hash doğrulanamıyorsa DB mutation başlamaz.
@@ -243,31 +243,33 @@ Backup yoksa, boşsa, okunamıyorsa veya hash doğrulanamıyorsa DB mutation ba�
 
 Core OpenCore DB backup/restore PHP/MySQLi-native'dir ve normal OpenCore database connection üzerinden çalışır. Shell/process capability, SSH, `proc_open`, `exec`, `mysqldump`, `mysql` client veya executable path configuration core updater contract'ının parçası değildir.
 
-Authoritative ownership native `Admin Model Tool Backup` içindedir. Updater ve Manual Admin Backup/Restore aynı complete SQL writer/restore contract'ını kullanır; release manifest SQL, backup path veya executable seçemez.
+Authoritative ownership native `Admin Model Tool Backup` içindedir. Updater ve Manual Admin Backup/Restore aynı structured backup/restore contract'ını kullanır; release manifest SQL, backup path veya executable seçemez. SQL yalnız validated structured backup'tan üretilen user portability export'udur.
 
-Updater backup formatı source-controlled ve streaming'dir:
+Canonical internal backup formatı source-controlled ve streaming'dir:
 
 ```text
 backup/database/
-    database.sql
+    metadata.json
+    schema.ndjson
+    data/<table>.ndjson
     evidence.json
 ```
 
-Manual Backup/Restore kullanıcıya `.sql` dosyası sunar. Yeni manual backup'lar aynı Model tarafından schema + data içerecek şekilde üretilir. Historical data-only `.sql` dosyaları history/download/delete akışında korunur; güvenli legacy restore davranışı updater trust boundary'sine dahil edilmeden devam edebilir.
+Manual backup aynı layout ile `DIR_STORAGE/backup/<backup-id>/` altında saklanır ve doğrudan structured component'lerden restore edilir. Download sırasında validated structured backup'tan standalone `.sql` stream üretilir; SQL kalıcı internal restore authority değildir. Historical data-only `.sql` dosyaları history/download/delete akışında korunur; güvenli legacy restore davranışı updater trust boundary'sine dahil edilmeden devam edebilir.
 
 Kurallar:
 
 - schema actual database state'ten `SHOW CREATE TABLE` ile alınır; repository schema'dan üretilmez,
 - rows primary-key order'da bounded batches halinde stream edilir,
-- `NULL` SQL `NULL` olarak, diğer scalar/UTF-8/binary bytes hexadecimal SQL literal olarak taşınır,
-- `database.sql` standalone MySQL/MariaDB SQL'dir; PHP serialization veya executable PHP içermez,
-- her statement `-- OPENCORE-SQL-STATEMENT <byte-length> <sha256>` comment frame'iyle sınırlandırılır; restore yalnız exact byte count/hash doğrulanmış OpenCore statement sırasını replay eder ve generic SQL parser olmaz,
+- `NULL` ayrı typed record olarak, diğer scalar/UTF-8/binary bytes base64 olarak taşınır,
+- JSON/NDJSON component'leri PHP serialization veya executable PHP içermez,
+- restore yalnız hash ve inventory doğrulanmış structured component'leri MySQLi üzerinden uygular; generic SQL parser olmaz,
 - metadata database identity, prefix, source/DB/target versions, ordered update identifiers, server identity ve object/table inventory içerir,
-- evidence `database.sql` byte size ve SHA-256 değerini doğrular,
+- evidence metadata, schema ve her table data component'inin path, byte size ve SHA-256 değerini doğrular; missing, modified ve undeclared component fail closed reddedilir,
 - temporary workspace yalnız tam doğrulamadan sonra atomic directory rename ile aktive edilir,
 - mevcut verified backup körlemesine overwrite edilmez,
 - core format base tables'ı destekler; view, trigger, routine, event veya primary key'siz table görülürse complete backup oluşturulmaz ve updater fail closed kalır,
-- restore yalnız fixed updater workspace'teki doğrulanmış OpenCore formatını kabul eder; arbitrary SQL upload updater recovery input'u değildir.
+- restore yalnız fixed updater workspace'teki doğrulanmış structured OpenCore formatını kabul eder; generated veya uploaded SQL updater recovery input'u değildir.
 
 Native client tabanlı alternatif provider ancak gelecekte ayrı ADR ile optional optimization olarak değerlendirilebilir; core correctness ona bağlanamaz.
 
@@ -390,7 +392,7 @@ Bu ADR aşağıdakileri oluşturmaz:
 - updater-specific request gate,
 - strengthened identifier validation,
 - target-owned explicit handler allowlist plumbing,
-- PHP/MySQLi-native full SQL backup/restore ve `database.sql` evidence,
+- PHP/MySQLi-native structured backup/restore, component evidence ve SQL download export,
 - durable DB state/journal,
 - safe second-request continuation.
 

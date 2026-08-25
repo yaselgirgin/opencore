@@ -84,10 +84,18 @@ class Backup extends \Opencart\System\Engine\Controller {
 
 		$data['histories'] = [];
 
-		$files = glob(DIR_STORAGE . 'backup/*.sql');
+		$files = array_merge(glob(DIR_STORAGE . 'backup/*.sql') ?: [], glob(DIR_STORAGE . 'backup/*', GLOB_ONLYDIR) ?: []);
 
 		foreach ($files as $file) {
-			$size = filesize($file);
+			if (is_dir($file)) {
+				if (!is_file($file . '/metadata.json') || !is_file($file . '/evidence.json')) {
+					continue;
+				}
+				$size = 0;
+				foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($file, \FilesystemIterator::SKIP_DOTS)) as $entry) if ($entry->isFile()) $size += $entry->getSize();
+			} else {
+				$size = filesize($file);
+			}
 
 			$i = 0;
 
@@ -133,7 +141,7 @@ class Backup extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['filename'])) {
 			$filename = basename(html_entity_decode($this->request->get['filename'], ENT_QUOTES, 'UTF-8'));
 		} else {
-			$filename = date('Y-m-d H.i.s') . '.sql';
+			$filename = 'opencore-backup-' . date('Y-m-d-His');
 		}
 
 		if (isset($this->request->post['backup'])) {
@@ -156,7 +164,7 @@ class Backup extends \Opencart\System\Engine\Controller {
 
 		if (!$json) {
 			try {
-				$this->model_tool_backup->createManualBackup(DIR_STORAGE . 'backup/' . $filename, $backup);
+				$this->model_tool_backup->createManualBackup(DIR_STORAGE . 'backup/' . $filename . '/', $backup);
 				$json['progress'] = 100;
 				$json['success'] = $this->language->get('text_success');
 			} catch (\Throwable $throwable) {
@@ -197,16 +205,16 @@ class Backup extends \Opencart\System\Engine\Controller {
 
 		$file = DIR_STORAGE . 'backup/' . $filename;
 
-		if (!is_file($file)) {
+		if (!is_file($file) && !is_dir($file)) {
 			$json['error'] = $this->language->get('error_file');
 		}
 
 		if (!$json) {
 			$this->load->model('tool/backup');
 
-			if ($this->model_tool_backup->isCompleteSqlBackup($file)) {
+			if (is_dir($file)) {
 				try {
-					$this->model_tool_backup->restoreManualBackup($file);
+					$this->model_tool_backup->restoreCompleteBackup($file . '/', DB_DATABASE, false);
 					$json['progress'] = 100;
 					$json['success'] = $this->language->get('text_success');
 					$this->cache->delete('*');
@@ -338,8 +346,25 @@ class Backup extends \Opencart\System\Engine\Controller {
 
 		$file = DIR_STORAGE . 'backup/' . $filename;
 
-		if (!is_file($file)) {
+		if (!is_file($file) && !is_dir($file)) {
 			$this->response->redirect($this->url->link('error/not_found', 'user_token=' . $this->session->data['user_token'], true));
+		}
+
+		if (is_dir($file)) {
+			$this->load->model('tool/backup');
+			$download = basename($file) . '.sql';
+			$this->model_tool_backup->validateCompleteBackup($file . '/', DB_DATABASE);
+			if (!headers_sent()) {
+				header('Content-Type: application/sql; charset=utf-8');
+				header('Content-Disposition: attachment; filename="' . $download . '"');
+				header('Cache-Control: no-store');
+				if (ob_get_level()) ob_end_clean();
+				$handle = fopen('php://output', 'wb');
+				$this->model_tool_backup->exportSqlBackup($file . '/', $handle);
+				fclose($handle);
+				exit();
+			}
+			exit($this->language->get('error_headers_sent'));
 		}
 
 		if (!headers_sent()) {
@@ -385,12 +410,17 @@ class Backup extends \Opencart\System\Engine\Controller {
 
 		$file = DIR_STORAGE . 'backup/' . $filename;
 
-		if (!is_file($file)) {
+		if (!is_file($file) && !is_dir($file)) {
 			$json['error'] = $this->language->get('error_file');
 		}
 
 		if (!$json) {
-			unlink($file);
+			if (is_dir($file)) {
+				$this->load->model('tool/backup');
+				$this->model_tool_backup->deleteCompleteBackup($file . '/');
+			} else {
+				unlink($file);
+			}
 
 			$json['success'] = $this->language->get('text_success');
 		}
