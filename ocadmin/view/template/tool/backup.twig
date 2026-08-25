@@ -2,7 +2,6 @@
 <div id="content">
   <div class="page-header">
     <div class="container-fluid">
-      <div class="float-end"><button type="button" id="button-upload" data-bs-toggle="tooltip" title="{{ button_upload }}" class="btn btn-primary"><i class="fa-solid fa-upload"></i></button></div>
       <h1>{{ heading_title }}</h1>
       <ol class="breadcrumb">
         {% for breadcrumb in breadcrumbs %}
@@ -68,7 +67,7 @@ $('#button-backup').on('click', function() {
 
     $(element).button('loading');
 
-    $('#button-upload, #history .btn').prop('disabled', true);
+    $('#history .btn').prop('disabled', true);
 
     $('#progress-bar').css('width', '0%');
     $('#progress-bar').removeClass('bg-danger bg-success');
@@ -91,7 +90,7 @@ $('#button-backup').on('click', function() {
                     $('#history').load('index.php?route=tool/backup.history&user_token={{ user_token }}');
 
                     $(element).button('reset');
-                    $('#button-upload, #history .btn').prop('disabled', false);
+                    $('#history .btn').prop('disabled', false);
                 }
 
                 if (json['text']) {
@@ -105,7 +104,7 @@ $('#button-backup').on('click', function() {
                     $('#history').load('index.php?route=tool/backup.history&user_token={{ user_token }}');
 
                     $(element).button('reset');
-                    $('#button-upload, #history .btn').prop('disabled', false);
+                    $('#history .btn').prop('disabled', false);
                 }
 
                 if (json['progress']) {
@@ -122,7 +121,7 @@ $('#button-backup').on('click', function() {
                 console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 
                 $(element).button('reset');
-                $('#button-upload, #history .btn').prop('disabled', false);
+                $('#history .btn').prop('disabled', false);
             }
         });
     };
@@ -136,7 +135,7 @@ $('#history').on('click', '.btn-warning', function() {
 
     $(element).button('loading');
 
-    $('#button-upload, #button-backup, #history .btn').not(element).prop('disabled', true);
+    $('#button-backup, #history .btn').not(element).prop('disabled', true);
 
     $('#progress-bar').css('width', '0%');
     $('#progress-bar').removeClass('bg-danger bg-success');
@@ -161,7 +160,7 @@ $('#history').on('click', '.btn-warning', function() {
 
                     $(element).button('reset');
 
-                    $('#button-upload, #button-backup, #history .btn').not(element).prop('disabled', false);
+                    $('#button-backup, #history .btn').not(element).prop('disabled', false);
                 }
 
                 if (json['progress']) {
@@ -180,7 +179,7 @@ $('#history').on('click', '.btn-warning', function() {
 
                     $(element).button('reset');
 
-                    $('#button-upload, #button-backup, #history .btn').not(element).prop('disabled', false);
+                    $('#button-backup, #history .btn').not(element).prop('disabled', false);
                 }
 
                 if (json['next']) {
@@ -194,71 +193,12 @@ $('#history').on('click', '.btn-warning', function() {
 
                 $(element).button('reset');
 
-                $('#button-upload, #button-backup, #history .btn').not(element).prop('disabled', false);
+                $('#button-backup, #history .btn').not(element).prop('disabled', false);
             }
         });
     }
 
     chain.attach(restore);
-});
-
-// Upload
-$('#button-upload').on('click', function() {
-    $('#form-upload').remove();
-
-    $('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="upload" /></form>');
-
-    $('#form-upload input[name=\'upload\']').trigger('click');
-
-    $('#form-upload input[name=\'upload\']').on('change', function() {
-        if ((this.files[0].size / 1024) > {{ config_file_max_size }}) {
-            $(this).val('');
-
-            alert('{{ error_upload_size }}');
-        }
-    });
-
-    if (typeof timer != 'undefined') {
-        clearInterval(timer);
-    }
-
-    timer = setInterval(function() {
-        if ($('#form-upload input[name=\'upload\']').val() !== '') {
-            clearInterval(timer);
-
-            $.ajax({
-                url: 'index.php?route=tool/backup.upload&user_token={{ user_token }}',
-                type: 'post',
-                dataType: 'json',
-                data: new FormData($('#form-upload')[0]),
-                cache: false,
-                contentType: false,
-                processData: false,
-                beforeSend: function() {
-                    $('#button-upload').button('loading');
-                },
-                complete: function() {
-                    $('#button-upload').button('reset');
-                },
-                success: function(json) {
-                    $('.alert-dismissible').remove();
-
-                    if (json['error']) {
-                        $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-                    }
-
-                    if (json['success']) {
-                        $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-
-                        $('#history').load('index.php?route=tool/backup.history&user_token={{ user_token }}');
-                    }
-                },
-                error: function(xhr, ajaxOptions, thrownError) {
-                    console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-                }
-            });
-        }
-    }, 500);
 });
 
 // Delete

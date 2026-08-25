@@ -16,11 +16,6 @@ class Backup extends \Opencart\System\Engine\Controller {
 
 		$this->document->setTitle($this->language->get('heading_title'));
 
-		// Use the ini_get('upload_max_filesize') for the max file size
-		$data['error_upload_size'] = sprintf($this->language->get('error_upload_size'), ini_get('upload_max_filesize'));
-
-		$data['config_file_max_size'] = ((int)preg_filter('/[^0-9]/', '', ini_get('upload_max_filesize')) * 1024 * 1024);
-
 		$data['breadcrumbs'] = [];
 
 		$data['breadcrumbs'][] = [
@@ -32,8 +27,6 @@ class Backup extends \Opencart\System\Engine\Controller {
 			'text' => $this->language->get('heading_title'),
 			'href' => $this->url->link('tool/backup', 'user_token=' . $this->session->data['user_token'])
 		];
-
-		$data['upload'] = $this->url->link('tool/backup.upload', 'user_token=' . $this->session->data['user_token']);
 
 		$this->load->model('tool/backup');
 
@@ -274,49 +267,6 @@ class Backup extends \Opencart\System\Engine\Controller {
 			}
 
 			fclose($handle);
-		}
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
-
-	/**
-	 * Upload
-	 *
-	 * @return void
-	 */
-	public function upload(): void {
-		$this->load->language('tool/backup');
-
-		$json = [];
-
-		// Check user has permission
-		if (!$this->user->hasPermission('modify', 'tool/backup')) {
-			$json['error'] = $this->language->get('error_permission');
-		}
-
-		if (empty($this->request->files['upload']['name']) || !is_file($this->request->files['upload']['tmp_name'])) {
-			$json['error'] = $this->language->get('error_upload');
-		}
-
-		if (!$json) {
-			// Sanitize the filename
-			$filename = basename(html_entity_decode($this->request->files['upload']['name'], ENT_QUOTES, 'UTF-8'));
-
-			if (!oc_validate_length($filename, 3, 128)) {
-				$json['error'] = $this->language->get('error_filename');
-			}
-
-			// Allowed file extension types
-			if (strtolower(substr(strrchr($filename, '.'), 1)) != 'sql') {
-				$json['error'] = $this->language->get('error_file_type');
-			}
-		}
-
-		if (!$json) {
-			move_uploaded_file($this->request->files['upload']['tmp_name'], DIR_STORAGE . 'backup/' . $filename);
-
-			$json['success'] = $this->language->get('text_success');
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
