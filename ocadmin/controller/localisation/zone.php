@@ -116,7 +116,7 @@ class Zone extends \Opencart\System\Engine\Controller {
 		if (isset($this->request->get['sort'])) {
 			$sort = (string)$this->request->get['sort'];
 		} else {
-			$sort = 'c.name';
+			$sort = 'cd.name';
 		}
 
 		if (isset($this->request->get['order'])) {
