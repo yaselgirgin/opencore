@@ -1,4 +1,4 @@
-# ADR-003: No Runtime Extension, Marketplace, or Modification System
+# ADR-003: Runtime Extension, Marketplace ve OCMOD Mimarisi Yok
 
 - **Durum:** Accepted
 - **Tarih:** 2026-08-21
@@ -11,7 +11,7 @@ OpenCore, OpenCart tabanlı olsa da bir e-ticaret mağazası veya genel amaçlı
 
 OpenCart'tan kalan extension discovery, Marketplace, runtime installer/update ve OCMOD yüzeyleri bu hedef mimariyle uyumlu değildir. Bu mekanizmalar uygulama davranışının deploy edilmiş kaynak kod dışında değişebilmesine, ek route ve permission yüzeylerine ve üretim dosya sisteminde kod mutasyonuna izin verir.
 
-ADR-001 stok e-ticaret işlevlerinin kaldırılmasını, ADR-002 ise Composer bağımlılıklarının repository/build sahipliğinde external vendor artifact olarak yönetilmesini kabul etmiştir. Bu karar, application feature delivery sınırını tamamlar.
+ADR-001 stok e-ticaret işlevlerinin kaldırılmasını kabul etmiştir. Canonical dağıtım, kurulum, storage/vendor ve manual application update yaşam döngüsü ADR-006 tarafından tanımlanır. Bu karar, application feature delivery sınırını tamamlar.
 
 ## 2. Karar
 
@@ -39,7 +39,7 @@ Nihai mimaride aşağıdaki mekanizmalar bulunmayacaktır:
 
 Bu karar migration'ın audit yapılmadan toplu silme şeklinde uygulanmasını onaylamaz.
 
-## 3. Core Capability Promotion Politikası
+## 3. Kabiliyetleri Çekirdeğe Taşıma Politikası
 
 Root `extension/` altında halen bulunan her capability önce aşağıdaki sınıflardan biriyle değerlendirilmelidir:
 
@@ -51,13 +51,13 @@ Currency ile ilgili yetenekler, captcha/security yetenekleri veya gerçekten kul
 
 Promote edilen kod artık extension namespace, path, discovery veya loader contract'ına bağlı kalamaz. Compatibility wrapper veya extension alias bırakmak varsayılan çözüm değildir; böyle bir geçiş katmanı gerekiyorsa açık gerekçe, dar kapsam ve kaldırma koşulu ister.
 
-## 4. Hedef Source Tree
+## 4. Hedef Kaynak Ağacı
 
 Nihai source tree'de root `extension/` klasörü bulunmayacaktır. Kalıcı application bileşenleri ihtiyaca göre mevcut core alanlarında yer alır:
 
-- `ocadmin/controller/`, `ocadmin/model/`, `ocadmin/language/`, `ocadmin/view/`
+- `admin/controller/`, `admin/model/`, `admin/language/`, `admin/view/`
 - `catalog/controller/`, `catalog/model/`
-- `system/library/`, `system/config/`, `system/build/`
+- `system/library/`, `system/config/`
 - mevcut native OpenCart-derived mimarinin gerekli diğer core klasörleri
 
 Ayrı bir ADR olmadan service layer, repository layer, ORM, custom module loader, plugin loader veya yeni extension framework eklenmeyecektir.
@@ -68,7 +68,7 @@ Marketplace bir OpenCore capability'si değildir. Nihai durumda Marketplace admi
 
 External storage altında bulunabilecek tarihsel `marketplace/` dizininin runtime gereksinimi ayrı migration audit'inde değerlendirilir. Bu ADR herhangi bir yerel external-storage dizininin doğrudan veya körlemesine silinmesini emretmez.
 
-## 6. OCMOD ve Modification Kararı
+## 6. OCMOD ve Değişiklik Kararı
 
 OpenCore OCMOD kullanmayacaktır. Dependency audit sonrasında aşağıdaki modification-specific yüzeyler kaldırılacaktır:
 
@@ -81,7 +81,7 @@ OpenCore OCMOD kullanmayacaktır. Dependency audit sonrasında aşağıdaki modi
 
 Source removal öncesinde aktif controller, model, startup, event, generated runtime ve external-storage bağımlılıkları doğrulanmalıdır.
 
-## 7. Event ve Startup Sınırı
+## 7. Olay ve Başlangıç Sınırı
 
 Event sistemi OCMOD ile eş anlamlı değildir. Audit sırasında event registration ve action'lar şu şekilde sınıflandırılır:
 
@@ -94,23 +94,23 @@ Yalnız extension veya modification bağımlı event yüzeyleri bu karar kapsam�
 
 Startup sistemi de extension sistemiyle eş anlamlı değildir. Core startup controller ve action'ları korunabilir; extension, Marketplace veya modification-specific startup entry'leri dependency audit sonrasında kaldırılır.
 
-## 8. Database ve External Storage Sınırı
+## 8. Veritabanı ve Harici Depolama Sınırı
 
 Bu ADR database schema veya kayıt kaldırma kararı vermez. Extension, Marketplace veya modification ile ilişkili tablo ve kayıtlar için önce source/runtime dependency audit, ardından ayrı database kararı gerekir. Migration sırasında otomatik cleanup SQL veya DDL çalıştırılmaz. Şüpheli kalan dinamik kayıtlar `DB_DYNAMIC_STALE_RISK` olarak raporlanabilir.
 
 Repository source cleanup ile external storage cleanup ayrı operasyonlardır. External storage içindeki Marketplace verisi, extension cache'i veya generated modification dosyaları source removal ile aynı commit içinde körlemesine silinmez; önce runtime bağımlılığı ve operasyonel sahipliği doğrulanır. Ortama özgü mutlak storage yolları bu mimarinin normative parçası değildir.
 
-## 9. Release ve Deployment Modeli
+## 9. Yayın ve Dağıtım Modeli
 
-Runtime extension installation bir production deployment yöntemi değildir. OpenCore release modeli şu sözleşmeyi korur:
+Runtime extension installation bir production deployment yöntemi değildir. OpenCore release modeli ADR-006'daki canonical sözleşmeyi korur:
 
 ```text
-application source release
+complete source-controlled OpenCore tree
 +
-matching external Composer vendor artifact
+distributed system/storage/vendor tree
 ```
 
-Yeni feature delivery source-control commit, review ve release/deployment üzerinden yapılır. Production admin UI üzerinden kod kurulmaz veya güncellenmez.
+Yeni feature delivery source-control commit, review ve stable source archive üzerinden yapılır. Production Admin UI üzerinden kod kurulmaz veya güncellenmez. Runtime ayrı vendor artifact indirme, aktivasyon veya swap işlemi yapmaz; external-storage kurulumlarında vendor senkronizasyonu ADR-006 uyarınca manual deployment sorumluluğudur.
 
 ## 10. Güvenlik ve Operasyonel Sonuçlar
 
@@ -121,43 +121,43 @@ Bu kararın uygulanması:
 - OCMOD dynamic code mutation yüzeyini,
 - gereksiz route ve permission yüzeylerini
 
-azaltır. Application davranışının source-controlled olmasını, deploy determinism'i ve vendor artifact sahipliğinin açıklığını iyileştirir.
+azaltır. Application davranışının source-controlled olmasını, deploy determinism'i ve vendor bağımlılık sahipliğinin açıklığını iyileştirir.
 
 Bu faydalar sistemi kendiliğinden güvenli yapmaz. Kaynak incelemesi, dependency audit, access control, artifact doğrulaması, test ve güvenli deployment uygulamaları gerekli olmaya devam eder.
 
-## 11. Migration Stratejisi
+## 11. Geçiş Stratejisi
 
 Migration audit sonuçlarına göre küçük, güvenli ve geri alınabilir batch'lere bölünür:
 
-### Phase 1 - Inventory ve audit
+### Faz 1 — Envanter ve Audit
 
 Extension, Marketplace, modification, event, startup, permission, filesystem ve DB referansları envanterlenir.
 
-### Phase 2 - Gerekli capability'lerin core'a promotion'ı
+### Faz 2 — Gerekli Kabiliyetlerin Çekirdeğe Taşınması
 
 `PROMOTE_TO_CORE` yetenekler audit ile belirlenen core hedeflerine taşınır ve extension contract'larından ayrılır.
 
-### Phase 3 - Kullanılmayan generic extension type yüzeyleri
+### Faz 3 — Kullanılmayan Genel Extension Türü Yüzeyleri
 
 Generic extension-type UI ve controller kaynakları bağımlılık doğrulamasıyla kaldırılır.
 
-### Phase 4 - Marketplace, install, update ve discovery
+### Faz 4 — Marketplace, Kurulum, Güncelleme ve Keşif
 
 Marketplace ile runtime install, uninstall, update ve extension discovery akışları kaldırılır.
 
-### Phase 5 - OCMOD ve modification runtime
+### Faz 5 — OCMOD ve Runtime Modification
 
 Modification-specific admin, application, cache, refresh, startup ve event yüzeyleri kaldırılır.
 
-### Phase 6 - Root extension tree
+### Faz 6 — Root Extension Ağacı
 
 Gerekli capability promotion'ları tamamlandıktan sonra root `extension/` tree kaldırılır.
 
-### Phase 7 - Orphan entegrasyon artıkları
+### Faz 7 — Sahipsiz Entegrasyon Artıkları
 
 Config, startup, event, route ve permission artıkları dependency audit ile temizlenir.
 
-### Phase 8 - External storage ve DB stale-state değerlendirmesi
+### Faz 8 — Harici Depolama ve Eski DB Durumunun Değerlendirilmesi
 
 External storage artıkları ve `DB_DYNAMIC_STALE_RISK` kayıtları ayrı operasyonel ve database kararlarıyla değerlendirilir.
 
@@ -174,11 +174,11 @@ Bu ADR aşağıdaki kararları vermez:
 - localisation veya currency capability kaldırılması,
 - captcha veya security capability kaldırılması.
 
-## 13. ADR-002 ile İlişki
+## 13. ADR-006 ile İlişki
 
-ADR-002 uyarınca root Composer graph repository/build tarafından sahiplenilir; Marketplace veya extension shared root `composer.json`, `composer.lock` ya da vendor graph'ını değiştiremez. Production Composer çalıştırmaz. Build ve deploy tooling `system/build/` altında tutulur; application release ile matching external vendor artifact birlikte seçilir ve deploy edilir.
+ADR-006 uyarınca repository ve stable source archive complete dağıtım ağacıdır; runtime vendor `system/storage/vendor/` altında dağıtılır. Production ve end user Composer çalıştırmaz. Runtime, Marketplace veya extension mekanizması dependency graph'ını ya da vendor ağacını değiştiremez.
 
-ADR-003 bu sözleşmeyi application feature delivery açısından tamamlar: PHP dependency'leri reviewed Composer graph'tan üretilen artifact ile, business/application özellikleri ise source-controlled OpenCore core kodu ile teslim edilir. Runtime eklenti kurulumu bu iki sahiplik sınırından hiçbirinin alternatifi değildir.
+ADR-003 bu sözleşmeyi application feature delivery açısından tamamlar: dependency değişiklikleri reviewed source-controlled dağıtım ağacıyla, business/application özellikleri ise OpenCore core koduyla teslim edilir. Runtime eklenti kurulumu bu sahiplik sınırının alternatifi değildir.
 
 ## 14. Kabul ve Uygulama Koşulu
 

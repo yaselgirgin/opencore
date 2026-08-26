@@ -1,0 +1,329 @@
+# OpenCore Kanonik Mimari Uygulama Planı
+
+## Amaç
+
+Bu plan ADR-006'yı uygular. Uygulama sıralamasının, bağımlılık audit'lerinin, geri alınabilir batch'lerin ve kabul kapılarının sahibidir. Mimari yetki ADR-006'da kalır; bu belge ADR değildir.
+
+## Tamamlanmış Tarihsel Düzeltme
+
+Aşağıdaki işler tamamlanmıştır ve gelecek faz değildir:
+
+- Repository denetlenmiş `af55e66` baseline'ına geri alınmıştır.
+- Zone listesi düzeltmesi yeniden uygulanmıştır.
+- Admin filtrelerinde Enter ile submit davranışı yeniden uygulanmıştır.
+- Terk edilmiş ADR-004 kaldırılmıştır.
+- `af55e66` sonrasındaki native runtime self-updater uygulaması Git geçmişi düzeltmesiyle kaldırılmıştır.
+- `update_gate`, updater startup gate ve baseline sonrası release builder dahil runtime updater'a özgü dosyalar artık yoktur.
+- Eski Admin `Maintenance -> Upgrade` arayüzü kaldırılmıştır.
+- Runtime'daki tam `tool/upgrade` referansları kaldırılmıştır.
+- Yalın SQL Backup/Restore davranışı rollback ile geri gelmiştir.
+- Rollback sonrası yerel smoke testleri geçmiştir.
+
+Yalın SQL Backup/Restore daha sonra E2E doğrulama gerektirir. Native updater'ı kaldırmak veya yalın SQL Backup/Restore'u geri getirmek için yeni faz oluşturulmayacaktır; bu düzeltmeler tamamlanmıştır.
+
+## Terminoloji ve Sorumluluk Sınırları
+
+### Runtime self-updater
+
+Runtime self-updater; application release indirir veya stage eder, application/vendor dosyalarını değiştirir, application rollback/recovery yapar ya da updater lock/state tutar. Yasaktır ve kaldırılmıştır.
+
+### Manuel application update
+
+Desteklenen model:
+
+```text
+stable release bildirimi
+-> operatör resmi stable source archive'i indirir
+-> application dosyalarını manuel deploy eder
+-> external storage etkinse release vendor'ını DIR_STORAGE/vendor/ ile manuel senkronize eder
+-> DB işi gerekiyorsa install/upgrade çalıştırır
+```
+
+### `install/upgrade`
+
+`install/upgrade`, daha önce kurulmuş OpenCore veritabanı için gelecekteki DB-only sistemdir. `database_version` değerini okur, açık source-controlled schema/data upgrade adımlarını çalıştırır ve `database_version` değerini ilerletir.
+
+Application dosyalarını indirmez, stage etmez veya değiştirmez; vendor'ı değiştirmez ya da senkronize etmez; application rollback yapmaz.
+
+## Faz 1 — Release / Build / Deployment / Updater Kalıntılarının Temizliği
+
+Git rollback sonrasında kalmış, `af55e66` öncesine ait eski altyapıyı audit et ve kaldır.
+
+Audit adayları:
+
+- `system/build/`
+- eski build/deploy tooling
+- release/deployment sözleşmeleri
+- updater/release terminolojisi
+- eski runtime ve deployment kalıntıları
+
+Her bağımlılığı kaldırmadan önce sınıflandır. Mevcut runtime'ın ihtiyaç duyduğu Composer/vendor tooling, Faz 2 kanonik karşılığını sağlamadan kaldırılmamalıdır.
+
+Yalnız adında `upgrade` geçtiği için `install/`, `startup/upgrade` veya gelecekteki DB-upgrade kavramlarını self-updater kalıntısı sayma.
+
+OpenCart `install/` referans dizini henüz eklenmemiştir ve bu fazın parçası değildir.
+
+## Faz 2 — Dağıtım / Composer / Vendor Kanonik Mimarisi
+
+Hedef durum:
+
+- Repository eksiksiz dağıtım ağacıdır.
+- Stable tag'in üretilmiş source archive'i doğrudan kurulabilir.
+- Özel release builder yoktur.
+- Vendor `system/storage/vendor/` altında tracked ve distributed olur.
+- `system/storage/composer.json` kalabilir.
+- Root Composer/build/deployer dağıtım sözleşmesi kaldırılır veya yeniden tasarlanır.
+- Production ve son kullanıcı Composer, SSH veya shell erişimine ihtiyaç duymaz.
+
+Geçiş tooling'i kaldırılmadan önce maintainer dependency workflow, incelenmiş vendor değişiklikleri, repository tracking kuralları ve runtime Composer bootstrap tanımlanıp doğrulanmalıdır.
+
+## Faz 3 — Tek Root `config.php`
+
+Hedef durum:
+
+- Tek root `config.php`.
+- `ocadmin/config.php` yok.
+- Gelecekteki `admin/` dizininde ayrı config yok.
+- Catalog, Admin ve Cron bağlama özgü yolları bootstrap'tan türetir.
+- Installer sonunda yalnız root config üretir.
+
+`DIR_APPLICATION`, `DIR_CATALOG`, `DIR_STORAGE`, `HTTP_SERVER`, config include noktaları ve tekrarlanan application-specific değerler audit edilmelidir.
+
+## Faz 4 — `ocadmin/` -> `admin/`
+
+Repository'nin varsayılan Admin dizinini `admin/` yap.
+
+Installer üzerinden opsiyonel yeniden adlandırma daha sonraki konudur. Varsayılan adı koruyan kurulumlara runtime uyarısı ekleme.
+
+## Faz 5 — Kanonik `system/storage/` Yapısı
+
+Runtime vendor ve gerekli yazılabilir yapılar dahil `system/storage/` dizinini desteklenen varsayılan `DIR_STORAGE` olarak kur.
+
+External storage desteğini koru. External taşıma zorunlu olmadan internal ve external `DIR_STORAGE` davranışını tanımla ve doğrula.
+
+## Faz 6 — Yeni Kurulum Installer'ı
+
+Orijinal OpenCart 4.1.0.3 `install/` uygulamasını manuel olarak referans/base şeklinde getir ve OpenCore'a uyarla. Stok installer davranışını körlemesine geri yükleme.
+
+Installer içindeki şu bağımlılıkları audit et ve kaldır:
+
+- e-ticaret schema ve seed data
+- storefront varsayımları
+- extension ve Marketplace altyapısı
+- OCMOD
+- çift config üretimi
+- eski Admin path varsayımları
+- eski OpenCart upgrade davranışı
+
+Yeni kurulum; gereksinim kontrolleri, DB bağlantı doğrulaması, kanonik schema, gerekli seed data, ilk Admin kullanıcısı, root `config.php` ve başlangıç `database_version` değerini sağlamalıdır.
+
+Güncel yeni-veritabanı referansı 23 tablodur:
+
+```text
+address_format
+country
+country_description
+cron
+currency
+event
+language
+length_class
+length_class_description
+location
+notification
+session
+setting
+upload
+user
+user_authorize
+user_group
+user_login
+user_token
+weight_class
+weight_class_description
+zone
+zone_description
+```
+
+Bu liste uygulamaya karşı doğrulanacak referanstır; main veritabanını değiştirme yetkisi vermez.
+
+## Faz 7 — Installer'da Opsiyonel Admin Yeniden Adlandırma ve Storage Taşıma
+
+Admin davranışı:
+
+- Varsayılan `admin/`.
+- Installer alternatif ad önerebilir.
+- Yeniden adlandırma opsiyoneldir.
+- `admin/` adını korumak geçerlidir ve sonradan zorunlu uyarı üretmez.
+
+Storage davranışı:
+
+- Varsayılan `system/storage/`.
+- Installer external yol önerebilir.
+- Storage taşıma opsiyoneldir.
+- Kabul edilirse vendor dahil gerekli storage ağacının tamamı tutarlı biçimde taşınır.
+- Varsayılan storage'ı korumak geçerlidir ve sonradan zorunlu uyarı üretmez.
+
+## Faz 8 — Yeniden Kurulum Koruması ve `install/` Dizini Davranışı
+
+Şu kuralları uygula:
+
+- Yeni kurulum mevcut OpenCore'u overwrite edemez.
+- Fiziksel `install/` dizini kalabilir.
+- Silme önerilebilir ama zorunlu değildir.
+- İlk login'de install dizinini silme modal'ı eklenmez.
+- Config yoksa ve installer mevcutsa yeni kurulum akışına girilebilir.
+- Kurulu sistem `install/` fiziksel olarak kalsa da normal çalışır.
+
+## Faz 9 — Yalnız Veritabanı için `install/upgrade`
+
+Tam veritabanı version sözleşmesi:
+
+```text
+table : oc_setting
+code  : system
+key   : database_version
+value : YYYY.MM.RELEASE
+```
+
+Gereksinimler:
+
+- Yalnız mevcut kurulum veritabanında çalışır.
+- Açık, okunabilir, versioned schema/data adımları kullanır.
+- Eksik adımları kronolojik çalıştırır.
+- Her application release için boş migration zorunlu değildir.
+- İlerlemeyi yalnız başarılı seviyelerden sonra kaydeder.
+- Hedef `database_version` değerine yalnız tam başarıdan sonra ulaşır.
+- Authorization modeli uygulamadan önce kararlaştırılır.
+- Genel migration framework getirmez.
+- Application/vendor dosyalarını hiçbir zaman indirmez veya değiştirmez.
+
+## Faz 10 — Yalnız Bildirim Amaçlı Stable Release Kontrolü
+
+Admin en yeni stable OpenCore release'i kontrol edebilir. Sürüm `system/version.php` değerinden yeniyse duplicate olmayan informational notification oluşturur ve isteğe bağlı olarak release sayfasına link verir.
+
+Kontrol; download, staging, application/vendor/DB mutation veya rollback/recovery yapmaz. Prerelease normal kullanıcılara bildirilmez.
+
+## Faz 11 — Settings -> System Diagnostics
+
+Merkezi, bilgilendirici ve tavsiye niteliğinde diagnostics alanı sağla.
+
+OpenCore durumu:
+
+- Kurulu Version
+- En Yeni Stable Version
+- Database Version
+- Version/DB uyumluluğu
+
+Ortam durumu:
+
+- PHP version
+- MariaDB/MySQL
+- cURL
+- OpenSSL
+- ZIP
+- GD/Imagick
+- file uploads
+- `memory_limit`
+- `upload_max_filesize`
+- `post_max_size`
+- `max_execution_time`
+
+Yol ve güvenlik durumu:
+
+- Admin dizini
+- storage dizini
+- install dizini
+- storage yazılabilirliği
+- cache yazılabilirliği
+- logs yazılabilirliği
+- uploads yazılabilirliği
+
+Önem seviyeleri:
+
+- yeşil: sağlıklı
+- turuncu: öneri
+- kırmızı: gerçek sorun
+
+Varsayılan `/admin/`, varsayılan `/system/storage/` ve mevcut `/install/` otomatik hata değildir. Diagnostics bir updater veya deployment engine'e dönüşemez.
+
+## Faz 12 — README / Dokümantasyon / Tools Son Temizliği
+
+Kanonik mimari büyük ölçüde uygulandıktan sonra:
+
+- README'yi sadeleştir
+- güncel ürün ağacındaki eski cleanup/history belgelerini kaldır
+- eski ADR ve runtime mimari kalıntılarını kaldır
+- kullanılmayan `tools/` içeriğini kaldır
+- eski development-only ürün ağacı içeriğini kaldır
+
+README; OpenCore amacı, gereksinimler, kurulum, Admin/storage seçenekleri, config, SQL Backup/Restore, manuel application update, external-storage vendor senkronizasyonu, DB-only `install/upgrade` ve lisansı kapsamalıdır.
+
+Terk edilmiş self-updater mimarisini belgeleme.
+
+## Faz 13 — Kanonik Dağıtım Ağacı Audit'i
+
+Stable repository'nin kurulabilir ürünün kendisi olduğunu doğrula.
+
+Yaklaşık hedef root:
+
+```text
+catalog/
+admin/
+system/
+install/
+index.php
+config-dist.php
+.htaccess
+robots.txt
+README.md
+LICENSE
+```
+
+Yalnız gerçekten gerekli ek runtime dosyalarına izin ver. Release builder veya distribution-artifact mekanizması kalmamalıdır.
+
+## Faz 14 — Tam E2E Doğrulama
+
+Yalnız `C:\xampp\htdocs\opencore_test` ve test veritabanını kullan. Destructive veya E2E testlerde main OpenCore veritabanını hiçbir zaman değiştirme.
+
+En az şunları doğrula:
+
+- varsayılan yeni kurulum
+- yeniden adlandırılmış Admin ile yeni kurulum
+- internal-storage kurulum
+- external-storage kurulum
+- yeniden kurulum koruması
+- tek-root-config davranışı
+- Catalog/API ve Admin runtime
+- SQL backup ve restore
+- birden çok gerekli seviyeden geçen DB-upgrade zinciri
+- yalnız bildirim amaçlı stable release kontrolü
+- System Diagnostics
+- stable source archive'den doğrudan kurulum
+- external-storage manuel vendor senkronizasyonu
+- shared-hosting varsayımları
+
+## Çalışma Yöntemi
+
+- Küçük ve bağımsız batch'ler kullan.
+- İlgisiz refactor'lardan kaçın.
+- Her fazdan önce güncel repository durumunu doğrula.
+- Uygulama veya kaldırmadan önce bağımlılık audit'i yap.
+- Upstream OpenCart'ı yalnız denetlenmiş referans olarak kullan; körlemesine backport etme.
+- Runtime ile deployment/provisioning sorumluluklarını ayrı tut.
+- External-storage kabiliyetini koru.
+- Kanonik ADR açıkça değiştirmedikçe mevcut OpenCore davranışını koru.
+- Her batch geri alınabilir olmalı.
+- İlgili batch'lerden sonra syntax, static ve residue kontrolleri yap.
+- Faz sınırlarında manuel smoke testleri çalıştır.
+- Destructive DB testlerini yalnız `opencore_test` üzerinde yap.
+- Tamamlanmamış mimariyi stable `main` branch'ine merge etme.
+
+## Branch ve Release Politikası
+
+- `develop`, aktif mimari ve development branch'idir.
+- `main`, stable ve release branch'idir.
+
+Güncel `main`, terk edilmiş önceki lineage'a aittir ve bu fazlar sırasında değiştirilmemelidir.
+
+Yalnız kanonik uygulama ve tam E2E doğrulama tamamlandıktan sonra doğrulanmış `develop` lineage'ı, ayrıca onaylanmış bir Git işlemiyle stable `main` lineage'ı olabilir. Bu plan işlemin tam force/reset komutunu tanımlamaz.

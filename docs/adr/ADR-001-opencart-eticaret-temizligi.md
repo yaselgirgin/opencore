@@ -35,7 +35,7 @@ Temizlik tek seferde körlemesine dosya silerek yapılmayacaktır. Aşağıdaki 
 6. Kalan referanslar statik arama ve çalışma testleriyle temizlenecek.
 7. Veritabanı tablolarının fiziksel silinmesi ayrı ve geri alınabilir bir görevde yapılacak.
 
-## 3. Hedef Mimari
+## 3. E-Ticaret Temizliği Sonrası Çekirdek Uygulama Yapısı
 
 ```text
 project/
@@ -70,10 +70,12 @@ project/
 │   ├── library/
 │   ├── helper/
 │   ├── config/
-│   └── startup/
-└── extension/
-    └── <yalnızca gerçekten kullanılan ortak bileşenler>
+│   ├── startup/
+│   └── storage/
+│       └── vendor/
 ```
+
+Bu diyagram, e-ticaret temizliği sonrasındaki çekirdek uygulama yapısını gösterir; eksiksiz kanonik dağıtım veya paket ağacı değildir. Runtime extension, Marketplace ve OCMOD mimarisinin kaldırılmasında ADR-003; dağıtım, `install/`, yapılandırma, storage/vendor yaşam döngüsü, manuel application update ve yalnız veritabanına yönelik `install/upgrade` konularında ADR-006 yetkilidir.
 
 ## 4. Korunacak Bileşenler
 
@@ -193,7 +195,9 @@ Mümkünse sınıflandırma şu kanıtlarla yapılmalıdır:
 - Veritabanı tablo erişimleri
 - Özel modüllerden gelen referanslar
 
-## 7. Uygulama Planı
+## 7. Tarihsel Uygulama Planı
+
+Bu bölüm ve devamındaki yürütme checklist'leri, ADR-001 kararının e-ticaret temizliği sırasında nasıl uygulandığını kaydeden tarihsel materyaldir. Yeni veya devam eden canonical mimari gereksinimleri tanımlamaz.
 
 ### Aşama A — Güvenli başlangıç
 
