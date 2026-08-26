@@ -1,6 +1,5 @@
 # OpenCart yerel yapılandırma dosyaları
 /config.php
-/ocadmin/config.php
 
 # Ortam ve gizli bilgi dosyaları
 .env

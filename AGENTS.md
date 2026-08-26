@@ -336,7 +336,6 @@ Never commit:
 
 ```text
 /config.php
-/ocadmin/config.php
 .env
 .env.*
 *.sql

@@ -1,11 +1,18 @@
 <?php
 // Configuration
-if (!is_file('config.php')) {
+if (!is_file(__DIR__ . '/config.php')) {
 	exit('CRON is unable to load configuration from file config.php');
 }
 
 // Config
-require_once('config.php');
+require_once(__DIR__ . '/config.php');
+
+// Catalog context
+define('APPLICATION', 'Catalog');
+define('HTTP_SERVER', HTTP_CATALOG);
+define('DIR_APPLICATION', __DIR__ . '/catalog/');
+define('DIR_LANGUAGE', DIR_APPLICATION . 'language/');
+define('DIR_TEMPLATE', DIR_APPLICATION . 'view/template/');
 
 $cron_id = null;
 
