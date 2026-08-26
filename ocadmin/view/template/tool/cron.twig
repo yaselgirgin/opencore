@@ -50,12 +50,6 @@
                       <td class="text-end">
                         {% if can_modify %}
                           {% if cron.status %}
-                            {% if cron.can_run %}
-                              <form action="{{ cron.run }}" method="post" data-oc-toggle="ajax" data-oc-load="{{ refresh }} #cron-list > *" data-oc-target="#cron-list" class="d-inline-block">
-                                <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
-                                <button type="submit" data-bs-toggle="tooltip" title="{{ button_run }}" class="btn btn-primary"><i class="fa-solid fa-play"></i></button>
-                              </form>
-                            {% endif %}
                             <form action="{{ cron.disable }}" method="post" data-oc-toggle="ajax" data-oc-load="{{ refresh }} #cron-list > *" data-oc-target="#cron-list" class="d-inline-block">
                               <input type="hidden" name="cron_id" value="{{ cron.cron_id }}"/>
                               <button type="submit" data-bs-toggle="tooltip" title="{{ button_disable }}" class="btn btn-warning"><i class="fa-solid fa-pause"></i></button>

@@ -14,14 +14,6 @@ class Cron extends \Opencart\System\Engine\Controller {
 	 * @return int
 	 */
 	public function index(?int $cron_id = null): int {
-		if (PHP_SAPI !== 'cli') {
-			$this->response->addHeader(($this->request->server['SERVER_PROTOCOL'] ?? 'HTTP/1.1') . ' 403 Forbidden');
-			$this->response->addHeader('Content-Type: application/json; charset=utf-8');
-			$this->response->setOutput(json_encode(['error' => 'Cron execution is only available from the command line.']));
-
-			return 1;
-		}
-
 		$this->load->model('setting/cron');
 
 		if ($cron_id !== null) {
