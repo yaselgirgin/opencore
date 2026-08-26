@@ -20,10 +20,8 @@ C:\xampp\htdocs\opencore
 Admin directory:
 
 ```text
-ocadmin/
+admin/
 ```
-
-The standard OpenCart `admin/` directory name is not used.
 
 External storage directory:
 
@@ -81,10 +79,10 @@ Custom admin modules must follow the native OpenCart structure.
 Example:
 
 ```text
-ocadmin/controller/agenda/calendar.php
-ocadmin/model/agenda/calendar.php
-ocadmin/language/tr-tr/agenda/calendar.php
-ocadmin/view/template/agenda/calendar.twig
+admin/controller/agenda/calendar.php
+admin/model/agenda/calendar.php
+admin/language/tr-tr/agenda/calendar.php
+admin/view/template/agenda/calendar.twig
 ```
 
 Example route:
@@ -278,13 +276,13 @@ The admin application must continue to provide:
 
 The stock e-commerce menus and dashboard widgets must be removed.
 
-The physical admin directory is always:
+The repository canonical default admin directory is:
 
 ```text
-ocadmin/
+admin/
 ```
 
-Do not create a new `admin/` directory.
+The installer may optionally rename the admin directory during installation. Runtime code must not hard-code the admin directory name or create a parallel second admin application directory.
 
 ## Git Rules
 
