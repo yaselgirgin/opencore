@@ -41,3 +41,20 @@ desktop.ini
 *.sql.gz
 *.zip
 *.7z
+
+# Runtime storage verileri
+/system/storage/backup/*
+!/system/storage/backup/.gitkeep
+/system/storage/cache/*
+!/system/storage/cache/.gitkeep
+/system/storage/download/*
+!/system/storage/download/.gitkeep
+/system/storage/logs/*
+!/system/storage/logs/.gitkeep
+/system/storage/session/*
+!/system/storage/session/.gitkeep
+/system/storage/upload/*
+!/system/storage/upload/.gitkeep
+
+# Maintainer tarafında geçici üretilebilen lock dosyası
+/system/storage/composer.lock
