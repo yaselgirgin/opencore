@@ -19,7 +19,6 @@ $_['text_runtime_diagnostics'] = 'Runtime Diagnostics';
 $_['text_setting']             = 'Settings';
 $_['text_startup']             = 'Startup';
 $_['text_system']              = 'System';
-$_['text_upgrade']             = 'Upgrade';
 $_['text_upload']              = 'Uploads';
 $_['text_users']               = 'Users';
 $_['text_user_group']          = 'User Groups';

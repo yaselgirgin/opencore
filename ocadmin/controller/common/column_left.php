@@ -99,7 +99,6 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 		$maintenance_routes = [
 			'tool/cron'                => 'text_cron',
 			'tool/runtime_diagnostics' => 'text_runtime_diagnostics',
-			'tool/upgrade'             => 'text_upgrade',
 			'tool/backup'              => 'text_backup',
 			'tool/upload'              => 'text_upload',
 			'tool/log'                 => 'text_log'
