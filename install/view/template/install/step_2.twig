@@ -1,0 +1,79 @@
+{{ header }}
+<div id="content">
+  <div class="page-header">
+    <div class="container"><h1>{{ heading_title }}</h1></div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-list-check"></i> {{ text_step_2 }}</div>
+      <div class="card-body">
+        <form id="form-step-2" action="{{ action }}">
+          {% for title, checks in { (text_php): php_checks, (text_extensions): extension_checks, (text_filesystem): filesystem_checks } %}
+            <fieldset>
+              <legend>{{ title }}</legend>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>{{ text_requirement }}</th>
+                    <th>{{ text_current }}</th>
+                    <th>{{ text_required }}</th>
+                    <th class="text-center">{{ text_status }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for check in checks %}
+                    <tr{% if not check.status %} class="table-danger"{% endif %}>
+                      <td>{{ check.name }}</td>
+                      <td>{{ check.current }}</td>
+                      <td>{{ check.required }}</td>
+                      <td class="text-center">
+                        {% if check.status %}
+                          <span class="text-success"><i class="fa-solid fa-check"></i></span>
+                        {% else %}
+                          <span class="text-danger"><i class="fa-solid fa-circle-xmark"></i></span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </fieldset>
+          {% endfor %}
+          <div class="row mt-3">
+            <div class="col"><a href="{{ back }}" class="btn btn-light">{{ button_back }}</a></div>
+            <div class="col text-end"><button type="submit" id="button-continue" class="btn btn-primary">{{ button_continue }}</button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#form-step-2').on('submit', function(e) {
+    e.preventDefault();
+
+    $.ajax({
+        url: this.action,
+        type: 'post',
+        dataType: 'json',
+        beforeSend: function() {
+            $('#button-continue').prop('disabled', true);
+        },
+        complete: function() {
+            $('#button-continue').prop('disabled', false);
+        },
+        success: function(json) {
+            $('.alert-dismissible').remove();
+
+            if (json.redirect) {
+                location = json.redirect;
+            }
+
+            if (json.error) {
+                $('#form-step-2').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+            }
+        }
+    });
+});
+//--></script>
+{{ footer }}

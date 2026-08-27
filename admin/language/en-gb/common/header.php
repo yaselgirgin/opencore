@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']          = 'OpenCart';
+$_['heading_title']          = 'OpenCore';
 
 // Text
 $_['text_notification']      = 'Notifications';
@@ -8,7 +8,7 @@ $_['text_notification_all']  = 'Show All';
 $_['text_notification_none'] = 'There are no notifications';
 $_['text_profile']           = 'Your Profile';
 $_['text_help']              = 'Help';
-$_['text_homepage']          = 'OpenCart Homepage';
+$_['text_homepage']          = 'OpenCore Homepage';
 $_['text_support']           = 'Support Forum';
 $_['text_documentation']     = 'Documentation';
 $_['text_logout']            = 'Logout';

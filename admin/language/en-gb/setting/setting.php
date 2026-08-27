@@ -50,6 +50,7 @@ $_['entry_pagination']                    = 'Default Items Per Page';
 $_['entry_autocomplete_limit']            = 'Default Autocomplete Limit';
 $_['entry_2fa_expire']                    = 'Token Expire';
 $_['entry_password']                      = 'Password Requirements';
+$_['entry_password_length']               = 'Minimum Password Length';
 $_['entry_logo']                          = 'Application Logo';
 $_['entry_icon']                          = 'Application Icon';
 $_['entry_image_default']                 = 'Default Image Size (W x H)';
