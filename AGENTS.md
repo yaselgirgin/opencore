@@ -23,13 +23,17 @@ Admin directory:
 admin/
 ```
 
-External storage directory:
+Canonical default storage directory:
 
 ```text
-C:\xampp\storage_opencore
+system/storage/
 ```
 
-The storage directory is outside the Git repository. Do not move, delete, rename, scan as project source, or commit its contents.
+Local development currently uses the repository canonical storage directory.
+
+External storage remains a supported deployment option. The installer may optionally move the complete storage directory outside the repository.
+
+Runtime code must continue to use `DIR_STORAGE` and must not hard-code either the internal or an external storage filesystem path.
 
 The installer directory has already been deleted.
 
