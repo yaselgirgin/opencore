@@ -108,6 +108,8 @@ Application bootstrap, ikinci bir application config dosyasına ihtiyaç duymada
 
 ## 7. Storage ve Vendor Modeli
 
+Faz 9 kanonik lifecycle: External `DIR_STORAGE` kullanımında yeni release ile `system/storage/vendor/` yeniden mevcutsa bootstrap, Composer autoload'dan önce aktif `DIR_STORAGE/vendor/` dizinini tamamen release payload ile değiştirir. Merge/overlay veya eski vendor backup/staging yoktur. `rename()` cross-filesystem'de başarısızsa copy ve source-cleanup fallback'i kullanılır; yeni `vendor/autoload.php` doğrulanmadan bootstrap devam etmez. Başarıdan sonra internal `system/storage/` release ağacı kaldırılır. Bu işlem yalnız vendor hedefidir; `cache/`, `logs/`, `session/`, `upload/` ve `backup/` runtime/user dizinlerine dokunmaz. `install/upgrade` vendor'a dokunmaz.
+
 Varsayılan storage dizini:
 
 ```text
@@ -128,29 +130,17 @@ DIR_STORAGE = system/storage/
 
 Manuel update sırasında release dosyalarının değiştirilmesi, dağıtılmış yeni vendor ağacını da doğal olarak deploy eder.
 
-Installer, tüm storage ağacını web root dışına taşımayı önerebilir; bu taşıma opsiyoneldir. Storage taşındığında vendor dahil gerekli tüm içerik tutarlı tek birim olarak taşınır ve aktif runtime vendor şu olur:
+Post-install Admin Security, tüm storage ağacını web root dışına taşımayı önerebilir; bu taşıma opsiyoneldir. Storage taşındığında vendor dahil gerekli tüm içerik tutarlı tek birim olarak taşınır ve aktif runtime vendor şu olur:
 
 ```text
 DIR_STORAGE/vendor/
 ```
 
-External storage kullanan bir kurulumda application ağacını değiştirmek aktif external vendor'ı otomatik güncellemez. Operatör yeni release içindeki:
-
-```text
-system/storage/vendor/
-```
-
-içeriğini aktif:
-
-```text
-DIR_STORAGE/vendor/
-```
-
-konumuna manuel olarak senkronize etmelidir. Bu, açık bir manuel deployment sorumluluğudur ve release/update belgelerinde belirtilmelidir.
+External storage kullanan bir kurulumda yeni release ile `system/storage/vendor/` yeniden mevcutsa, Bölüm 7'deki bootstrap preflight lifecycle aktif `DIR_STORAGE/vendor/` dizinini bu payload ile tamamen değiştirir. Manuel merge/senkronizasyon gerekmez.
 
 FTP, hosting file manager veya eşdeğer manuel dosya aktarımı yeterlidir; shell tabanlı deployment aracı gerekmez.
 
-Runtime, Admin, release bildirimleri ve `install/upgrade`; vendor senkronizasyonu, aktivasyonu, swap veya rollback yapamaz.
+Admin, release bildirimi ve `install/upgrade`; vendor senkronizasyonu, aktivasyonu, swap veya rollback yapamaz. Yalnız bootstrap preflight, tanımlanan release-owned vendor replacement işlemini uygular.
 
 Mimari şunları kullanmaz:
 
@@ -206,6 +196,8 @@ veya yeniden adlandırılmış eşdeğeri yoktur. Catalog, Admin ve Cron kendi b
 
 ## 10. Installer Modeli
 
+Fresh installer yalnız unconfigured (missing, empty veya partial root config) durumda çalışır; configured installation fresh reinstall yapamaz. Post-install Admin Security, `install/` dizini removal, opsiyonel Admin rename ve opsiyonel storage move sorumluluklarını yönetir.
+
 OpenCore, stable OpenCart installer akışını kavramsal referans olarak kullanan ve azaltılmış OpenCore mimarisine uyarlanmış özel bir `install/` uygulaması sağlayacaktır.
 
 Yeni kurulum şunlardan sorumludur:
@@ -231,6 +223,8 @@ OpenCore zaten kuruluysa yeni kurulum fail-closed davranmalıdır. Karar, root c
 
 ## 12. Manuel Application Update Modeli
 
+External storage kullanımında release vendor payload replacement'i Bölüm 7'deki bootstrap preflight lifecycle tarafından yapılır; operatör ayrı vendor merge/senkronizasyonu yapmaz.
+
 Resmi application update akışı:
 
 ```text
@@ -238,7 +232,7 @@ Stable release bildirimi
 -> operatör resmi stable source archive'i indirir
 -> kurulumun ve veritabanının yedeğini alır
 -> application dosyalarını manuel deploy eder
--> external storage etkinse vendor'ı manuel senkronize eder
+-> external storage etkinse bootstrap preflight release vendor payload'ını aktif vendor ile değiştirir
 -> yalnız DB işi gerekiyorsa install/upgrade çalıştırır
 ```
 
@@ -283,6 +277,8 @@ Veritabanı adımları açık ve source-controlled kalır. Bu karar genel migrat
 
 ## 14. VERSION ve database_version
 
+`VERSION` application/release version'dır. `DATABASE_VERSION`, kodun gerektirdiği hedef database revision'dır ve current canonical baseline `1`'dir. Kurulu revision `oc_setting` içinde `code=system`, `key=database_version` olarak tutulur; pozitif ve monoton integer'dır (`1`, `2`, `3`, ...), `VERSION`'dan bağımsızdır. Fresh install migration zinciri çalıştırmaz; güncel `DATABASE_VERSION` değerini seed eder; mevcut baseline `1`'dir. Code-only release revision artırmaz; yayınlanmış revision adımları immutable'dır.
+
 Kanonik application-code version yetkilisi:
 
 ```text
@@ -295,7 +291,7 @@ Kanonik kurulu veritabanı schema/data seviyesi:
 table : oc_setting
 code  : system
 key   : database_version
-value : YYYY.MM.RELEASE
+value : pozitif integer (1, 2, 3, ...)
 ```
 
 Sorumlulukları ayrıdır:
@@ -363,12 +359,14 @@ FTP, hosting file manager ve sıradan PHP web request'leri desteklenen kurulum/u
 
 ## 19. Açıkça Reddedilen Mimari
 
+Bu yasaklar `install/upgrade` veya Admin tarafından runtime vendor mutation'ını kapsar. Bölüm 7'de tanımlanan pre-autoload, release-owned external vendor replacement lifecycle'i istisnadır; runtime/user storage dizinlerini değiştirmez.
+
 Şunlar reddedilmiştir:
 
 - runtime application/vendor self-update
 - runtime release download veya staging
 - manifest kontrollü application değişimi
-- runtime vendor senkronizasyonu, değişimi veya swap
+- `install/upgrade` veya Admin tarafından runtime vendor senkronizasyonu, değişimi veya swap
 - updater filesystem journal, lock ve recovery state
 - bridge release
 - ayrı özel distribution ZIP

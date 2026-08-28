@@ -35,13 +35,13 @@ Desteklenen model:
 stable release bildirimi
 -> operatör resmi stable source archive'i indirir
 -> application dosyalarını manuel deploy eder
--> external storage etkinse release vendor'ını DIR_STORAGE/vendor/ ile manuel senkronize eder
+-> external storage etkinse bootstrap preflight release vendor payload'ını DIR_STORAGE/vendor/ ile değiştirir
 -> DB işi gerekiyorsa install/upgrade çalıştırır
 ```
 
 ### `install/upgrade`
 
-`install/upgrade`, daha önce kurulmuş OpenCore veritabanı için gelecekteki DB-only sistemdir. `database_version` değerini okur, açık source-controlled schema/data upgrade adımlarını çalıştırır ve `database_version` değerini ilerletir.
+`install/upgrade`, daha önce kurulmuş OpenCore veritabanı için DB-only sistemdir. `database_version` değerini okur, açık source-controlled schema/data upgrade adımlarını çalıştırır ve `database_version` değerini ilerletir.
 
 Application dosyalarını indirmez, stage etmez veya değiştirmez; vendor'ı değiştirmez ya da senkronize etmez; application rollback yapmaz.
 
@@ -147,7 +147,9 @@ zone_description
 
 Bu liste uygulamaya karşı doğrulanacak referanstır; main veritabanını değiştirme yetkisi vermez.
 
-## Faz 7 — Installer'da Opsiyonel Admin Yeniden Adlandırma ve Storage Taşıma
+## Faz 7 — Post-install Security: Admin Yeniden Adlandırma ve Storage Taşıma — Tamamlandı
+
+Bu işlemler installer adımı değil, post-install Admin Security akışındadır; install directory removal ve previous Admin cleanup da aynı hardening kapsamındadır.
 
 Admin davranışı:
 
@@ -164,18 +166,28 @@ Storage davranışı:
 - Kabul edilirse vendor dahil gerekli storage ağacının tamamı tutarlı biçimde taşınır.
 - Varsayılan storage'ı korumak geçerlidir ve sonradan zorunlu uyarı üretmez.
 
-## Faz 8 — Yeniden Kurulum Koruması ve `install/` Dizini Davranışı
+## Faz 8 — Yeniden Kurulum Koruması ve `install/` Dizini Davranışı — Tamamlandı
+
+Fresh/missing/empty/partial config installer davranışı ile configured-install fail-closed davranışı uygulanmıştır.
 
 Şu kuralları uygula:
 
 - Yeni kurulum mevcut OpenCore'u overwrite edemez.
 - Fiziksel `install/` dizini kalabilir.
 - Silme önerilebilir ama zorunlu değildir.
-- İlk login'de install dizinini silme modal'ı eklenmez.
+- Post-install Admin Security install dizini removal modal'ı sağlar.
 - Config yoksa ve installer mevcutsa yeni kurulum akışına girilebilir.
 - Kurulu sistem `install/` fiziksel olarak kalsa da normal çalışır.
 
-## Faz 9 — Yalnız Veritabanı için `install/upgrade`
+## Faz 9 — Yalnız Veritabanı için `install/upgrade` — Tamamlandı / Doğrulandı
+
+Kanonik revision modeli `system/version.php` içindeki `DATABASE_VERSION` (baseline `1`) ile `oc_setting` altındaki pozitif, monoton integer `system/database_version` değeridir; `VERSION`'dan bağımsızdır. Fresh install migration çalıştırmaz; güncel `DATABASE_VERSION` değerini seed eder; mevcut baseline `1`'dir.
+
+Tek controller/model DB-only upgrade zinciri, pending tüm `upgradeN()` methodlarını mutation öncesi Model Proxy-native `isset()` ile preflight eder. Revisionlar forward-only uygulanır; her başarılı revision sonrası marker ilerletilir. Missing method, invalid revision veya downgrade durumu fail-closed'dur. Upgrade için explicit backup confirmation ve action gerekir; otomatik backup, rollback, manifest veya ayrı auth/token sistemi yoktur.
+
+Configured runtime guard: Admin DB `<` target durumunda mevcut `install/` ile upgrade ekranına yönlendirir; install yoksa fail-closed olur. API HTML redirect yerine HTTP 503 machine-readable error döner. DB `=` target normaldir; configured `/install/` blocked ekranı verir; DB `>` target ve invalid revision fail-closed'dur. Direct upgrade route, upgrade gerekmiyorsa bypass sağlamaz.
+
+External storage'da release ile yeniden gelen `system/storage/vendor/`, Composer autoload öncesi bootstrap tarafından aktif external vendor ile tamamen değiştirilir. Bu DB migration değildir ve cache/logs/session/upload/backup dizinlerine dokunmaz.
 
 Tam veritabanı version sözleşmesi:
 
@@ -183,10 +195,10 @@ Tam veritabanı version sözleşmesi:
 table : oc_setting
 code  : system
 key   : database_version
-value : YYYY.MM.RELEASE
+value : pozitif integer (1, 2, 3, ...)
 ```
 
-Gereksinimler:
+Uygulanan davranış:
 
 - Yalnız mevcut kurulum veritabanında çalışır.
 - Açık, okunabilir, versioned schema/data adımları kullanır.
@@ -194,7 +206,7 @@ Gereksinimler:
 - Her application release için boş migration zorunlu değildir.
 - İlerlemeyi yalnız başarılı seviyelerden sonra kaydeder.
 - Hedef `database_version` değerine yalnız tam başarıdan sonra ulaşır.
-- Authorization modeli uygulamadan önce kararlaştırılır.
+- OpenCart-style upgrade authorization modeli uygulanmıştır: geçerli Admin directory, backup confirmation ve explicit action; ayrı Admin session/token mekanizması yoktur.
 - Genel migration framework getirmez.
 - Application/vendor dosyalarını hiçbir zaman indirmez veya değiştirmez.
 
@@ -257,7 +269,7 @@ Kanonik mimari büyük ölçüde uygulandıktan sonra:
 - kullanılmayan `tools/` içeriğini kaldır
 - eski development-only ürün ağacı içeriğini kaldır
 
-README; OpenCore amacı, gereksinimler, kurulum, Admin/storage seçenekleri, config, SQL Backup/Restore, manuel application update, external-storage vendor senkronizasyonu, DB-only `install/upgrade` ve lisansı kapsamalıdır.
+README; OpenCore amacı, gereksinimler, kurulum, Admin/storage seçenekleri, config, SQL Backup/Restore, manuel application update, external-storage vendor replacement lifecycle, DB-only `install/upgrade` ve lisansı kapsamalıdır.
 
 Terk edilmiş self-updater mimarisini belgeleme.
 
@@ -300,7 +312,7 @@ En az şunları doğrula:
 - yalnız bildirim amaçlı stable release kontrolü
 - System Diagnostics
 - stable source archive'den doğrudan kurulum
-- external-storage manuel vendor senkronizasyonu
+- external-storage release vendor replacement
 - shared-hosting varsayımları
 
 ## Çalışma Yöntemi
