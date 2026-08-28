@@ -8730,7 +8730,7 @@ VALUES ('config', 'config_name', 'OpenCore', '0'),
        ('config', 'config_error_display', '1', '0'),
        ('config', 'config_error_log', '1', '0'),
        ('config', 'config_error_filename', 'error.log', '0'),
-       ('system', 'database_version', '2026.08.1', '0');
+       ('system', 'database_version', '1', '0');
 
 INSERT INTO `oc_event` (`event_id`, `code`, `description`, `trigger`, `action`, `status`, `sort_order`)
 VALUES ('1', 'admin_currency_setting', 'Updates currencies when settings are saved.', 'admin/model/setting/setting.editSetting/after', 'event/currency', '1', '1'),

@@ -26,13 +26,6 @@ class Install extends \Opencart\System\Engine\Controller {
 		$language->load('default');
 		$this->registry->set('language', $language);
 
-		$route = $this->request->get['route'] ?? $this->config->get('action_default');
-		$completion = $route === 'install/step_4' && ($this->session->data['install_step'] ?? 0) === 3;
-
-		if (INSTALL_CONFIGURED && !$completion) {
-			return new \Opencart\System\Engine\Action('install/step_4.blocked');
-		}
-
 		return null;
 	}
 }

@@ -24,6 +24,7 @@ $_['response_header']     = ['Content-Type: application/json; charset=utf-8'];
 // Actions
 $_['action_pre_action']  = [
 	'startup/setting',
+	'startup/database_version',
 	'startup/error',
 	'startup/api'
 ];

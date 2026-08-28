@@ -1,0 +1,70 @@
+{{ header }}
+<div id="content">
+  <div class="page-header">
+    <div class="container"><h1>{{ heading_title }}</h1></div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-database"></i>&nbsp;&nbsp;{{ text_prepare }}</div>
+      <div class="card-body">
+        {% if error_warning %}<div class="alert alert-danger"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }}</div>{% endif %}
+        <form id="form-upgrade" action="{{ action }}">
+          <fieldset>
+            <legend>{{ text_check }}</legend>
+            <div class="table-responsive">
+              <table class="table table-bordered mb-3">
+                <tbody>
+                  <tr><th scope="row">{{ text_current }}</th><td>{{ current }}</td></tr>
+                  <tr><th scope="row">{{ text_target }}</th><td>{{ target }}</td></tr>
+                  <tr><th scope="row">{{ text_pending }}</th><td>{{ pending ? pending|join(', ') : '-' }}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_backup_warning }}</div>
+            <div class="form-check mb-3">
+              <input type="checkbox" name="backup" value="1" id="input-backup" class="form-check-input"/>
+              <label for="input-backup" class="form-check-label">{{ entry_backup }}</label>
+              <div id="error-backup" class="invalid-feedback"></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>{{ entry_admin }}</legend>
+            <div class="mb-3">
+              <label for="input-admin" class="form-label">{{ entry_admin }}</label>
+              <div class="input-group">
+                <span class="input-group-text">{{ server }}</span>
+                <input type="text" name="admin" value="{{ admin }}" id="input-admin" class="form-control"/>
+              </div>
+              <div id="error-admin" class="invalid-feedback"></div>
+            </div>
+          </fieldset>
+          <div class="row">
+            <div class="col text-end">{% if can_upgrade %}<button type="submit" id="button-upgrade" class="btn btn-primary">{{ button_upgrade }}</button>{% endif %}</div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript"><!--
+$('#form-upgrade').on('submit', function(e) {
+  e.preventDefault();
+  var form = this;
+  $.ajax({url: form.action, type: 'post', data: $(form).serialize(), dataType: 'json', beforeSend: function() { $('#button-upgrade').prop('disabled', true); }, complete: function() { $('#button-upgrade').prop('disabled', false); }, success: function(json) {
+    $('.upgrade-error').remove();
+    $(form).find('.is-invalid').removeClass('is-invalid');
+    $(form).find('.invalid-feedback').removeClass('d-block');
+    if (json.redirect) { location = json.redirect; return; }
+    if (json.error) {
+      for (const key in json.error) {
+        if (key !== 'warning') {
+          $('#input-' + key).addClass('is-invalid');
+          $('#error-' + key).html(json.error[key]).addClass('d-block');
+        }
+      }
+      if (json.error.warning) { $(form).prepend('<div class="alert alert-danger upgrade-error"><i class="fa-solid fa-circle-exclamation"></i> ' + json.error.warning + '</div>'); }
+    }
+  }});
+});
+//--></script>
+{{ footer }}

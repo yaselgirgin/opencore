@@ -16,21 +16,9 @@ define('HTTP_SERVER', $protocol . $host . $install_path . '/');
 define('HTTP_OPENCART', $protocol . $host . $root_path . '/');
 define('INSTALL_ADMIN_DIRECTORY', 'admin');
 
-define('DIR_OPENCART', str_replace('\\', '/', realpath(__DIR__ . '/../')) . '/');
-define('DIR_APPLICATION', DIR_OPENCART . 'install/');
-define('DIR_IMAGE', DIR_OPENCART . 'image/');
-define('DIR_SYSTEM', DIR_OPENCART . 'system/');
-define('DIR_STORAGE', DIR_SYSTEM . 'storage/');
-define('DIR_LANGUAGE', DIR_APPLICATION . 'language/');
-define('DIR_TEMPLATE', DIR_APPLICATION . 'view/template/');
-define('DIR_CONFIG', DIR_SYSTEM . 'config/');
-define('DIR_CACHE', DIR_STORAGE . 'cache/');
-define('DIR_LOGS', DIR_STORAGE . 'logs/');
-define('DIR_SESSION', DIR_STORAGE . 'session/');
-define('DIR_UPLOAD', DIR_STORAGE . 'upload/');
-
+$opencart_path = str_replace('\\', '/', realpath(__DIR__ . '/../')) . '/';
+$config_file = $opencart_path . 'config.php';
 $configured = false;
-$config_file = DIR_OPENCART . 'config.php';
 
 if (is_readable($config_file)) {
 	$config_source = file_get_contents($config_file);
@@ -43,7 +31,24 @@ if (is_readable($config_file)) {
 			break;
 		}
 	}
+
+	if ($configured) {
+		require_once($config_file);
+	}
 }
+
+defined('DIR_OPENCART') || define('DIR_OPENCART', $opencart_path);
+define('DIR_APPLICATION', DIR_OPENCART . 'install/');
+defined('DIR_IMAGE') || define('DIR_IMAGE', DIR_OPENCART . 'image/');
+defined('DIR_SYSTEM') || define('DIR_SYSTEM', DIR_OPENCART . 'system/');
+defined('DIR_STORAGE') || define('DIR_STORAGE', DIR_SYSTEM . 'storage/');
+define('DIR_LANGUAGE', DIR_APPLICATION . 'language/');
+define('DIR_TEMPLATE', DIR_APPLICATION . 'view/template/');
+defined('DIR_CONFIG') || define('DIR_CONFIG', DIR_SYSTEM . 'config/');
+defined('DIR_CACHE') || define('DIR_CACHE', DIR_STORAGE . 'cache/');
+defined('DIR_LOGS') || define('DIR_LOGS', DIR_STORAGE . 'logs/');
+defined('DIR_SESSION') || define('DIR_SESSION', DIR_STORAGE . 'session/');
+defined('DIR_UPLOAD') || define('DIR_UPLOAD', DIR_STORAGE . 'upload/');
 
 define('INSTALL_CONFIGURED', $configured);
 

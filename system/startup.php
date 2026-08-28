@@ -11,6 +11,98 @@ if (!ini_get('date.timezone')) {
 	date_default_timezone_set('UTC');
 }
 
+function oc_bootstrap_delete_directory(string $path): bool {
+	if (!file_exists($path)) {
+		return true;
+	}
+
+	if (!is_dir($path)) {
+		return unlink($path);
+	}
+
+	$items = scandir($path);
+
+	if ($items === false) {
+		return false;
+	}
+
+	foreach ($items as $item) {
+		if ($item === '.' || $item === '..') {
+			continue;
+		}
+
+		if (!oc_bootstrap_delete_directory($path . '/' . $item)) {
+			return false;
+		}
+	}
+
+	return rmdir($path);
+}
+
+function oc_bootstrap_copy_directory(string $source, string $target): bool {
+	if (!is_dir($source)) {
+		return false;
+	}
+
+	if (!is_dir($target) && !mkdir($target, 0777, true) && !is_dir($target)) {
+		return false;
+	}
+
+	$items = scandir($source);
+
+	if ($items === false) {
+		return false;
+	}
+
+	foreach ($items as $item) {
+		if ($item === '.' || $item === '..') {
+			continue;
+		}
+
+		$source_path = $source . '/' . $item;
+		$target_path = $target . '/' . $item;
+
+		if (is_dir($source_path)) {
+			if (!oc_bootstrap_copy_directory($source_path, $target_path)) {
+				return false;
+			}
+		} elseif (!copy($source_path, $target_path)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+$internal_storage = rtrim(str_replace('\\', '/', DIR_SYSTEM), '/') . '/storage';
+$runtime_storage = rtrim(str_replace('\\', '/', DIR_STORAGE), '/');
+$external_storage = DIRECTORY_SEPARATOR === '\\' ? strcasecmp($runtime_storage, $internal_storage) !== 0 : $runtime_storage !== $internal_storage;
+
+if ($external_storage) {
+	$source_vendor = $internal_storage . '/vendor';
+	$target_vendor = $runtime_storage . '/vendor';
+
+	if (is_dir($source_vendor)) {
+		if (!oc_bootstrap_delete_directory($target_vendor)) {
+			throw new \RuntimeException('Could not remove the existing external vendor directory.');
+		}
+
+		if (!@rename($source_vendor, $target_vendor)) {
+			if (!oc_bootstrap_copy_directory($source_vendor, $target_vendor) || !oc_bootstrap_delete_directory($source_vendor)) {
+				throw new \RuntimeException('Could not replace the external vendor directory.');
+			}
+		}
+
+		if (!is_file($target_vendor . '/autoload.php')) {
+			throw new \RuntimeException('The external vendor directory is incomplete.');
+		}
+
+		if (!oc_bootstrap_delete_directory($internal_storage)) {
+			throw new \RuntimeException('Could not remove the internal release storage directory.');
+		}
+	}
+}
+
 // Windows IIS Compatibility
 if (!isset($_SERVER['DOCUMENT_ROOT'])) {
 	if (isset($_SERVER['SCRIPT_FILENAME'])) {

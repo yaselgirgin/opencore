@@ -24,6 +24,7 @@ $_['error_display']     = true;
 // Actions
 $_['action_pre_action'] = [
 	'startup/setting',
+	'startup/database_version',
 	'startup/session',
 	'startup/language',
 	'startup/application',
