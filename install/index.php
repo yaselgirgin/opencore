@@ -34,11 +34,11 @@ $config_file = DIR_OPENCART . 'config.php';
 
 if (is_readable($config_file)) {
 	$config_source = file_get_contents($config_file);
-	$required = ['HTTP_CATALOG', 'DIR_OPENCART', 'DB_DRIVER', 'DB_DATABASE'];
+	$required = ['HTTP_CATALOG', 'DIR_OPENCART', 'DIR_IMAGE', 'DIR_SYSTEM', 'DIR_STORAGE', 'DIR_CONFIG', 'DIR_CACHE', 'DIR_LOGS', 'DIR_SESSION', 'DIR_UPLOAD', 'DB_DRIVER', 'DB_HOSTNAME', 'DB_USERNAME', 'DB_PASSWORD', 'DB_DATABASE', 'DB_PORT', 'DB_PREFIX'];
 	$configured = is_string($config_source);
 
 	foreach ($required as $constant) {
-		if (!preg_match("~define\\(\\s*['\"]" . $constant . "['\"]\\s*,\\s*['\"][^'\"]+['\"]\\s*\\)~", $config_source)) {
+		if (!preg_match("~define\\(\\s*['\"]" . $constant . "['\"]\\s*,~", $config_source)) {
 			$configured = false;
 			break;
 		}
