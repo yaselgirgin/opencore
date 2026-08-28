@@ -97,6 +97,34 @@ function oc_strtolower(string $string): string {
 	return mb_strtolower($string);
 }
 
+/**
+ * @param string $pattern
+ * @param int    $flags
+ *
+ * @return array<int, string>
+ */
+function oc_glob(string $pattern, int $flags = 0): array {
+	if (strpos($pattern, '{') === false) {
+		$result = glob($pattern, $flags);
+
+		return is_array($result) ? $result : [];
+	}
+
+	$matches = [];
+	if (preg_match('/\{([^}]+)\}/', $pattern, $m)) {
+		$options = explode(',', $m[1]);
+		foreach ($options as $opt) {
+			$newPattern = str_replace($m[0], $opt, $pattern);
+			$matches = array_merge($matches, oc_glob($newPattern, $flags));
+		}
+	}
+
+	$matches = array_unique($matches);
+	sort($matches);
+
+	return $matches;
+}
+
 // Pre PHP8 compatibility
 /*
  * @param string $string

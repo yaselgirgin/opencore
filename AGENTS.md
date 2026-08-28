@@ -1,458 +1,174 @@
 # AGENTS.md
 
-## Project Overview
+## Project
 
-This repository is an OpenCart 4.x based internal business application platform.
+OpenCore is an OpenCart-based internal business application platform.
 
-The project does not use OpenCart primarily as an e-commerce storefront.  
-The OpenCart admin panel is used as the main application interface for ERP, CRM, agenda, quotation, fair notes, reports, and other internal business modules.
+Canonical OpenCart reference:
 
-The current first objective is to remove the stock OpenCart e-commerce functionality while preserving the useful framework and admin infrastructure.
+C:\xampp\htdocs\oc4104
 
-## Project Paths
+Follow OpenCart 4.1.0.4 architecture and conventions as closely as possible unless:
+- the relevant OpenCart feature was intentionally removed from OpenCore, or
+- an accepted ADR / explicit owner decision says otherwise.
 
-Project root example:
+Do not reintroduce removed scope during OpenCart parity work:
+- e-commerce/storefront
+- OCMOD
+- extension/marketplace infrastructure
+- runtime self-updater
 
-```text
-C:\xampp\htdocs\opencore
-```
-
-Admin directory:
-
-```text
-admin/
-```
-
-Canonical default storage directory:
-
-```text
-system/storage/
-```
-
-Local development currently uses the repository canonical storage directory.
-
-External storage remains a supported deployment option. The installer may optionally move the complete storage directory outside the repository.
-
-Runtime code must continue to use `DIR_STORAGE` and must not hard-code either the internal or an external storage filesystem path.
-
-The installer directory has already been deleted.
-
-## Architecture Decision
-
-The project uses the following architecture:
-
-```text
-Controller → Model → Database
-```
-
-Keep this architecture.
-
-Do not introduce any of the following unless explicitly requested in a future ADR:
-
-- Service layer
-- Repository layer
-- Custom module loader
-- Dependency injection container
-- New extension framework
-- Domain-driven architecture
-- ORM
-- Migration framework
-- New routing framework
-
-Controllers should manage:
-
-- Request handling
-- Input validation
-- Permission checks
-- Model calls
-- Response generation
-- View rendering
-
-Models should manage:
-
-- Database queries
-- Data retrieval
-- Insert, update, and delete operations
-
-Controllers must not contain direct SQL queries.
-
-## Module Structure
-
-Custom admin modules must follow the native OpenCart structure.
-
-Example:
-
-```text
-admin/controller/agenda/calendar.php
-admin/model/agenda/calendar.php
-admin/language/tr-tr/agenda/calendar.php
-admin/view/template/agenda/calendar.twig
-```
-
-Example route:
-
-```text
-agenda/calendar
-```
-
-API controllers must live under the catalog API namespace.
-
-Example:
-
-```text
-catalog/controller/api/agenda/calendar.php
-```
-
-Example API route:
-
-```text
-api/agenda/calendar
-```
-
-Do not move custom modules into the OpenCart extension system unless explicitly requested.
-
-## Protected Core Components
-
-Do not remove or redesign these components without explicit approval:
-
-- Registry
-- Loader
-- Router
-- Action
-- Controller base class
-- Model base class
-- Proxy
-- Event system
-- Config
-- Request
-- Response
-- Session
-- Cache
-- Log
-- Database drivers
-- Language
-- URL
-- Document
-- Twig/template integration
-- Encryption and security helpers
-- Upload helpers
-- Pagination
-- Admin login and logout
-- Admin user management
-- User groups
-- Access and modify permissions
-- Common admin header and footer
-- Admin error pages
-- Settings infrastructure
-
-Mail and image components must be preserved when used by custom business modules.
-
-## Current Primary Task
-
-The current task is defined by:
-
-```text
-docs/adr/ADR-001-opencart-eticaret-temizligi.md
-```
-
-The objective is to physically remove stock OpenCart e-commerce code while preserving the admin framework and custom business modules.
-
-Before deleting files, classify them as one of:
-
-- `CORE`
-- `ECOMMERCE-STOCK`
-- `CUSTOM-BUSINESS`
-- `SHARED`
-- `UNKNOWN`
-
-Never delete a file based only on its filename.
-
-Names such as the following may also be used by custom ERP functionality:
-
-- order
-- customer
-- product
-- category
-- report
-- mail
-- image
-- setting
-
-Search for actual dependencies before removing them.
-
-## Cleanup Rules
-
-Follow this order:
-
-1. Create dependency inventories.
-2. Remove admin e-commerce navigation.
-3. Remove stock e-commerce dashboard widgets.
-4. Convert catalog to API-only behavior.
-5. Add and verify `api/system/ping`.
-6. Remove stock e-commerce areas incrementally.
-7. Remove orphan routes, models, languages, templates, events, and cron references.
-8. Run smoke tests after each logical change.
-9. Produce a final cleanup report.
-
-Required inventory files:
-
-```text
-docs/cleanup/file-inventory.md
-docs/cleanup/route-inventory.md
-docs/cleanup/table-inventory.md
-```
-
-Required final report:
-
-```text
-docs/cleanup/cleanup-report.md
-```
-
-## Database Safety
-
-Do not execute destructive database operations during the current cleanup task.
-
-Forbidden unless explicitly approved:
-
-```sql
-DROP TABLE
-TRUNCATE TABLE
-DROP DATABASE
-```
-
-Do not delete production or development data.
-
-Classify database tables as:
-
-- `KEEP`
-- `MIGRATE`
-- `DROP-CANDIDATE`
-
-Database table removal will be handled in a separate ADR.
-
-## Catalog Policy
-
-The catalog side will not serve a storefront.
-
-Target behavior:
-
-- API-only catalog application
-- JSON responses
-- No product listing
-- No category pages
-- No cart
-- No checkout
-- No customer account storefront
-- No wishlist
-- No product compare
-- No storefront theme output
-
-Required health endpoint:
-
-```text
-GET index.php?route=api/system/ping
-```
-
-Expected response:
-
-```json
-{
-  "success": true
-}
-```
-
-Unknown API routes should return a JSON 404 response.
-
-## Admin Policy
-
-The admin application must continue to provide:
-
-- Login
-- Logout
-- Users
-- User groups
-- Access permissions
-- Modify permissions
-- Settings
-- Common layout
-- Error handling
-- Custom business modules
-
-The stock e-commerce menus and dashboard widgets must be removed.
-
-The repository canonical default admin directory is:
-
-```text
-admin/
-```
-
-The installer may optionally rename the admin directory during installation. Runtime code must not hard-code the admin directory name or create a parallel second admin application directory.
-
-## Git Rules
-
-The repository must remain private.
-
-Do not commit directly to `main` during cleanup.
+## Architecture
 
 Use:
 
-```text
-cleanup/remove-ecommerce
-```
+Controller -> Model -> Database
 
-for the e-commerce cleanup work.
+Do not introduce Service, Repository, ORM, DI container, migration framework,
+custom routing framework, or another architectural layer unless explicitly approved.
 
-Make small, logical, reversible commits.
+Controllers handle request/validation/permission/response/view concerns.
+Models handle database access and persistence.
+Controllers must not contain direct SQL.
 
-Examples:
+Custom modules should follow native OpenCart MVC conventions.
+API controllers remain under catalog/controller/api/.
 
-```text
-chore(cleanup): add ecommerce dependency inventories
-refactor(admin): remove ecommerce navigation
-refactor(catalog): convert storefront to api-only
-chore(cleanup): remove cart and checkout
-fix(cleanup): remove orphan ecommerce references
-test(cleanup): add admin and api smoke tests
-docs(cleanup): add final cleanup report
-```
+## OpenCart Helper Reuse
 
-Before each commit:
+Before implementing utility or framework-level logic, check whether OpenCart 4.1.0.4
+already provides an equivalent helper under `system/helper/`.
 
-1. Review `git diff`.
-2. Review `git status`.
-3. Run PHP syntax checks on changed PHP files.
-4. Run available automated tests.
-5. Check application logs.
-6. Verify admin login.
-7. Verify permissions.
-8. Verify at least one custom module.
-9. Verify API ping.
+If an applicable OpenCart helper exists, prefer preserving and reusing it instead of
+duplicating the behavior with native PHP calls, custom helpers, or ad-hoc utility code.
 
-Do not create commits containing unrelated refactoring.
+Keep OpenCart helper semantics as closely as possible.
 
-Do not push secrets.
+Exceptions:
+- the helper belongs only to functionality intentionally removed from OpenCore, or
+- an accepted ADR / explicit owner decision requires different behavior.
 
-## Files That Must Not Be Committed
+Do not reintroduce removed e-commerce, extension, marketplace, OCMOD, or updater scope
+only because an OpenCart helper exists.
+
+## Canonical Distribution
+
+Default admin directory:
+
+admin/
+
+Default storage directory:
+
+system/storage/
+
+Runtime code must always use DIR_STORAGE and must not hard-code a storage path.
+
+OpenCore uses one root config.php.
+There is no separate admin config.php.
+
+config-dist.php is a tracked empty placeholder and must not be populated automatically.
+
+Runtime vendor dependencies are distributed under:
+
+system/storage/vendor/
+
+Final users must not need Composer.
+
+Post-install Security behavior should follow OpenCart 4.1.0.4 semantics for:
+- install directory removal
+- moving the complete storage directory outside the web root
+- admin directory rename
+
+Do not invent installer-specific alternatives for these operations unless explicitly approved.
+
+## Safety and Owner Approval
+
+Read-only inspection is allowed.
+
+Do not perform any of the following without explicit owner approval:
+- git add / staging
+- commit
+- push
+- reset
+- clean
+- rebase
+- cherry-pick
+- branch deletion
+- force push
+- file or directory deletion
+- destructive database changes
+
+Never mutate the main OpenCore database for testing.
+
+Destructive or E2E database tests must use an explicitly approved isolated test environment.
+
+Do not delete temporary backups without explicit approval.
+
+If a task requires a new architectural or product decision, stop and report the decision
+instead of choosing on behalf of the owner.
+
+## Task and Context Discipline
+
+Work only on the requested task.
+
+Do not perform repository-wide scans, audits, refactors, or comparisons unless explicitly requested.
+
+Start from exact files, paths, routes, classes, or symbols provided by the task.
+
+Use narrow rg/find searches only when a dependency must be located.
+
+Do not read unrelated ADRs, plans, reports, or historical project documents.
+Read only documents explicitly relevant to the current task.
+
+Do not repeat checks already established as passing unless the current change could invalidate them.
+
+Make the smallest safe change.
+Do not include unrelated cleanup or refactoring.
+
+## Validation
+
+Run only checks relevant to the changed scope.
+
+For PHP changes, run syntax checks on changed PHP files when practical.
+
+Use targeted tests instead of broad E2E or repository-wide audits unless broad validation
+is explicitly requested.
+
+After implementation report only:
+- changed files
+- validation performed and result
+- unresolved issue or required owner decision, if any
+
+Do not provide a long narrative unless requested.
+
+## Git and Sensitive Files
+
+The repository must remain private.
 
 Never commit:
+- config.php
+- .env or .env.*
+- credentials or API keys
+- mail/FTP passwords
+- runtime logs
+- cache/session files
+- temporary uploads
+- database backups
+- customer data exports
 
-```text
-/config.php
-.env
-.env.*
-*.sql
-*.sql.gz
-*.zip
-*.7z
-*.log
-```
+SQL dumps and backups must not be committed.
 
-Also do not commit:
+The following canonical installer seed files are intentional tracked source files and are exceptions:
 
-- Database credentials
-- API keys
-- Mail passwords
-- FTP credentials
-- Session files
-- Cache files
-- Runtime logs
-- Temporary uploads
-- Database backups
-- Customer data exports
+install/opencart-tr-tr.sql
+install/opencart-en-gb.sql
 
-The external storage directory is not part of the repository.
+## Instruction Priority
 
-## Change Discipline
-
-Do not perform broad rewrites while removing e-commerce code.
-
-For every deletion:
-
-1. Search route references.
-2. Search controller references.
-3. Search model loading calls.
-4. Search language loading calls.
-5. Search Twig includes and links.
-6. Search event actions.
-7. Search cron references.
-8. Search database table usage.
-9. Confirm custom modules do not depend on the target.
-10. Run smoke tests.
-
-When a dependency is uncertain:
-
-- Do not delete it.
-- Mark it as `SHARED` or `UNKNOWN`.
-- Record it in the cleanup report.
-
-## Testing Requirements
-
-At minimum verify:
-
-### Admin
-
-- Login page loads.
-- Valid login succeeds.
-- Invalid login fails.
-- Logout works.
-- User page loads.
-- User group page loads.
-- Access permission works.
-- Modify permission works.
-- Custom dashboard loads.
-- At least one custom module can list, open, save, and delete records.
-- Common header and footer assets load.
-- No missing controller, model, language, template, or class errors appear in logs.
-
-### API
-
-- Ping endpoint returns HTTP 200.
-- Ping endpoint returns JSON.
-- Unknown API route returns JSON 404.
-- Storefront product route does not work.
-- Storefront category route does not work.
-- Cart route does not work.
-- Checkout route does not work.
-- Customer account storefront route does not work.
-
-### Static Checks
-
-- No active references to deleted routes.
-- No active references to deleted models.
-- No active references to deleted language files.
-- No active references to deleted Twig templates.
-- No orphan event actions.
-- No orphan cron jobs.
-- PHP syntax checks pass.
-
-## Working Style for Codex
-
-Before modifying code:
-
-1. Read this file.
-2. Read the relevant ADR.
-3. Inspect the repository.
-4. Identify affected files.
-5. Identify risks.
-6. Make the smallest safe change.
-
-After modifying code:
-
-1. Summarize changed files.
-2. Explain important dependency decisions.
-3. List tests executed.
-4. Report failures honestly.
-5. List files intentionally not deleted because they are `SHARED` or `UNKNOWN`.
-6. Do not claim success without test evidence.
-
-## Priority Order
-
-When instructions conflict, use this priority:
-
-1. Explicit current user instruction
+1. Explicit current owner instruction
 2. Accepted ADR
-3. This `AGENTS.md`
-4. Existing project conventions
-5. Native OpenCart conventions
+3. AGENTS.md
+4. Existing OpenCore conventions
+5. Native OpenCart 4.1.0.4 conventions
 
-Do not silently override an ADR.
+Never silently override an accepted ADR or owner decision.
