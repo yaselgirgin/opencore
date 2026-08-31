@@ -43,8 +43,7 @@ $('#notification').on('click', 'table a', function(e) {
 
             $('#modal-notification').modal('show');
 
-            $(element).parent().parent().removeClass('table-primary');
-            $(element).parent().parent().find('.fa-bell').removeClass('fas').addClass('far');
+            $(element).parent().parent().removeClass('table-active opacity-50');
             $(element).removeClass('font-weight-bold');
             $(element).parent().parent().find('.btn-primary').removeClass('btn-primary').addClass('btn-outline-primary');
         },
@@ -73,8 +72,7 @@ $('#notification').on('click', '.btn', function(e) {
 
             $('#modal-notification').modal('show');
 
-            $(element).parent().parent().removeClass('table-primary');
-            $(element).parent().parent().find('.fa-bell').removeClass('fas').addClass('far');
+            $(element).parent().parent().removeClass('table-active opacity-50');
             $(element).parent().parent().find('a').removeClass('font-weight-bold');
             $(element).removeClass('btn-primary').addClass('btn-outline-primary');
         },

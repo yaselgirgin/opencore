@@ -118,6 +118,7 @@ class Setting extends \Opencart\System\Engine\Controller {
 		// Options
 		$data['config_pagination_admin'] = $this->config->get('config_pagination_admin');
 		$data['config_autocomplete_limit'] = $this->config->get('config_autocomplete_limit');
+		$data['config_notification_expire_days'] = $this->config->get('config_notification_expire_days');
 
 		// Image
 		$data['config_image_thumbnail_width'] = (int)$this->config->get('config_image_thumbnail_width') ?: 160;
@@ -230,6 +231,10 @@ class Setting extends \Opencart\System\Engine\Controller {
 
 		if (!$this->request->post['config_autocomplete_limit']) {
 			$json['error']['autocomplete_limit'] = $this->language->get('error_autocomplete_limit');
+		}
+
+		if (!isset($this->request->post['config_notification_expire_days']) || filter_var($this->request->post['config_notification_expire_days'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+			$json['error']['notification_expire_days'] = $this->language->get('error_notification_expire_days');
 		}
 
 		if (!$this->request->post['config_image_default_width'] || !$this->request->post['config_image_default_height']) {

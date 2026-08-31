@@ -8703,6 +8703,7 @@ VALUES ('config', 'config_name', 'OpenCore', '0'),
        ('config', 'config_weight_class_id', '1', '0'),
        ('config', 'config_pagination_admin', '20', '0'),
        ('config', 'config_autocomplete_limit', '5', '0'),
+       ('config', 'config_notification_expire_days', '7', '0'),
        ('config', 'config_image_default_width', '300', '0'),
        ('config', 'config_image_default_height', '300', '0'),
        ('config', 'config_image_thumbnail_width', '160', '0'),
@@ -8730,7 +8731,7 @@ VALUES ('config', 'config_name', 'OpenCore', '0'),
        ('config', 'config_error_display', '1', '0'),
        ('config', 'config_error_log', '1', '0'),
        ('config', 'config_error_filename', 'error.log', '0'),
-       ('system', 'database_version', '1', '0');
+       ('system', 'database_version', '2', '0');
 
 INSERT INTO `oc_event` (`event_id`, `code`, `description`, `trigger`, `action`, `status`, `sort_order`)
 VALUES ('1', 'admin_currency_setting', 'Updates currencies when settings are saved.', 'admin/model/setting/setting.editSetting/after', 'event/currency', '1', '1'),
@@ -8739,7 +8740,8 @@ VALUES ('1', 'admin_currency_setting', 'Updates currencies when settings are sav
        ('4', 'admin_mail_user_authorize_reset', 'Sends reset link to user who`s account is locked out after 3 wrong authorize code login attempts.', 'admin/model/user/user.addToken/after', 'mail/authorize.reset', '1', '1');
 
 INSERT INTO `oc_cron` (`cron_id`, `code`, `description`, `cycle`, `action`, `status`, `date_added`, `date_modified`)
-VALUES ('1', 'currency', 'Updates currency conversion values.', 'day', 'cron/currency', '1', '2014-09-25 14:40:00', '2026-08-24 18:06:34');
+VALUES ('1', 'currency', 'Updates currency conversion values.', 'day', 'cron/currency', '1', '2014-09-25 14:40:00', '2026-08-24 18:06:34'),
+       ('2', 'notification_cleanup', 'Removes expired notifications.', 'day', 'cron/notification_cleanup', '1', '2026-08-31 00:00:00', '2026-08-31 00:00:00');
 
 INSERT INTO `oc_user_group` (`user_group_id`, `name`, `permission`)
 VALUES ('1', 'Administrator', '{"access":["common\\/developer","common\\/filemanager","common\\/security","error\\/exception","localisation\\/address_format","localisation\\/country","localisation\\/currency","localisation\\/language","localisation\\/length_class","localisation\\/location","localisation\\/weight_class","localisation\\/zone","mail\\/authorize","mail\\/forgotten","setting\\/setting","tool\\/backup","tool\\/cron","tool\\/log","tool\\/notification","tool\\/runtime_diagnostics","tool\\/upload","user\\/profile","user\\/user","user\\/user_permission"],"modify":["common\\/developer","common\\/filemanager","common\\/security","error\\/exception","localisation\\/address_format","localisation\\/country","localisation\\/currency","localisation\\/language","localisation\\/length_class","localisation\\/location","localisation\\/weight_class","localisation\\/zone","mail\\/authorize","mail\\/forgotten","setting\\/setting","tool\\/backup","tool\\/cron","tool\\/log","tool\\/notification","tool\\/runtime_diagnostics","tool\\/upload","user\\/profile","user\\/user","user\\/user_permission"]}');

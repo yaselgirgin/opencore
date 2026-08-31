@@ -57,7 +57,7 @@ class Header extends \Opencart\System\Engine\Controller {
 
 			$this->load->model('tool/notification');
 
-			$results = $this->model_tool_notification->getNotifications($filter_data);
+			$results = $this->model_tool_notification->getNotifications($this->user->getId(), $this->user->getGroupId(), $filter_data);
 
 			foreach ($results as $result) {
 				$data['notifications'][] = [
@@ -67,7 +67,7 @@ class Header extends \Opencart\System\Engine\Controller {
 			}
 
 			$data['notification_all'] = $this->url->link('tool/notification', 'user_token=' . $this->session->data['user_token']);
-			$data['notification_total'] = $this->model_tool_notification->getTotalNotifications(['filter_status' => 0]);
+			$data['notification_total'] = $this->model_tool_notification->getTotalNotifications($this->user->getId(), $this->user->getGroupId(), true);
 
 			$data['profile'] = $this->url->link('user/profile', 'user_token=' . $this->session->data['user_token']);
 

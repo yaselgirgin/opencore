@@ -78,7 +78,7 @@ class Notification extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/notification');
 
-		$results = $this->model_tool_notification->getNotifications($filter_data);
+		$results = $this->model_tool_notification->getNotifications($this->user->getId(), $this->user->getGroupId(), $filter_data);
 
 		foreach ($results as $result) {
 			$second = time() - strtotime($result['date_added']);
@@ -110,7 +110,7 @@ class Notification extends \Opencart\System\Engine\Controller {
 			] + $result;
 		}
 
-		$notification_total = $this->model_tool_notification->getTotalNotifications();
+		$notification_total = $this->model_tool_notification->getTotalNotifications($this->user->getId(), $this->user->getGroupId());
 
 		$data['pagination'] = $this->load->controller('common/pagination', [
 			'total' => $notification_total,
@@ -138,7 +138,7 @@ class Notification extends \Opencart\System\Engine\Controller {
 
 		$this->load->model('tool/notification');
 
-		$notification_info = $this->model_tool_notification->getNotification($notification_id);
+		$notification_info = $this->model_tool_notification->getNotification((int)$notification_id, $this->user->getId(), $this->user->getGroupId());
 
 		if ($notification_info) {
 			$this->load->language('tool/notification');
@@ -147,7 +147,10 @@ class Notification extends \Opencart\System\Engine\Controller {
 
 			$data['text'] = html_entity_decode($notification_info['text'], ENT_QUOTES, 'UTF-8');
 
-			$this->model_tool_notification->editStatus($notification_id, true);
+			$this->model_tool_notification->markRead((int)$notification_id, $this->user->getId());
+			$notification_unread_total = $this->model_tool_notification->getTotalNotifications($this->user->getId(), $this->user->getGroupId(), true);
+
+			$this->response->addHeader('X-Notification-Unread-Total: ' . $notification_unread_total);
 
 			$this->response->setOutput($this->load->view('tool/notification_info', $data));
 		}
@@ -177,10 +180,15 @@ class Notification extends \Opencart\System\Engine\Controller {
 			$this->load->model('tool/notification');
 
 			foreach ($selected as $notification_id) {
-				$this->model_tool_notification->deleteNotification($notification_id);
+				$notification_info = $this->model_tool_notification->getNotification((int)$notification_id, $this->user->getId(), $this->user->getGroupId());
+
+				if ($notification_info) {
+					$this->model_tool_notification->dismiss((int)$notification_id, $this->user->getId());
+				}
 			}
 
 			$json['success'] = $this->language->get('text_success');
+			$json['notification_unread_total'] = $this->model_tool_notification->getTotalNotifications($this->user->getId(), $this->user->getGroupId(), true);
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

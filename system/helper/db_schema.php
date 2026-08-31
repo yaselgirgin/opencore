@@ -57,7 +57,7 @@ function oc_db_create(string $db_driver, string $db_hostname, string $db_usernam
 					$index_data[] = "`" . $key . "`";
 				}
 
-				$sql .= "  KEY `" . $index['name'] . "` (" . implode(",", $index_data) . "),\n";
+				$sql .= "  " . (!empty($index['unique']) ? 'UNIQUE ' : '') . "KEY `" . $index['name'] . "` (" . implode(",", $index_data) . "),\n";
 			}
 		}
 
@@ -491,33 +491,84 @@ function oc_db_schema() {
 		'field' => [
 			[
 				'name'           => 'notification_id',
-				'type'           => 'int(11)',
-				'auto_increment' => true
+				'type'           => 'int(10) unsigned',
+				'auto_increment' => true,
+				'not_null'       => true
+			],
+			[
+				'name' => 'code',
+				'type' => 'varchar(64)', 'not_null' => true
+			],
+			[
+				'name' => 'reference',
+				'type' => 'varchar(255)'
 			],
 			[
 				'name' => 'title',
-				'type' => 'varchar(64)'
+				'type' => 'varchar(255)', 'not_null' => true
 			],
 			[
 				'name' => 'text',
-				'type' => 'text'
+				'type' => 'text', 'not_null' => true
 			],
 			[
-				'name'    => 'status',
-				'type'    => 'tinyint(11)',
+				'name' => 'url',
+				'type' => 'varchar(2048)'
+			],
+			[
+				'name'    => 'is_global',
+				'type'    => 'tinyint(1)', 'not_null' => true,
 				'default' => '0'
 			],
 			[
 				'name' => 'date_added',
+				'type' => 'datetime', 'not_null' => true
+			],
+			[
+				'name' => 'date_expire',
 				'type' => 'datetime'
 			]
 		],
 		'primary' => [
 			'notification_id'
 		],
+		'index' => [
+			['name' => 'code_reference', 'key' => ['code', 'reference']],
+			['name' => 'date_added', 'key' => ['date_added']],
+			['name' => 'date_expire', 'key' => ['date_expire']]
+		],
 		'engine'  => 'InnoDB',
 		'charset' => 'utf8mb4',
 		'collate' => 'utf8mb4_unicode_ci'
+	];
+
+	$tables[] = [
+		'name'  => 'notification_target',
+		'field' => [
+			['name' => 'notification_target_id', 'type' => 'int(10) unsigned', 'auto_increment' => true, 'not_null' => true],
+			['name' => 'notification_id', 'type' => 'int(10) unsigned', 'not_null' => true],
+			['name' => 'target_type', 'type' => 'varchar(32)', 'not_null' => true],
+			['name' => 'target_id', 'type' => 'int(10) unsigned', 'not_null' => true]
+		],
+		'primary' => ['notification_target_id'],
+		'index' => [
+			['name' => 'notification_target', 'key' => ['notification_id', 'target_type', 'target_id'], 'unique' => true],
+			['name' => 'target', 'key' => ['target_type', 'target_id', 'notification_id']]
+		],
+		'engine' => 'InnoDB', 'charset' => 'utf8mb4', 'collate' => 'utf8mb4_unicode_ci'
+	];
+
+	$tables[] = [
+		'name'  => 'notification_user',
+		'field' => [
+			['name' => 'notification_id', 'type' => 'int(10) unsigned', 'not_null' => true],
+			['name' => 'user_id', 'type' => 'int(10) unsigned', 'not_null' => true],
+			['name' => 'status', 'type' => 'tinyint(1)', 'not_null' => true],
+			['name' => 'date_modified', 'type' => 'datetime', 'not_null' => true]
+		],
+		'primary' => ['notification_id', 'user_id'],
+		'index' => [['name' => 'user_status', 'key' => ['user_id', 'status', 'notification_id']]],
+		'engine' => 'InnoDB', 'charset' => 'utf8mb4', 'collate' => 'utf8mb4_unicode_ci'
 	];
 
 

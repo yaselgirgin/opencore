@@ -29,9 +29,6 @@ define('DIR_CATALOG', dirname(__DIR__) . '/catalog/');
 define('DIR_LANGUAGE', DIR_APPLICATION . 'language/');
 define('DIR_TEMPLATE', DIR_APPLICATION . 'view/template/');
 
-// Legacy OpenCart notification endpoint
-define('OPENCART_SERVER', 'https://www.opencart.com/');
-
 // Startup
 require_once(DIR_SYSTEM . 'startup.php');
 

@@ -135,6 +135,38 @@ class Chain {
 
 var chain = new Chain();
 
+function updateNotificationBadge(notification_total) {
+    notification_total = Number(notification_total);
+
+    if (!Number.isInteger(notification_total) || notification_total < 0) {
+        return;
+    }
+
+    var notification_badge = $('#nav-notification .badge');
+
+    if (notification_total > 0) {
+        if (notification_badge.length) {
+            notification_badge.text(notification_total);
+        } else {
+            $('#nav-notification > .nav-link').append('<span class="badge bg-danger">' + notification_total + '</span>');
+        }
+    } else {
+        notification_badge.remove();
+    }
+}
+
+$(document).ajaxSuccess(function(event, xhr, settings, data) {
+    if (data && Object.prototype.hasOwnProperty.call(data, 'notification_unread_total')) {
+        updateNotificationBadge(data['notification_unread_total']);
+    } else {
+        var notification_unread_total = xhr.getResponseHeader('X-Notification-Unread-Total');
+
+        if (notification_unread_total !== null) {
+            updateNotificationBadge(notification_unread_total);
+        }
+    }
+});
+
 // Forms
 $(document).on('submit', 'form', function(e) {
     var element = this;
@@ -461,7 +493,7 @@ $(document).on('click', '[data-oc-toggle=\'image\']', function(e) {
 
 $(document).ready(function() {
     // Header
-    $('#header-notification [data-bs-toggle=\'modal\']').on('click', function(e) {
+    $('#nav-notification [data-bs-toggle=\'modal\']').on('click', function(e) {
         e.preventDefault();
 
         var element = this;

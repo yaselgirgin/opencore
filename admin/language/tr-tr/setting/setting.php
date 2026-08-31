@@ -1,4 +1,8 @@
 <?php
+$_['entry_notification_expire_days']       = 'Varsayılan Bildirim Ömrü';
+$_['help_notification_expire_days']        = 'Bildirimlerin varsayılan olarak görünür kalacağı gün sayısı.';
+$_['error_notification_expire_days']       = 'Bildirim ömrü pozitif bir gün sayısı olmalıdır!';
+
 // Heading
 $_['heading_title']                       = 'Ayarlar';
 

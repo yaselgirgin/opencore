@@ -33,4 +33,99 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			throw new \RuntimeException('The database revision could not be saved.');
 		}
 	}
+
+	/**
+	 * Upgrade database revision 1 to 2.
+	 *
+	 * @return void
+	 */
+	public function upgrade2(): void {
+		$notification = DB_PREFIX . 'notification';
+		$columns = [];
+
+		foreach ($this->db->query("SHOW COLUMNS FROM `" . $notification . "`")->rows as $column) {
+			$columns[$column['Field']] = $column;
+		}
+
+		if (isset($columns['status'])) {
+			$this->db->query("DELETE FROM `" . $notification . "`");
+			$this->db->query("ALTER TABLE `" . $notification . "` DROP COLUMN `status`");
+		}
+
+		if (($columns['notification_id']['Type'] ?? '') != 'int(10) unsigned') {
+			$this->db->query("ALTER TABLE `" . $notification . "` MODIFY `notification_id` INT UNSIGNED NOT NULL AUTO_INCREMENT");
+		}
+
+		if (!isset($columns['code'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD `code` VARCHAR(64) NOT NULL AFTER `notification_id`");
+		}
+
+		if (!isset($columns['reference'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD `reference` VARCHAR(255) NULL AFTER `code`");
+		}
+
+		if (($columns['title']['Type'] ?? '') != 'varchar(255)') {
+			$this->db->query("ALTER TABLE `" . $notification . "` MODIFY `title` VARCHAR(255) NOT NULL");
+		}
+
+		if (($columns['text']['Null'] ?? '') == 'YES') {
+			$this->db->query("ALTER TABLE `" . $notification . "` MODIFY `text` TEXT NOT NULL");
+		}
+
+		if (($columns['date_added']['Null'] ?? '') == 'YES') {
+			$this->db->query("ALTER TABLE `" . $notification . "` MODIFY `date_added` DATETIME NOT NULL");
+		}
+
+		if (!isset($columns['url'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD `url` VARCHAR(2048) NULL AFTER `text`");
+		}
+
+		if (!isset($columns['is_global'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD `is_global` TINYINT(1) NOT NULL DEFAULT '0' AFTER `url`");
+		}
+
+		if (!isset($columns['date_expire'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD `date_expire` DATETIME NULL AFTER `date_added`");
+		}
+
+		$indexes = [];
+
+		foreach ($this->db->query("SHOW INDEX FROM `" . $notification . "`")->rows as $index) {
+			$indexes[$index['Key_name']] = true;
+		}
+
+		if (!isset($indexes['code_reference'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD KEY `code_reference` (`code`, `reference`)");
+		}
+
+		if (!isset($indexes['date_added'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD KEY `date_added` (`date_added`)");
+		}
+
+		if (!isset($indexes['date_expire'])) {
+			$this->db->query("ALTER TABLE `" . $notification . "` ADD KEY `date_expire` (`date_expire`)");
+		}
+
+		$target_table = $this->db->query("SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '" . $this->db->escape(DB_PREFIX . 'notification_target') . "' LIMIT 1");
+
+		if (!$target_table->num_rows) {
+			$this->db->query("CREATE TABLE `" . DB_PREFIX . "notification_target` (`notification_target_id` INT UNSIGNED NOT NULL AUTO_INCREMENT, `notification_id` INT UNSIGNED NOT NULL, `target_type` VARCHAR(32) NOT NULL, `target_id` INT UNSIGNED NOT NULL, PRIMARY KEY (`notification_target_id`), UNIQUE KEY `notification_target` (`notification_id`, `target_type`, `target_id`), KEY `target` (`target_type`, `target_id`, `notification_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+		}
+
+		$user_table = $this->db->query("SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '" . $this->db->escape(DB_PREFIX . 'notification_user') . "' LIMIT 1");
+
+		if (!$user_table->num_rows) {
+			$this->db->query("CREATE TABLE `" . DB_PREFIX . "notification_user` (`notification_id` INT UNSIGNED NOT NULL, `user_id` INT UNSIGNED NOT NULL, `status` TINYINT(1) NOT NULL, `date_modified` DATETIME NOT NULL, PRIMARY KEY (`notification_id`, `user_id`), KEY `user_status` (`user_id`, `status`, `notification_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+		}
+		$setting = $this->db->query("SELECT `setting_id` FROM `" . DB_PREFIX . "setting` WHERE `code` = 'config' AND `key` = 'config_notification_expire_days' LIMIT 1");
+
+		if (!$setting->num_rows) {
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET `code` = 'config', `key` = 'config_notification_expire_days', `value` = '7', `serialized` = '0'");
+		}
+		$cron = $this->db->query("SELECT `cron_id` FROM `" . DB_PREFIX . "cron` WHERE `code` = 'notification_cleanup' LIMIT 1");
+
+		if (!$cron->num_rows) {
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "cron` SET `code` = 'notification_cleanup', `description` = 'Removes expired notifications.', `cycle` = 'day', `action` = 'cron/notification_cleanup', `status` = '1', `date_added` = NOW(), `date_modified` = NOW()");
+		}
+	}
 }
