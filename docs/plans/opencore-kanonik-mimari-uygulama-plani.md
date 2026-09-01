@@ -308,7 +308,7 @@ belgeleri silinmemiştir; tracked dosya silme için ayrı owner onayı gerekir.
 
 Terk edilmiş self-updater mimarisini belgeleme.
 
-## Faz 13 — Kanonik Dağıtım Ağacı Audit'i
+## Faz 13 — Kanonik Dağıtım Ağacı Audit'i — Tamamlandı
 
 Stable repository'nin kurulabilir ürünün kendisi olduğunu doğrula.
 
@@ -328,6 +328,11 @@ LICENSE
 ```
 
 Yalnız gerçekten gerekli ek runtime dosyalarına izin ver. Release builder veya distribution-artifact mekanizması kalmamalıdır.
+
+ERT-21 completion kaydı: kanonik dağıtım ağacı audit'i tamamlandı. Owner kararıyla
+`.htaccess.txt` canonical dağıtım dosyası olarak korunur; `.htaccess`e dönüştürülmez.
+Root `cron.php`, `error.html`, `php.ini` ve `docs/cleanup/` tarihsel audit belgeleri
+korunur. Bu istisnalar release builder veya distribution-artifact mekanizması değildir.
 
 ## Faz 14 — Tam E2E Doğrulama
 
@@ -349,6 +354,34 @@ En az şunları doğrula:
 - stable source archive'den doğrudan kurulum
 - external-storage release vendor replacement
 - shared-hosting varsayımları
+
+ERT-21 Faz 14 durumu: kısmi. İlk olarak `git archive HEAD` kaynak arşivi
+`C:\xampp\htdocs\opencore_test\ert21-source` altında doğrudan kurulum için açıldı.
+Bu arşivde `config.php` yokken boş tracked `config-dist.php` bulunması nedeniyle
+fresh-install `step_2` denetiminde ilerleyemedi. Ardından single-root config
+yazılabilirlik denetimi düzeltmeleri (`step_2.php` ve `step_3.php`) uygulandı ve test
+çalışma kopyasına aktarıldı. Bu ikinci, güncellenmiş çalışma kopyasında varsayılan
+internal-storage fresh install tamamlandı ve root `config.php` üretildi. Catalog, API
+ping, Admin login, System Diagnostics ve SQL Backup HTTP doğrulandı.
+
+İlk SQL Restore denemesinde restore `oc_setting` tablosunu truncate ettikten sonraki
+HTTP isteğinde runtime database-version guard `Database version could not be
+determined` ile fail-closed oldu. Backup dosyasında `system/database_version` kaydı
+bulunmasına rağmen guard, onu yeniden insert eden restore isteğine ulaşılmasını
+engelledi. Bunun için Admin guard'a yalnız `tool/backup.restore` rotasıyla sınırlı
+bypass eklendi; Backup Restore controller'ın permission ve filename doğrulamaları
+değiştirilmedi. İzole `opencore_ert21` test veritabanı için restore zincirinin
+yeniden çalıştırılması test-execution yetkisi tarafından bekletildiğinden bu düzeltme
+henüz E2E ile doğrulanmadı. `C:\xampp\htdocs\opencore_test\ert21-source` çalışma
+kopyası ve gerçek `opencore_ert21` veritabanında DB marker `2`den `3`e ilerletildi;
+`install/upgrade` HTTP controller'a `backup=1&admin=admin` POST'u 200 JSON redirect
+yanıtı verdi, marker `3` olarak kaldı ve `oc_release_notification` şeması doğrulandı.
+Kod üzerinden mevcut `upgradeN()` preflight'ı ile her başarılı revision sonrasında
+marker yazan sıralı mekanizma da doğrulandı. Owner kararıyla mevcut olmayan tarihsel
+revisionlar için sentetik seed kullanılmadı; birden çok gerçek revision bulunduğunda
+çok seviyeli E2E, gerçek zincir üzerinden ayrıca doğrulanacak. Yeniden adlandırılmış
+Admin, external storage, reinstall koruması, release kontrolü, external vendor
+replacement ve shared-hosting senaryoları henüz doğrulanmadı.
 
 ## Çalışma Yöntemi
 

@@ -150,6 +150,11 @@ class Step3 extends \Opencart\System\Engine\Controller {
 		}
 
 		$target = DIR_OPENCART . 'config.php';
+
+		if (file_exists($target) || !is_writable(DIR_OPENCART)) {
+			return false;
+		}
+
 		$temp = tempnam(DIR_OPENCART, 'config.');
 
 		if ($temp === false) {

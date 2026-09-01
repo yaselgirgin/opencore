@@ -133,12 +133,13 @@ class Step2 extends \Opencart\System\Engine\Controller {
 	private function getFilesystemChecks(): array {
 		$checks = [];
 		$config = DIR_OPENCART . 'config.php';
+		$config_writable = !file_exists($config) && is_writable(DIR_OPENCART);
 
 		$checks[] = [
 			'name' => $config,
-			'current' => is_file($config) && is_writable($config) ? $this->language->get('text_writable') : $this->language->get('text_unwritable'),
+			'current' => $config_writable ? $this->language->get('text_writable') : $this->language->get('text_unwritable'),
 			'required' => $this->language->get('text_writable'),
-			'status' => is_file($config) && is_writable($config)
+			'status' => $config_writable
 		];
 
 		return $checks;

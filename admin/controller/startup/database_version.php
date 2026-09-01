@@ -10,6 +10,10 @@ class DatabaseVersion extends \Opencart\System\Engine\Controller {
 	 * @return \Opencart\System\Engine\Action|null
 	 */
 	public function index(): ?\Opencart\System\Engine\Action {
+		if (($this->request->get['route'] ?? '') === 'tool/backup.restore') {
+			return null;
+		}
+
 		$this->load->model('startup/database_version');
 		$current = $this->model_startup_database_version->getDatabaseVersion();
 

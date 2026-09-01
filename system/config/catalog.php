@@ -29,5 +29,5 @@ $_['action_pre_action']  = [
 	'startup/api'
 ];
 
-$_['action_default']     = 'api/system';
+$_['action_default']     = 'api/system.notFound';
 $_['action_error']       = 'api/system.notFound';
