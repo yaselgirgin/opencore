@@ -571,6 +571,17 @@ function oc_db_schema() {
 		'engine' => 'InnoDB', 'charset' => 'utf8mb4', 'collate' => 'utf8mb4_unicode_ci'
 	];
 
+	$tables[] = [
+		'name'  => 'release_notification',
+		'field' => [
+			['name' => 'release_notification_id', 'type' => 'tinyint(1) unsigned', 'not_null' => true],
+			['name' => 'release_version', 'type' => 'varchar(255)', 'not_null' => true],
+			['name' => 'date_modified', 'type' => 'datetime', 'not_null' => true]
+		],
+		'primary' => ['release_notification_id'],
+		'engine' => 'InnoDB', 'charset' => 'utf8mb4', 'collate' => 'utf8mb4_unicode_ci'
+	];
+
 
 
 

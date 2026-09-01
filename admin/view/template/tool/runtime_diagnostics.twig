@@ -12,6 +12,17 @@
   </div>
   <div class="container-fluid">
     <div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> {{ text_information }}</div>
+    <div class="card mb-3">
+      <div class="card-header"><i class="fa-solid fa-cloud-arrow-down"></i> {{ text_release }}</div>
+      <div class="card-body">
+        <p class="mb-3">{{ text_release_information }}</p>
+        {% if can_modify %}
+          <form action="{{ release_check }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> {{ button_release_check }}</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
     <div class="card">
       <div class="card-header"><i class="fa-solid fa-bolt"></i> {{ text_events }}</div>
       <div class="card-body">

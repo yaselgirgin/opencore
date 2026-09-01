@@ -128,4 +128,28 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			$this->db->query("INSERT INTO `" . DB_PREFIX . "cron` SET `code` = 'notification_cleanup', `description` = 'Removes expired notifications.', `cycle` = 'day', `action` = 'cron/notification_cleanup', `status` = '1', `date_added` = NOW(), `date_modified` = NOW()");
 		}
 	}
+
+	/**
+	 * Upgrade database revision 2 to 3.
+	 *
+	 * @return void
+	 */
+	public function upgrade3(): void {
+		$table = $this->db->query("SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '" . $this->db->escape(DB_PREFIX . 'release_notification') . "' LIMIT 1");
+
+		if (!$table->num_rows) {
+			$this->db->query("CREATE TABLE `" . DB_PREFIX . "release_notification` (`release_notification_id` TINYINT UNSIGNED NOT NULL, `release_version` VARCHAR(255) NOT NULL, `date_modified` DATETIME NOT NULL, PRIMARY KEY (`release_notification_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+		} else {
+			$columns = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "release_notification`")->rows;
+			$release_version = [];
+
+			foreach ($columns as $column) {
+				$release_version[$column['Field']] = $column;
+			}
+
+			if (($release_version['release_version']['Type'] ?? '') != 'varchar(255)') {
+				$this->db->query("ALTER TABLE `" . DB_PREFIX . "release_notification` MODIFY `release_version` VARCHAR(255) NOT NULL");
+			}
+		}
+	}
 }

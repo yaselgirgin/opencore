@@ -28,6 +28,9 @@ class RuntimeDiagnostics extends \Opencart\System\Engine\Controller {
 			'href' => $this->url->link('tool/runtime_diagnostics', 'user_token=' . $this->session->data['user_token'])
 		];
 
+		$data['release_check'] = $this->url->link('tool/runtime_diagnostics.release', 'user_token=' . $this->session->data['user_token']);
+		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/runtime_diagnostics');
+
 		$this->load->model('setting/event');
 
 		$data['events'] = [];
@@ -44,6 +47,38 @@ class RuntimeDiagnostics extends \Opencart\System\Engine\Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 
 		$this->response->setOutput($this->load->view('tool/runtime_diagnostics', $data));
+	}
+
+	/**
+	 * Check GitHub for a newer stable OpenCore release.
+	 *
+	 * @return void
+	 */
+	public function release(): void {
+		$this->load->language('tool/runtime_diagnostics');
+
+		$json = [];
+
+		if (!$this->user->hasPermission('modify', 'tool/runtime_diagnostics')) {
+			$json['error'] = $this->language->get('error_permission');
+		} else {
+			try {
+				$this->load->model('tool/release');
+
+				$result = $this->model_tool_release->check($this->language->get('text_release_available_title'), $this->language->get('text_release_available'));
+
+				$json['success'] = match ($result['status']) {
+					'notified' => sprintf($this->language->get('text_release_notified'), $result['version']),
+					'already_notified' => sprintf($this->language->get('text_release_already_notified'), $result['version']),
+					default => $this->language->get('text_release_current')
+				};
+			} catch (\Throwable $e) {
+				$json['error'] = $this->language->get('error_release_check');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
 	}
 
 	/**
