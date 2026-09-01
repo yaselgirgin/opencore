@@ -288,7 +288,7 @@ Yol ve güvenlik durumu:
 
 Varsayılan `/admin/`, varsayılan `/system/storage/` ve mevcut `/install/` otomatik hata değildir. Diagnostics bir updater veya deployment engine'e dönüşemez.
 
-## Faz 12 — README / Dokümantasyon / Tools Son Temizliği
+## Faz 12 — README / Dokümantasyon / Tools Son Temizliği — Kısmen Tamamlandı
 
 Kanonik mimari büyük ölçüde uygulandıktan sonra:
 
@@ -298,7 +298,13 @@ Kanonik mimari büyük ölçüde uygulandıktan sonra:
 - kullanılmayan `tools/` içeriğini kaldır
 - eski development-only ürün ağacı içeriğini kaldır
 
-README; OpenCore amacı, gereksinimler, kurulum, Admin/storage seçenekleri, config, SQL Backup/Restore, manuel application update, external-storage vendor replacement lifecycle, DB-only `install/upgrade` ve lisansı kapsamalıdır.
+Kök `README.md` eklenmiştir; OpenCore amacı, gereksinimler, kurulum, Admin/storage
+seçenekleri, tek root config, SQL Backup/Restore, manuel application update,
+external-storage vendor replacement lifecycle, DB-only `install/upgrade`,
+bildirim/release denetimi, System Diagnostics ve lisansı belgeler.
+
+`tools/` dizini mevcut değildir. `docs/cleanup/` altındaki tarihsel envanter ve audit
+belgeleri silinmemiştir; tracked dosya silme için ayrı owner onayı gerekir.
 
 Terk edilmiş self-updater mimarisini belgeleme.
 
