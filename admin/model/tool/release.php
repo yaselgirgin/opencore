@@ -19,7 +19,7 @@ class Release extends \Opencart\System\Engine\Model {
 		$release = $this->fetchLatestStableRelease();
 
 		if (!$release || version_compare($release['version'], VERSION, '<=')) {
-			return ['status' => 'current'];
+			return ['status' => 'current'] + ($release ? ['version' => $release['version']] : []);
 		}
 
 		$this->db->query('START TRANSACTION');

@@ -31,6 +31,9 @@ class RuntimeDiagnostics extends \Opencart\System\Engine\Controller {
 		$data['release_check'] = $this->url->link('tool/runtime_diagnostics.release', 'user_token=' . $this->session->data['user_token']);
 		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/runtime_diagnostics');
 
+		$this->load->model('tool/runtime_diagnostics');
+		$data['diagnostics'] = $this->model_tool_runtime_diagnostics->getDiagnostics();
+
 		$this->load->model('setting/event');
 
 		$data['events'] = [];
@@ -72,6 +75,10 @@ class RuntimeDiagnostics extends \Opencart\System\Engine\Controller {
 					'already_notified' => sprintf($this->language->get('text_release_already_notified'), $result['version']),
 					default => $this->language->get('text_release_current')
 				};
+
+				if (isset($result['version']) && is_string($result['version'])) {
+					$json['latest_stable_version'] = $result['version'];
+				}
 			} catch (\Throwable $e) {
 				$json['error'] = $this->language->get('error_release_check');
 			}

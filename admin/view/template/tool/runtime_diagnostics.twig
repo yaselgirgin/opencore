@@ -13,11 +13,43 @@
   <div class="container-fluid">
     <div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> {{ text_information }}</div>
     <div class="card mb-3">
+      <div class="card-header"><i class="fa-solid fa-heart-pulse"></i> {{ text_system_diagnostics }}</div>
+      <div class="card-body">
+        {% for section, rows in diagnostics %}
+          <h5>{{ attribute(_context, 'text_' ~ section) }}</h5>
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered mb-0">
+              <tbody>
+                {% for row in rows %}
+                  <tr{% if row.name == 'latest_stable_version' %} id="latest-stable-version-row"{% endif %}{% if row.status == 'error' %} class="table-danger"{% elseif row.status == 'warning' %} class="table-warning"{% else %} class="table-success"{% endif %}>
+                    <td>{{ attribute(_context, 'text_' ~ row.name) }}</td>
+                    <td>
+                      {% if row.name == 'database_compatibility' %}
+                        {{ attribute(_context, 'text_database_' ~ row.state)|format(row.value, row.target) }}
+                      {% elseif row.name == 'latest_stable_version' %}
+                        <span id="latest-stable-version">{{ text_latest_stable_not_checked }}</span>
+                      {% elseif row.type is defined and row.type == 'boolean' %}
+                        {% if row.name ends with '_writable' %}{{ row.value ? text_writable : text_not_writable }}{% else %}{{ row.value ? text_enabled : text_disabled }}{% endif %}
+                      {% elseif row.name == 'database_version' and row.value is null %}
+                        {{ text_unknown }}
+                      {% else %}
+                        {{ row.value }}{% if row.state is defined %} ({{ attribute(_context, 'text_' ~ row.state) }}){% endif %}
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card mb-3">
       <div class="card-header"><i class="fa-solid fa-cloud-arrow-down"></i> {{ text_release }}</div>
       <div class="card-body">
         <p class="mb-3">{{ text_release_information }}</p>
         {% if can_modify %}
-          <form action="{{ release_check }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
+          <form id="form-release-check" action="{{ release_check }}" method="post" data-oc-toggle="ajax" class="d-inline-block">
             <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrows-rotate"></i> {{ button_release_check }}</button>
           </form>
         {% endif %}
@@ -72,4 +104,17 @@
     </div>
   </div>
 </div>
+<script>
+$('#form-release-check').on('submit', function() {
+  const form = this;
+  const action = $(form).attr('action').replaceAll('&amp;', '&');
+
+  $(document).one('ajaxSuccess.runtimeDiagnostics', function(event, xhr, settings, json) {
+    if (settings.url === action && typeof json.latest_stable_version === 'string') {
+      $('#latest-stable-version').text(json.latest_stable_version);
+      $('#latest-stable-version-row').removeClass('table-warning').addClass('table-success');
+    }
+  });
+});
+</script>
 {{ footer }}
