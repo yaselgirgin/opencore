@@ -303,6 +303,12 @@ Sorumlulukları ayrıdır:
 
 Diagnostics ve `install/upgrade`, uyumluluğu raporlamak ve gereken DB işini belirlemek için iki sürümü karşılaştırabilir. Bu karşılaştırma application/vendor self-update davranışı getiremez.
 
+Revision `2` (`Upgrade2`), legacy `notification.status` sütunu mevcutsa tüm
+`notification` satırlarını siler ve sonra sütunu kaldırır; `notification_target`
+ile `notification_user` tablolarını oluşturur; ayrıca
+`config_notification_expire_days=7` ayarını ve günlük bildirim temizleme cron
+kaydını seed eder. Bu, açık ve source-controlled bir DB-only adımdır.
+
 ## 15. Backup ve Restore Sınırı
 
 OpenCore yalın SQL backup/restore modeli kullanır:
@@ -328,6 +334,25 @@ Release kontrolü şunları yapamaz:
 - recovery başlatmak
 
 Prerelease'ler normal kullanıcıya bildirilmez. Tekrarlanan kontroller duplicate notification üretmemelidir.
+
+### Notification Core
+
+`is_global=1` olan bildirim tüm kullanıcılara yöneliktir. Global olmayan bir
+bildirim en az bir `user` veya `user_group` hedefiyle `notification_target`
+üzerinden yönlendirilir. Görünürlük sorgusu, `notification_user` kaydı yoksa
+`COALESCE` ile `status=0` döndürür; `status=1` okunmuş, `status=2` dismiss
+edilmiştir. Buna karşılık `unread_only`/badge filtresi yalnız
+`notification_user` satırı olmayan bildirimleri (`nu.status IS NULL`) sayar.
+
+Bildirim süre sonu, varsayılan değeri `7` gün olan
+`config_notification_expire_days` ayarıyla hesaplanır. Günlük
+`notification_cleanup` cron'u süresi dolmuş bildirimlerle onların
+`notification_target` ve `notification_user` satırlarını siler.
+
+Şema sözleşmesi: `notification_target` üzerinde
+`UNIQUE(notification_id, target_type, target_id)` ve hedef arama indeksi;
+`notification_user` üzerinde `PRIMARY KEY(notification_id, user_id)`,
+`status`/`date_modified` alanları ve `user_status` indeksi bulunur.
 
 ## 17. System Diagnostics
 

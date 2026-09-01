@@ -30,7 +30,7 @@ yoktur. Bu durum ileride taşınacak eski ERP verisinin olmadığı anlamına ge
 | `api`, `api_history`, `api_ip`, `api_session` | Mevcut catalog API authentication altyapısı; hedef auth kararı verilene kadar korunur. |
 | `extension`, `extension_install`, `extension_path`, `modification`, `module` | Loader/extension/modification altyapısının kayıtları. E-ticaret satırları ayrıca temizlenmelidir. |
 | `upload` | Ortak upload/file manager altyapısı. |
-| `notification` | Admin bildirim aracı; kullanım kararı verilene kadar korunur. |
+| `notification`, `notification_target`, `notification_user` | Admin bildirim çekirdeği: bildirim, hedefleme ve kullanıcı okuma/dismiss durumu birlikte tutulur. |
 | `translation` | Admin dil/çeviri altyapısıyla ortak kullanılır. |
 
 ## MIGRATE

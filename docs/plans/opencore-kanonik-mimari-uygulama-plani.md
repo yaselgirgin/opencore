@@ -117,7 +117,7 @@ Installer içindeki şu bağımlılıkları audit et ve kaldır:
 
 Yeni kurulum; gereksinim kontrolleri, DB bağlantı doğrulaması, kanonik schema, gerekli seed data, ilk Admin kullanıcısı, root `config.php` ve başlangıç `database_version` değerini sağlamalıdır.
 
-Güncel yeni-veritabanı referansı 23 tablodur:
+Güncel yeni-veritabanı referansı 25 tablodur:
 
 ```text
 address_format
@@ -131,6 +131,8 @@ length_class
 length_class_description
 location
 notification
+notification_target
+notification_user
 session
 setting
 upload
@@ -209,6 +211,33 @@ Uygulanan davranış:
 - OpenCart-style upgrade authorization modeli uygulanmıştır: geçerli Admin directory, backup confirmation ve explicit action; ayrı Admin session/token mekanizması yoktur.
 - Genel migration framework getirmez.
 - Application/vendor dosyalarını hiçbir zaman indirmez veya değiştirmez.
+
+Revision `2` (`Upgrade2`), legacy `notification.status` sütunu mevcutsa önce tüm
+`notification` satırlarını siler, sonra bu sütunu kaldırır. Ardından
+`notification_target` ve `notification_user` tablolarını oluşturur,
+`config_notification_expire_days` ayarını varsayılan `7` ile ve günlük bildirim
+temizleme cron kaydını seed eder.
+
+Bildirim çekirdeğinde `is_global=1` tüm kullanıcılara görünür; global olmayan bir
+bildirimin en az bir `user` veya `user_group` hedefi vardır. Görünürlük sorgusu,
+`notification_user` kaydı yoksa `COALESCE` ile `status=0` döndürür; `status=1`
+okunmuş, `status=2` dismiss edilmiştir. Buna karşılık `unread_only`/badge filtresi
+yalnız `notification_user` satırı olmayan bildirimleri (`nu.status IS NULL`) sayar.
+Süre sonu
+`config_notification_expire_days` ile hesaplanır. Günlük
+`notification_cleanup` cron'u süresi dolmuş bildirimleri ve onlara ait target/user
+satırlarını siler.
+
+Şema sözleşmesi: `notification_target` için
+`UNIQUE(notification_id, target_type, target_id)` ve hedef arama indeksi;
+`notification_user` için `PRIMARY KEY(notification_id, user_id)`,
+`status`/`date_modified` alanları ve `user_status` indeksi.
+
+Kod doğrulama referansları: `admin/model/tool/notification.php`,
+`system/helper/db_schema.php`,
+`install/model/upgrade/upgrade.php` içindeki `upgrade2()`,
+`catalog/controller/cron/notification_cleanup.php` ve
+`catalog/model/tool/notification.php`.
 
 ## Faz 10 — Yalnız Bildirim Amaçlı Stable Release Kontrolü
 
