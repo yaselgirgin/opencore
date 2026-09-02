@@ -123,9 +123,9 @@ class Step3 extends \Opencart\System\Engine\Controller {
 	 */
 	private function writeConfig(array $data): bool {
 		$root = str_replace('\\', '/', rtrim(DIR_OPENCART, '/\\')) . '/';
-		$catalog = defined('HTTP_OPENCART') ? HTTP_OPENCART : preg_replace('~install/?$~', '', HTTP_SERVER);
+		$app = defined('HTTP_OPENCART') ? HTTP_OPENCART : preg_replace('~install/?$~', '', HTTP_SERVER);
 		$defines = [
-			'HTTP_CATALOG' => $catalog,
+			'HTTP_APP' => $app,
 			'DIR_OPENCART' => $root,
 			'DIR_IMAGE' => "DIR_OPENCART . 'image/'",
 			'DIR_SYSTEM' => "DIR_OPENCART . 'system/'",

@@ -78,8 +78,8 @@ Bridge release, release manifest, ayrı vendor artifact veya runtime release pay
 Hedeflenen üst seviye ürün ağacı yaklaşık olarak şöyledir:
 
 ```text
-catalog/
-admin/
+app/
+api/
 system/
 install/
 index.php
@@ -94,17 +94,16 @@ LICENSE
 
 Nihai repository'de yalnız dağıtılan ürünün kurulması, çalışması, yönetilmesi veya belgelenmesi için gerekli dosyalar bulunur. Development-only release builder'lar, vendor deployer'lar, deployment geçmişleri, geçici migration varlıkları ve geçersiz mimari kayıtlar güncel ürün ağacına ait değildir.
 
-## 6. Admin Yolu Modeli
+## 6. Uygulama ve API Yolu Modeli
 
-Dağıtılan varsayılan Admin dizini:
+Dağıtılan uygulama dizinleri:
 
 ```text
-admin/
+app/
+api/
 ```
 
-Kurulum sırasında OpenCore bu dizinin adını değiştirmeyi önerebilir. Yeniden adlandırma opsiyoneldir. Varsayılan `admin/` dizinini korumak desteklenir ve tekrarlayan runtime veya login uyarısı üretmez.
-
-Application bootstrap, ikinci bir application config dosyasına ihtiyaç duymadan Admin'e özgü yolları türetmelidir.
+Application bootstrap, ikinci bir application config dosyasına ihtiyaç duymadan bu yollara özgü değerleri türetmelidir. Eski `/admin/` ve `/catalog/` HTTP yolları 404 döndürür; redirect veya deprecation alias yoktur.
 
 ## 7. Storage ve Vendor Modeli
 
@@ -130,7 +129,7 @@ DIR_STORAGE = system/storage/
 
 Manuel update sırasında release dosyalarının değiştirilmesi, dağıtılmış yeni vendor ağacını da doğal olarak deploy eder.
 
-Post-install Admin Security, tüm storage ağacını web root dışına taşımayı önerebilir; bu taşıma opsiyoneldir. Storage taşındığında vendor dahil gerekli tüm içerik tutarlı tek birim olarak taşınır ve aktif runtime vendor şu olur:
+Post-install Security, tüm storage ağacını web root dışına taşımayı önerebilir; bu taşıma opsiyoneldir. Storage taşındığında vendor dahil gerekli tüm içerik tutarlı tek birim olarak taşınır ve aktif runtime vendor şu olur:
 
 ```text
 DIR_STORAGE/vendor/
@@ -140,7 +139,7 @@ External storage kullanan bir kurulumda yeni release ile `system/storage/vendor/
 
 FTP, hosting file manager veya eşdeğer manuel dosya aktarımı yeterlidir; shell tabanlı deployment aracı gerekmez.
 
-Admin, release bildirimi ve `install/upgrade`; vendor senkronizasyonu, aktivasyonu, swap veya rollback yapamaz. Yalnız bootstrap preflight, tanımlanan release-owned vendor replacement işlemini uygular.
+Uygulama arayüzü, release bildirimi ve `install/upgrade`; vendor senkronizasyonu, aktivasyonu, swap veya rollback yapamaz. Yalnız bootstrap preflight, tanımlanan release-owned vendor replacement işlemini uygular.
 
 Mimari şunları kullanmaz:
 
@@ -176,7 +175,7 @@ Hedef mimari şunları kullanmaz:
 - release-time vendor artifact builder
 - production vendor activation aracı
 
-Runtime ve Admin request'leri Composer bağımlılığı kuramaz veya güncelleyemez.
+Runtime, App ve API request'leri Composer bağımlılığı kuramaz veya güncelleyemez.
 
 ## 9. Tek Yapılandırma Modeli
 
@@ -189,14 +188,14 @@ config.php
 Ayrı bir:
 
 ```text
-admin/config.php
+app/config.php
 ```
 
-veya yeniden adlandırılmış eşdeğeri yoktur. Catalog, Admin ve Cron kendi bilinen runtime bağlamlarından application'a özgü yolları ve değerleri türetir. Installer yalnız root config üretir.
+dosyası yoktur. App, API ve root Cron kendi bilinen runtime bağlamlarından application'a özgü yolları ve değerleri türetir. Installer yalnız root config üretir.
 
 ## 10. Installer Modeli
 
-Fresh installer yalnız unconfigured (missing, empty veya partial root config) durumda çalışır; configured installation fresh reinstall yapamaz. Post-install Admin Security, `install/` dizini removal, opsiyonel Admin rename ve opsiyonel storage move sorumluluklarını yönetir.
+Fresh installer yalnız unconfigured (missing, empty veya partial root config) durumda çalışır; configured installation fresh reinstall yapamaz. Post-install Security, `install/` dizini removal ve opsiyonel storage move sorumluluklarını yönetir.
 
 OpenCore, stable OpenCart installer akışını kavramsal referans olarak kullanan ve azaltılmış OpenCore mimarisine uyarlanmış özel bir `install/` uygulaması sağlayacaktır.
 
@@ -209,7 +208,6 @@ Yeni kurulum şunlardan sorumludur:
 - ilk administrator hesabı
 - root `config.php` üretimi
 - `database_version` başlangıç değeri
-- opsiyonel Admin dizini önerisi
 - opsiyonel external storage önerisi
 - istendiğinde vendor dahil storage ağacının tutarlı biçimde taşınması
 
@@ -323,7 +321,7 @@ Structured JSON/NDJSON updater evidence, filesystem journal ve application/vendo
 
 ## 16. Yalnız Bildirim Amaçlı Release Kontrolü
 
-Admin, en yeni stable OpenCore GitHub release'i için read-only kontrol yapabilir. Daha yeni stable version varsa release sayfasına bağlanan bilgilendirici notification oluşturulabilir.
+Uygulama arayüzü, en yeni stable OpenCore GitHub release'i için read-only kontrol yapabilir. Daha yeni stable version varsa release sayfasına bağlanan bilgilendirici notification oluşturulabilir.
 
 Release kontrolü şunları yapamaz:
 
@@ -365,7 +363,7 @@ Settings merkezi bir System Diagnostics alanı sağlar. Şunları raporlayabilir
 - PHP ve database server sürümleri
 - gerekli PHP extension'ları
 - upload ve execution limitleri
-- Admin, storage ve installer yolları
+- uygulama, storage ve installer yolları
 - gerekli runtime dizinlerinin yazılabilirliği
 
 Durum seviyeleri:
@@ -374,7 +372,7 @@ Durum seviyeleri:
 - turuncu: öneri
 - kırmızı: karşılanmayan gerçek gereksinim veya operasyonel sorun
 
-Varsayılan `admin/`, varsayılan `system/storage/` ve mevcut `install/` dizini otomatik olarak kırmızı değildir. Diagnostics gözlemsel ve tavsiye niteliğindedir; updater, vendor synchronizer veya deployment engine değildir.
+Varsayılan `app/`, varsayılan `system/storage/` ve mevcut `install/` dizini otomatik olarak kırmızı değildir. Diagnostics gözlemsel ve tavsiye niteliğindedir; updater, vendor synchronizer veya deployment engine değildir.
 
 ## 18. Shared-Hosting Kısıtları
 
@@ -384,14 +382,14 @@ FTP, hosting file manager ve sıradan PHP web request'leri desteklenen kurulum/u
 
 ## 19. Açıkça Reddedilen Mimari
 
-Bu yasaklar `install/upgrade` veya Admin tarafından runtime vendor mutation'ını kapsar. Bölüm 7'de tanımlanan pre-autoload, release-owned external vendor replacement lifecycle'i istisnadır; runtime/user storage dizinlerini değiştirmez.
+Bu yasaklar `install/upgrade` veya uygulama arayüzü tarafından runtime vendor mutation'ını kapsar. Bölüm 7'de tanımlanan pre-autoload, release-owned external vendor replacement lifecycle'i istisnadır; runtime/user storage dizinlerini değiştirmez.
 
 Şunlar reddedilmiştir:
 
 - runtime application/vendor self-update
 - runtime release download veya staging
 - manifest kontrollü application değişimi
-- `install/upgrade` veya Admin tarafından runtime vendor senkronizasyonu, değişimi veya swap
+- `install/upgrade` veya uygulama arayüzü tarafından runtime vendor senkronizasyonu, değişimi veya swap
 - updater filesystem journal, lock ve recovery state
 - bridge release
 - ayrı özel distribution ZIP
@@ -403,7 +401,6 @@ Bu yasaklar `install/upgrade` veya Admin tarafından runtime vendor mutation'ın
 - structured updater-specific database backup evidence
 - `config_maintenance` değerinin updater lock olarak kullanılması
 - genel migration, service, repository veya ORM katmanları
-- varsayılan Admin dizininin zorunlu yeniden adlandırılması
 - varsayılan storage'ın zorunlu taşınması
 - desteklenen varsayılan yollar için tekrarlayan uyarılar
 

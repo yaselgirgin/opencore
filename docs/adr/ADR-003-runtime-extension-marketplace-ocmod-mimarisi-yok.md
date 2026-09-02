@@ -55,8 +55,8 @@ Promote edilen kod artık extension namespace, path, discovery veya loader contr
 
 Nihai source tree'de root `extension/` klasörü bulunmayacaktır. Kalıcı application bileşenleri ihtiyaca göre mevcut core alanlarında yer alır:
 
-- `admin/controller/`, `admin/model/`, `admin/language/`, `admin/view/`
-- `catalog/controller/`, `catalog/model/`
+- `app/controller/`, `app/model/`, `app/language/`, `app/view/`
+- `api/controller/`, `api/model/`
 - `system/library/`, `system/config/`
 - mevcut native OpenCart-derived mimarinin gerekli diğer core klasörleri
 

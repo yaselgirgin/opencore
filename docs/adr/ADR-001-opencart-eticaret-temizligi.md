@@ -13,8 +13,8 @@ Mevcut sistem, OpenCart yönetim panelini uzun yıllardır ERP ve şirket içi u
 
 Yeni uygulamada:
 
-- `admin/` şirket içi yönetim arayüzü olacaktır.
-- `catalog/` müşteri mağazası olmayacak, yalnızca özel API uçlarını barındıracaktır.
+- `app/` şirket içi uygulama arayüzü olacaktır.
+- `api/` yalnızca özel API uçlarını barındıracaktır.
 - `system/` OpenCart'ın ortak çalışma zamanı ve altyapı bileşenlerini sağlayacaktır.
 - İş modülleri OpenCart'ın doğal Controller → Model → Database düzeninde geliştirilecektir.
 - Ayrı bir service katmanı, özel module loader veya extension tabanlı paketleme bu kararın parçası değildir.
@@ -39,7 +39,7 @@ Temizlik tek seferde körlemesine dosya silerek yapılmayacaktır. Aşağıdaki 
 
 ```text
 project/
-├── admin/
+├── app/
 │   ├── controller/
 │   │   ├── common/
 │   │   ├── startup/
@@ -57,7 +57,7 @@ project/
 │       ├── user/
 │       ├── setting/
 │       └── <özel iş modülleri>/
-├── catalog/
+├── api/
 │   ├── controller/
 │   │   ├── startup/
 │   │   ├── error/
@@ -122,7 +122,7 @@ Aşağıdaki bileşenler e-ticaret sayılmayacak ve açık bir bağımlılık an
 - Log görüntüleme, bakım ve geliştirici araçları; gereksinime göre
 - Dashboard kabuğu; içindeki e-ticaret widget'ları kaldırılacaktır
 
-### 4.3 Catalog/API çekirdeği
+### 4.3 API çekirdeği
 
 - Catalog bootstrap ve startup zinciri
 - Router, request, response ve session altyapısı
@@ -336,9 +336,9 @@ Bu görev sırasında aşağıdakiler yapılmayacaktır:
 - Özel admin route'ları mevcut OpenCart biçiminde kalacaktır:
 
 ```text
-admin/controller/agenda/calendar.php
-admin/model/agenda/calendar.php
-admin/view/template/agenda/calendar.twig
+app/controller/agenda/calendar.php
+app/model/agenda/calendar.php
+app/view/template/agenda/calendar.twig
 ```
 
 - Örnek route:
@@ -350,7 +350,7 @@ agenda/calendar
 - API route'ları:
 
 ```text
-catalog/controller/api/agenda/calendar.php
+api/controller/api/agenda/calendar.php
 ```
 
 - Örnek API route:

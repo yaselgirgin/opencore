@@ -1,4 +1,23 @@
-# OpenCart Route Envanteri
+# OpenCore Route Sözleşmesi ve Tarihsel OpenCart Envanteri
+
+## Güncel app/api Route Sözleşmesi
+
+OpenCore'nın iki sabit HTTP uygulama sınırı vardır:
+
+- Uygulama arayüzü `app/` üzerinden çalışır. Uygulama içi route'lar, örneğin
+  `tool/runtime_diagnostics`, `tool/runtime_diagnostics.release`,
+  `tool/notification` ve `tool/notification.info`, yalnız bu context'te URL
+  builder ile üretilir. Runtime Diagnostics/System Diagnostics ve notification
+  bağlantıları `app/` tabanını kullanır; sabit `/admin/` URL'si içermez.
+- Makine API'si `api/` üzerinden çalışır. Sağlık denetimi route'u
+  `api/system/ping`dir. API, uygulama HTML yönlendirmesini paylaşmaz.
+- Zamanlanmış işler HTTP route değildir: kökteki `cron.php`, CLI ile
+  `php cron.php [--cron-id=<positive integer>]` biçiminde çalışır ve App
+  context'indeki `cron/cron` dispatcher'ını çağırır.
+
+Eski `/admin/` ve `/catalog/` HTTP yolları 404 döndürür; redirect veya
+deprecation alias yoktur. Aşağıdaki envanter, kaldırma kararlarının kaynağı olan
+OpenCart 4.1.0.4 tarihsel route analizidir; güncel OpenCore route listesi değildir.
 
 ## Kapsam
 
@@ -102,8 +121,9 @@ Mevcut route'ların tamamı stok e-ticaret API'sidir:
 - `extension/opencart/api/coupon`
 - `extension/opencart/api/reward`
 
-`api/system/ping` route'u henüz mevcut değildir. Bu analiz görevinde
-eklenmemiştir.
+Tarihsel audit sırasında `api/system/ping` route'u henüz mevcut değildi ve bu
+analiz görevinde eklenmemişti. Güncel sözleşme için belgenin başındaki app/api
+bölümüne bakın.
 
 ## Startup rotaları
 

@@ -152,4 +152,24 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			}
 		}
 	}
+
+	/**
+	 * Upgrade database revision 3 to 4.
+	 *
+	 * @return void
+	 */
+	public function upgrade4(): void {
+		$this->db->query("UPDATE `" . DB_PREFIX . "event` SET `trigger` = CONCAT('app/', SUBSTRING(`trigger`, 7)) WHERE `trigger` LIKE 'admin/%'");
+
+		$codes = [
+			'admin_currency_setting' => 'app_currency_setting',
+			'admin_mail_user_forgotten' => 'app_mail_user_forgotten',
+			'admin_mail_user_authorize' => 'app_mail_user_authorize',
+			'admin_mail_user_authorize_reset' => 'app_mail_user_authorize_reset'
+		];
+
+		foreach ($codes as $old => $new) {
+			$this->db->query("UPDATE `" . DB_PREFIX . "event` SET `code` = '" . $new . "' WHERE `code` = '" . $old . "'");
+		}
+	}
 }

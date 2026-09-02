@@ -10,11 +10,11 @@ Aşağıdaki işler tamamlanmıştır ve gelecek faz değildir:
 
 - Repository denetlenmiş `af55e66` baseline'ına geri alınmıştır.
 - Zone listesi düzeltmesi yeniden uygulanmıştır.
-- Admin filtrelerinde Enter ile submit davranışı yeniden uygulanmıştır.
+- Uygulama filtrelerinde Enter ile submit davranışı yeniden uygulanmıştır.
 - Terk edilmiş ADR-004 kaldırılmıştır.
 - `af55e66` sonrasındaki native runtime self-updater uygulaması Git geçmişi düzeltmesiyle kaldırılmıştır.
 - `update_gate`, updater startup gate ve baseline sonrası release builder dahil runtime updater'a özgü dosyalar artık yoktur.
-- Eski Admin `Maintenance -> Upgrade` arayüzü kaldırılmıştır.
+- Eski uygulama `Maintenance -> Upgrade` arayüzü kaldırılmıştır.
 - Runtime'daki tam `tool/upgrade` referansları kaldırılmıştır.
 - Yalın SQL Backup/Restore davranışı rollback ile geri gelmiştir.
 - Rollback sonrası yerel smoke testleri geçmiştir.
@@ -82,18 +82,15 @@ Geçiş tooling'i kaldırılmadan önce maintainer dependency workflow, incelenm
 Hedef durum:
 
 - Tek root `config.php`.
-- `ocadmin/config.php` yok.
-- Gelecekteki `admin/` dizininde ayrı config yok.
-- Catalog, Admin ve Cron bağlama özgü yolları bootstrap'tan türetir.
+- Ayrı application config dosyası yok.
+- App, API ve Cron bağlama özgü yolları bootstrap'tan türetir.
 - Installer sonunda yalnız root config üretir.
 
 `DIR_APPLICATION`, `DIR_CATALOG`, `DIR_STORAGE`, `HTTP_SERVER`, config include noktaları ve tekrarlanan application-specific değerler audit edilmelidir.
 
-## Faz 4 — `ocadmin/` -> `admin/`
+## Faz 4 — `app/` ve `api/` Uygulama Yolları
 
-Repository'nin varsayılan Admin dizinini `admin/` yap.
-
-Installer üzerinden opsiyonel yeniden adlandırma daha sonraki konudur. Varsayılan adı koruyan kurulumlara runtime uyarısı ekleme.
+Repository'nin uygulama dizinlerini `app/` ve `api/` yap. Eski `/admin/` ve `/catalog/` yolları 404 döndürür; redirect veya deprecation alias ekleme.
 
 ## Faz 5 — Kanonik `system/storage/` Yapısı
 
@@ -112,10 +109,10 @@ Installer içindeki şu bağımlılıkları audit et ve kaldır:
 - extension ve Marketplace altyapısı
 - OCMOD
 - çift config üretimi
-- eski Admin path varsayımları
+- eski application path varsayımları
 - eski OpenCart upgrade davranışı
 
-Yeni kurulum; gereksinim kontrolleri, DB bağlantı doğrulaması, kanonik schema, gerekli seed data, ilk Admin kullanıcısı, root `config.php` ve başlangıç `database_version` değerini sağlamalıdır.
+Yeni kurulum; gereksinim kontrolleri, DB bağlantı doğrulaması, kanonik schema, gerekli seed data, ilk uygulama kullanıcısı, root `config.php` ve başlangıç `database_version` değerini sağlamalıdır.
 
 Güncel yeni-veritabanı referansı 25 tablodur:
 
@@ -149,16 +146,9 @@ zone_description
 
 Bu liste uygulamaya karşı doğrulanacak referanstır; main veritabanını değiştirme yetkisi vermez.
 
-## Faz 7 — Post-install Security: Admin Yeniden Adlandırma ve Storage Taşıma — Tamamlandı
+## Faz 7 — Post-install Security: Install Removal ve Storage Taşıma — Tamamlandı
 
-Bu işlemler installer adımı değil, post-install Admin Security akışındadır; install directory removal ve previous Admin cleanup da aynı hardening kapsamındadır.
-
-Admin davranışı:
-
-- Varsayılan `admin/`.
-- Installer alternatif ad önerebilir.
-- Yeniden adlandırma opsiyoneldir.
-- `admin/` adını korumak geçerlidir ve sonradan zorunlu uyarı üretmez.
+Bu işlemler installer adımı değil, post-install Security akışındadır; install directory removal aynı hardening kapsamındadır.
 
 Storage davranışı:
 
@@ -177,7 +167,7 @@ Fresh/missing/empty/partial config installer davranışı ile configured-install
 - Yeni kurulum mevcut OpenCore'u overwrite edemez.
 - Fiziksel `install/` dizini kalabilir.
 - Silme önerilebilir ama zorunlu değildir.
-- Post-install Admin Security install dizini removal modal'ı sağlar.
+- Post-install Security install dizini removal modal'ı sağlar.
 - Config yoksa ve installer mevcutsa yeni kurulum akışına girilebilir.
 - Kurulu sistem `install/` fiziksel olarak kalsa da normal çalışır.
 
@@ -187,7 +177,7 @@ Kanonik revision modeli `system/version.php` içindeki `DATABASE_VERSION` (basel
 
 Tek controller/model DB-only upgrade zinciri, pending tüm `upgradeN()` methodlarını mutation öncesi Model Proxy-native `isset()` ile preflight eder. Revisionlar forward-only uygulanır; her başarılı revision sonrası marker ilerletilir. Missing method, invalid revision veya downgrade durumu fail-closed'dur. Upgrade için explicit backup confirmation ve action gerekir; otomatik backup, rollback, manifest veya ayrı auth/token sistemi yoktur.
 
-Configured runtime guard: Admin DB `<` target durumunda mevcut `install/` ile upgrade ekranına yönlendirir; install yoksa fail-closed olur. API HTML redirect yerine HTTP 503 machine-readable error döner. DB `=` target normaldir; configured `/install/` blocked ekranı verir; DB `>` target ve invalid revision fail-closed'dur. Direct upgrade route, upgrade gerekmiyorsa bypass sağlamaz.
+Configured runtime guard: App DB `<` target durumunda mevcut `install/` ile upgrade ekranına yönlendirir; install yoksa fail-closed olur. API HTML redirect yerine HTTP 503 machine-readable error döner. DB `=` target normaldir; configured `/install/` blocked ekranı verir; DB `>` target ve invalid revision fail-closed'dur. Direct upgrade route, upgrade gerekmiyorsa bypass sağlamaz.
 
 External storage'da release ile yeniden gelen `system/storage/vendor/`, Composer autoload öncesi bootstrap tarafından aktif external vendor ile tamamen değiştirilir. Bu DB migration değildir ve cache/logs/session/upload/backup dizinlerine dokunmaz.
 
@@ -208,7 +198,7 @@ Uygulanan davranış:
 - Her application release için boş migration zorunlu değildir.
 - İlerlemeyi yalnız başarılı seviyelerden sonra kaydeder.
 - Hedef `database_version` değerine yalnız tam başarıdan sonra ulaşır.
-- OpenCart-style upgrade authorization modeli uygulanmıştır: geçerli Admin directory, backup confirmation ve explicit action; ayrı Admin session/token mekanizması yoktur.
+- Upgrade authorization modeli backup confirmation ve explicit action kullanır; ayrı application session/token mekanizması yoktur.
 - Genel migration framework getirmez.
 - Application/vendor dosyalarını hiçbir zaman indirmez veya değiştirmez.
 
@@ -233,15 +223,15 @@ satırlarını siler.
 `notification_user` için `PRIMARY KEY(notification_id, user_id)`,
 `status`/`date_modified` alanları ve `user_status` indeksi.
 
-Kod doğrulama referansları: `admin/model/tool/notification.php`,
+Kod doğrulama referansları: `app/model/tool/notification.php`,
 `system/helper/db_schema.php`,
 `install/model/upgrade/upgrade.php` içindeki `upgrade2()`,
-`catalog/controller/cron/notification_cleanup.php` ve
-`catalog/model/tool/notification.php`.
+`api/controller/cron/notification_cleanup.php` ve
+`api/model/tool/notification.php`.
 
 ## Faz 10 — Yalnız Bildirim Amaçlı Stable Release Kontrolü
 
-Admin en yeni stable OpenCore release'i kontrol edebilir. Sürüm `system/version.php` değerinden yeniyse duplicate olmayan informational notification oluşturur ve isteğe bağlı olarak release sayfasına link verir.
+Uygulama arayüzü en yeni stable OpenCore release'i kontrol edebilir. Sürüm `system/version.php` değerinden yeniyse duplicate olmayan informational notification oluşturur ve isteğe bağlı olarak release sayfasına link verir.
 
 Kontrol; download, staging, application/vendor/DB mutation veya rollback/recovery yapmaz. Prerelease normal kullanıcılara bildirilmez.
 
@@ -272,7 +262,7 @@ Ortam durumu:
 
 Yol ve güvenlik durumu:
 
-- Admin dizini
+- uygulama dizini
 - storage dizini
 - install dizini
 - storage yazılabilirliği
@@ -286,7 +276,7 @@ Yol ve güvenlik durumu:
 - turuncu: öneri
 - kırmızı: gerçek sorun
 
-Varsayılan `/admin/`, varsayılan `/system/storage/` ve mevcut `/install/` otomatik hata değildir. Diagnostics bir updater veya deployment engine'e dönüşemez.
+Varsayılan `/app/`, varsayılan `/system/storage/` ve mevcut `/install/` otomatik hata değildir. Diagnostics bir updater veya deployment engine'e dönüşemez.
 
 ## Faz 12 — README / Dokümantasyon / Tools Son Temizliği — Kısmen Tamamlandı
 
@@ -298,7 +288,7 @@ Kanonik mimari büyük ölçüde uygulandıktan sonra:
 - kullanılmayan `tools/` içeriğini kaldır
 - eski development-only ürün ağacı içeriğini kaldır
 
-Kök `README.md` eklenmiştir; OpenCore amacı, gereksinimler, kurulum, Admin/storage
+Kök `README.md` eklenmiştir; OpenCore amacı, gereksinimler, kurulum, app/storage
 seçenekleri, tek root config, SQL Backup/Restore, manuel application update,
 external-storage vendor replacement lifecycle, DB-only `install/upgrade`,
 bildirim/release denetimi, System Diagnostics ve lisansı belgeler.
@@ -315,8 +305,8 @@ Stable repository'nin kurulabilir ürünün kendisi olduğunu doğrula.
 Yaklaşık hedef root:
 
 ```text
-catalog/
-admin/
+app/
+api/
 system/
 install/
 index.php
@@ -341,12 +331,12 @@ Yalnız `C:\xampp\htdocs\opencore_test` ve test veritabanını kullan. Destructi
 En az şunları doğrula:
 
 - varsayılan yeni kurulum
-- yeniden adlandırılmış Admin ile yeni kurulum
+- `app/` ve `api/` yolu ile yeni kurulum
 - internal-storage kurulum
 - external-storage kurulum
 - yeniden kurulum koruması
 - tek-root-config davranışı
-- Catalog/API ve Admin runtime
+- API ve app runtime
 - SQL backup ve restore
 - birden çok gerekli seviyeden geçen DB-upgrade zinciri
 - yalnız bildirim amaçlı stable release kontrolü
@@ -361,14 +351,14 @@ Bu arşivde `config.php` yokken boş tracked `config-dist.php` bulunması nedeni
 fresh-install `step_2` denetiminde ilerleyemedi. Ardından single-root config
 yazılabilirlik denetimi düzeltmeleri (`step_2.php` ve `step_3.php`) uygulandı ve test
 çalışma kopyasına aktarıldı. Bu ikinci, güncellenmiş çalışma kopyasında varsayılan
-internal-storage fresh install tamamlandı ve root `config.php` üretildi. Catalog, API
-ping, Admin login, System Diagnostics ve SQL Backup HTTP doğrulandı.
+internal-storage fresh install tamamlandı ve root `config.php` üretildi. App, API
+ping, App login, System Diagnostics ve SQL Backup HTTP doğrulandı.
 
 İlk SQL Restore denemesinde restore `oc_setting` tablosunu truncate ettikten sonraki
 HTTP isteğinde runtime database-version guard `Database version could not be
 determined` ile fail-closed oldu. Backup dosyasında `system/database_version` kaydı
 bulunmasına rağmen guard, onu yeniden insert eden restore isteğine ulaşılmasını
-engelledi. Bunun için Admin guard'a yalnız `tool/backup.restore` rotasıyla sınırlı
+engelledi. Bunun için App guard'a yalnız `tool/backup.restore` rotasıyla sınırlı
 bypass eklendi; Backup Restore controller'ın permission ve filename doğrulamaları
 değiştirilmedi. İzole `opencore_ert21` test veritabanı için restore zincirinin
 yeniden çalıştırılması test-execution yetkisi tarafından bekletildiğinden bu düzeltme
@@ -379,8 +369,8 @@ yanıtı verdi, marker `3` olarak kaldı ve `oc_release_notification` şeması d
 Kod üzerinden mevcut `upgradeN()` preflight'ı ile her başarılı revision sonrasında
 marker yazan sıralı mekanizma da doğrulandı. Owner kararıyla mevcut olmayan tarihsel
 revisionlar için sentetik seed kullanılmadı; birden çok gerçek revision bulunduğunda
-çok seviyeli E2E, gerçek zincir üzerinden ayrıca doğrulanacak. Yeniden adlandırılmış
-Admin, external storage, reinstall koruması, release kontrolü, external vendor
+çok seviyeli E2E, gerçek zincir üzerinden ayrıca doğrulanacak. App/API route contract,
+external storage, reinstall koruması, release kontrolü, external vendor
 replacement ve shared-hosting senaryoları henüz doğrulanmadı.
 
 ## Çalışma Yöntemi

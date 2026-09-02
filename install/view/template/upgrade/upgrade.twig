@@ -27,17 +27,6 @@
               <div id="error-backup" class="invalid-feedback"></div>
             </div>
           </fieldset>
-          <fieldset>
-            <legend>{{ entry_admin }}</legend>
-            <div class="mb-3">
-              <label for="input-admin" class="form-label">{{ entry_admin }}</label>
-              <div class="input-group">
-                <span class="input-group-text">{{ server }}</span>
-                <input type="text" name="admin" value="{{ admin }}" id="input-admin" class="form-control"/>
-              </div>
-              <div id="error-admin" class="invalid-feedback"></div>
-            </div>
-          </fieldset>
           <div class="row">
             <div class="col text-end">{% if can_upgrade %}<button type="submit" id="button-upgrade" class="btn btn-primary">{{ button_upgrade }}</button>{% endif %}</div>
           </div>

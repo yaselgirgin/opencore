@@ -24,15 +24,12 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 		$data['text_pending'] = $this->language->get('text_pending');
 		$data['text_backup_warning'] = $this->language->get('text_backup_warning');
 		$data['entry_backup'] = $this->language->get('entry_backup');
-		$data['entry_admin'] = $this->language->get('entry_admin');
 		$data['button_upgrade'] = $this->language->get('button_upgrade');
 		$data['current'] = $state['current'] ?? $this->language->get('text_invalid');
 		$data['target'] = DATABASE_VERSION;
 		$data['pending'] = $state['pending'];
 		$data['can_upgrade'] = $state['can_upgrade'];
 		$data['error_warning'] = $state['error'] ? $this->language->get($state['error']) : '';
-		$data['admin'] = INSTALL_ADMIN_DIRECTORY;
-		$data['server'] = HTTP_OPENCART;
 		$data['action'] = $this->url->link('upgrade/upgrade.run', 'language=' . $this->config->get('language_code'));
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
@@ -48,14 +45,8 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 		$this->load->model('upgrade/upgrade');
 
 		$json = [];
-		$admin = (string)($this->request->post['admin'] ?? '');
-
 		if (($this->request->post['backup'] ?? '') !== '1') {
 			$json['error']['backup'] = $this->language->get('error_backup');
-		}
-
-		if (!preg_match('/^[a-zA-Z0-9]+$/', $admin) || !is_dir(DIR_OPENCART . $admin . '/')) {
-			$json['error']['admin'] = $this->language->get('error_admin');
 		}
 
 		$state = $this->getState();
@@ -90,7 +81,7 @@ class Upgrade extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$json['redirect'] = HTTP_OPENCART . $admin . '/';
+			$json['redirect'] = HTTP_OPENCART;
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

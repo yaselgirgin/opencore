@@ -7,10 +7,11 @@ if (!is_file(__DIR__ . '/config.php')) {
 // Config
 require_once(__DIR__ . '/config.php');
 
-// Catalog context
-define('APPLICATION', 'Catalog');
-define('HTTP_SERVER', HTTP_CATALOG);
-define('DIR_APPLICATION', __DIR__ . '/catalog/');
+// API context
+define('APPLICATION', 'Api');
+define('HTTP_SERVER', rtrim(HTTP_APP, '/') . '/api/');
+define('DIR_APPLICATION', __DIR__ . '/api/');
+define('DIR_APP', __DIR__ . '/app/');
 define('DIR_LANGUAGE', DIR_APPLICATION . 'language/');
 define('DIR_TEMPLATE', DIR_APPLICATION . 'view/template/');
 
@@ -40,7 +41,7 @@ require_once(DIR_SYSTEM . 'startup.php');
 
 // Autoloader
 $autoloader = new \Opencart\System\Engine\Autoloader();
-$autoloader->register('Opencart\Catalog', DIR_APPLICATION);
+$autoloader->register('Opencart\Api', DIR_APPLICATION);
 $autoloader->register('Opencart\System', DIR_SYSTEM);
 
 require_once(DIR_STORAGE . 'vendor/autoload.php');
@@ -56,8 +57,8 @@ $registry->set('config', $config);
 // Load the default config
 $config->addPath(DIR_CONFIG);
 $config->load('default');
-$config->load('catalog');
-$config->set('application', 'Catalog');
+$config->load('api');
+$config->set('application', 'Api');
 
 // Set the default time zone
 date_default_timezone_set($config->get('date_timezone'));

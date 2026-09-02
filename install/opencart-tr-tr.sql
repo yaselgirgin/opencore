@@ -8731,13 +8731,13 @@ VALUES ('config', 'config_name', 'OpenCore', '0'),
        ('config', 'config_error_display', '1', '0'),
        ('config', 'config_error_log', '1', '0'),
        ('config', 'config_error_filename', 'error.log', '0'),
-       ('system', 'database_version', '3', '0');
+       ('system', 'database_version', '4', '0');
 
 INSERT INTO `oc_event` (`event_id`, `code`, `description`, `trigger`, `action`, `status`, `sort_order`)
-VALUES ('1', 'admin_currency_setting', 'Updates currencies when settings are saved.', 'admin/model/setting/setting.editSetting/after', 'event/currency', '1', '1'),
-       ('2', 'admin_mail_user_forgotten', 'Sends mail to users who have forgotten their password.', 'admin/model/user/user.addToken/after', 'mail/forgotten', '1', '1'),
-       ('3', 'admin_mail_user_authorize', 'Sends mail login code to users email to authorize login from a new device.', 'admin/controller/common/authorize.send/after', 'mail/authorize', '1', '1'),
-       ('4', 'admin_mail_user_authorize_reset', 'Sends reset link to user who`s account is locked out after 3 wrong authorize code login attempts.', 'admin/model/user/user.addToken/after', 'mail/authorize.reset', '1', '1');
+VALUES ('1', 'app_currency_setting', 'Updates currencies when settings are saved.', 'app/model/setting/setting.editSetting/after', 'event/currency', '1', '1'),
+	   ('2', 'app_mail_user_forgotten', 'Sends mail to users who have forgotten their password.', 'app/model/user/user.addToken/after', 'mail/forgotten', '1', '1'),
+	   ('3', 'app_mail_user_authorize', 'Sends mail login code to users email to authorize login from a new device.', 'app/controller/common/authorize.send/after', 'mail/authorize', '1', '1'),
+	   ('4', 'app_mail_user_authorize_reset', 'Sends reset link to user who`s account is locked out after 3 wrong authorize code login attempts.', 'app/model/user/user.addToken/after', 'mail/authorize.reset', '1', '1');
 
 INSERT INTO `oc_cron` (`cron_id`, `code`, `description`, `cycle`, `action`, `status`, `date_added`, `date_modified`)
 VALUES ('1', 'currency', 'Updates currency conversion values.', 'day', 'cron/currency', '1', '2014-09-25 14:40:00', '2026-08-24 18:06:34'),

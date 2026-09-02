@@ -35,8 +35,8 @@ class Step4 extends \Opencart\System\Engine\Controller {
 		$data['heading_title'] = $this->language->get($blocked ? 'heading_blocked' : 'heading_title');
 		$data['text_message'] = $this->language->get($blocked ? 'text_blocked' : 'text_success');
 		$data['text_warning'] = $blocked ? '' : $this->language->get('text_warning');
-		$data['text_admin'] = $this->language->get('text_admin');
-		$data['admin'] = HTTP_OPENCART . trim(INSTALL_ADMIN_DIRECTORY, '/') . '/';
+		$data['text_app'] = $this->language->get('text_app');
+		$data['app'] = HTTP_OPENCART;
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
 

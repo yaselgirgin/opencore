@@ -26,25 +26,24 @@ Composer, SSH, shell erişimi ya da runtime dependency çözümleme gerekmez.
    runtime dizinlerine yazabilmesini sağlayın.
 3. Tarayıcıdan `install/` yolunu açın, lisansı kabul edin ve veritabanı ile ilk yönetici
    bilgilerini girin. Installer yalnız kök `config.php` dosyasını üretir.
-4. Kurulumdan sonra Admin içindeki Security akışından `install/` dizinini kaldırın;
-   isterseniz `admin/` dizinini yeniden adlandırın ve storage'ı web kökü dışına taşıyın.
+4. Kurulumdan sonra `app/` içindeki Security akışından `install/` dizinini kaldırın
+   ve isterseniz storage'ı web kökü dışına taşıyın.
 
 Kurulum yapılmış bir sistemde fresh installer yeniden kurulum yapmaz. Varsayılan
-`admin/`, `system/storage/` ve mevcut `install/` dizini desteklenir; bunlar tek başına
-runtime hatası değildir.
+`app/`, `system/storage/` ve mevcut `install/` dizini desteklenir; bunlar tek başına
+runtime hatası değildir. Eski `/admin/` ve `/catalog/` HTTP yolları kullanılamaz.
 
 ## Yapılandırma ve storage
 
-OpenCore yalnız kök `config.php` kullanır; ayrı bir `admin/config.php` yoktur.
+OpenCore yalnız kök `config.php` kullanır; ayrı bir application config dosyası yoktur.
 Varsayılan storage `system/storage/` olup runtime daima `DIR_STORAGE` kullanır.
 
 Storage web kökü dışına taşınırsa `DIR_STORAGE`, vendor dahil bütün storage ağacını
-göstermelidir. Storage taşıma ve Admin yeniden adlandırma, post-install Security
-akışındaki isteğe bağlı işlemlerdir.
+göstermelidir. Storage taşıma post-install Security akışındaki isteğe bağlı işlemdir.
 
 ## Yedekleme ve geri yükleme
 
-Admin'deki Backup aracı SQL yedeklerini `DIR_STORAGE/backup/` altında yönetir. Geri
+`app/` içindeki Backup aracı SQL yedeklerini `DIR_STORAGE/backup/` altında yönetir. Geri
 yükleme veri değiştirir: önce uygun bir yedeği ve bakım/recovery planını hazırlayın,
 ardından işlemi yetkili yöneticiyle başlatın. Yedek dosyalarını source control'e eklemeyin.
 
@@ -74,11 +73,11 @@ yapmaz. Bootstrap, yeni `vendor/autoload.php` doğrulanmadan devam etmez.
 `install/upgrade`, yalnız kurulu OpenCore veritabanındaki açık schema/data adımlarını
 çalıştırır. Application veya vendor dosyalarına dokunmaz. Uygulama sürümü
 `system/version.php` içindeki `VERSION`; veritabanı seviyesi ise `oc_setting` içindeki
-`system/database_version` değeridir. Sürüm uyuşmazlığında Admin/installer, gerekli
+`system/database_version` değeridir. Sürüm uyuşmazlığında uygulama/installer, gerekli
 DB-only yükseltme akışına yönlendirir veya fail-closed davranır.
 
-Yükseltmeden önce yedeği aldığınızı onaylayın ve geçerli Admin dizinini girin. Eksik,
-geçersiz veya geri yönde veritabanı revision'ları için yükseltme yapılmaz.
+Yükseltmeden önce yedeği aldığınızı onaylayın. Eksik, geçersiz veya geri yönde
+veritabanı revision'ları için yükseltme yapılmaz.
 
 ## Bildirimler, release denetimi ve tanılama
 
@@ -88,7 +87,7 @@ günlük `notification_cleanup` cron işiyle temizlenir.
 
 Settings -> System Diagnostics, kurulu sürümü, veritabanı uyumluluğunu, ortamı,
 yolları/yazılabilirliği ve event çözümlemesini salt okunur olarak gösterir. Yeşil sağlıklı,
-turuncu öneri, kırmızı gerçek sorun anlamındadır; varsayılan Admin/storage yolları ve
+turuncu öneri, kırmızı gerçek sorun anlamındadır; varsayılan app/storage yolları ve
 mevcut `install/` dizini otomatik hata sayılmaz.
 
 Bu ekrandaki release denetimi GitHub'daki taslak olmayan prerelease olmayan en yeni

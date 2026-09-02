@@ -14,7 +14,6 @@ $root_path = preg_replace('~/install$~', '', $install_path) ?: '';
 define('APPLICATION', 'Install');
 define('HTTP_SERVER', $protocol . $host . $install_path . '/');
 define('HTTP_OPENCART', $protocol . $host . $root_path . '/');
-define('INSTALL_ADMIN_DIRECTORY', 'admin');
 
 $opencart_path = str_replace('\\', '/', realpath(__DIR__ . '/../')) . '/';
 $config_file = $opencart_path . 'config.php';
@@ -22,7 +21,7 @@ $configured = false;
 
 if (is_readable($config_file)) {
 	$config_source = file_get_contents($config_file);
-	$required = ['HTTP_CATALOG', 'DIR_OPENCART', 'DIR_IMAGE', 'DIR_SYSTEM', 'DIR_STORAGE', 'DIR_CONFIG', 'DIR_CACHE', 'DIR_LOGS', 'DIR_SESSION', 'DIR_UPLOAD', 'DB_DRIVER', 'DB_HOSTNAME', 'DB_USERNAME', 'DB_PASSWORD', 'DB_DATABASE', 'DB_PORT', 'DB_PREFIX'];
+	$required = ['HTTP_APP', 'DIR_OPENCART', 'DIR_IMAGE', 'DIR_SYSTEM', 'DIR_STORAGE', 'DIR_CONFIG', 'DIR_CACHE', 'DIR_LOGS', 'DIR_SESSION', 'DIR_UPLOAD', 'DB_DRIVER', 'DB_HOSTNAME', 'DB_USERNAME', 'DB_PASSWORD', 'DB_DATABASE', 'DB_PORT', 'DB_PREFIX'];
 	$configured = is_string($config_source);
 
 	foreach ($required as $constant) {

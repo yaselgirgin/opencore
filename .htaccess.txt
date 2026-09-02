@@ -49,7 +49,16 @@ RewriteEngine On
 ## If your opencart installation does not run on the main web folder make sure you folder it does run in ie. / becomes /shop/
 RewriteBase /
 ## Rewrite Rules
+RewriteRule ^(?:admin|catalog)(?:/|$) - [R=404,L]
+
 RewriteRule ^system/storage/(.*) index.php?route=error/not_found [L]
+
+## API routes must stay in the API context
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.+)$ api/index.php?route=api/$1 [L,QSA]
+
+## App routes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !.*\.(ico|gif|jpg|jpeg|png|webp|js|css|svg)
