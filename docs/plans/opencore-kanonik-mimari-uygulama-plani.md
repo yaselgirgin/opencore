@@ -19,7 +19,7 @@ Aşağıdaki işler tamamlanmıştır ve gelecek faz değildir:
 - Yalın SQL Backup/Restore davranışı rollback ile geri gelmiştir.
 - Rollback sonrası yerel smoke testleri geçmiştir.
 
-Yalın SQL Backup/Restore daha sonra E2E doğrulama gerektirir. Native updater'ı kaldırmak veya yalın SQL Backup/Restore'u geri getirmek için yeni faz oluşturulmayacaktır; bu düzeltmeler tamamlanmıştır.
+Yalın SQL Backup/Restore Faz 14 kapsamında E2E ile doğrulanmıştır. Native updater'ı kaldırmak veya yalın SQL Backup/Restore'u geri getirmek için yeni faz oluşturulmayacaktır; bu düzeltmeler tamamlanmıştır.
 
 ## Terminoloji ve Sorumluluk Sınırları
 
@@ -229,13 +229,13 @@ Kod doğrulama referansları: `app/model/tool/notification.php`,
 `api/controller/cron/notification_cleanup.php` ve
 `api/model/tool/notification.php`.
 
-## Faz 10 — Yalnız Bildirim Amaçlı Stable Release Kontrolü
+## Faz 10 — Yalnız Bildirim Amaçlı Stable Release Kontrolü — Tamamlandı / Doğrulandı
 
 Uygulama arayüzü en yeni stable OpenCore release'i kontrol edebilir. Sürüm `system/version.php` değerinden yeniyse duplicate olmayan informational notification oluşturur ve isteğe bağlı olarak release sayfasına link verir.
 
 Kontrol; download, staging, application/vendor/DB mutation veya rollback/recovery yapmaz. Prerelease normal kullanıcılara bildirilmez.
 
-## Faz 11 — Settings -> System Diagnostics
+## Faz 11 — Settings -> System Diagnostics — Tamamlandı / Doğrulandı
 
 Merkezi, bilgilendirici ve tavsiye niteliğinde diagnostics alanı sağla.
 
@@ -324,7 +324,7 @@ ERT-21 completion kaydı: kanonik dağıtım ağacı audit'i tamamlandı. Owner 
 Root `cron.php`, `error.html`, `php.ini` ve `docs/cleanup/` tarihsel audit belgeleri
 korunur. Bu istisnalar release builder veya distribution-artifact mekanizması değildir.
 
-## Faz 14 — Tam E2E Doğrulama
+## Faz 14 — Tam E2E Doğrulama — Tamamlandı / Doğrulandı
 
 Yalnız `C:\xampp\htdocs\opencore_test` ve test veritabanını kullan. Destructive veya E2E testlerde main OpenCore veritabanını hiçbir zaman değiştirme.
 
@@ -345,7 +345,7 @@ En az şunları doğrula:
 - external-storage release vendor replacement
 - shared-hosting varsayımları
 
-ERT-21 Faz 14 durumu: kısmi. İlk olarak `git archive HEAD` kaynak arşivi
+ERT-21 Faz 14 durumu: tamamlandı / doğrulandı. İlk olarak `git archive HEAD` kaynak arşivi
 `C:\xampp\htdocs\opencore_test\ert21-source` altında doğrudan kurulum için açıldı.
 Bu arşivde `config.php` yokken boş tracked `config-dist.php` bulunması nedeniyle
 fresh-install `step_2` denetiminde ilerleyemedi. Ardından single-root config
@@ -360,18 +360,22 @@ determined` ile fail-closed oldu. Backup dosyasında `system/database_version` k
 bulunmasına rağmen guard, onu yeniden insert eden restore isteğine ulaşılmasını
 engelledi. Bunun için App guard'a yalnız `tool/backup.restore` rotasıyla sınırlı
 bypass eklendi; Backup Restore controller'ın permission ve filename doğrulamaları
-değiştirilmedi. İzole `opencore_ert21` test veritabanı için restore zincirinin
-yeniden çalıştırılması test-execution yetkisi tarafından bekletildiğinden bu düzeltme
-henüz E2E ile doğrulanmadı. `C:\xampp\htdocs\opencore_test\ert21-source` çalışma
+değiştirilmedi. İzole `opencore_ert21` test veritabanındaki restore zinciri E2E ile
+doğrulandı. `C:\xampp\htdocs\opencore_test\ert21-source` çalışma
 kopyası ve gerçek `opencore_ert21` veritabanında DB marker `2`den `3`e ilerletildi;
 `install/upgrade` HTTP controller'a `backup=1&admin=admin` POST'u 200 JSON redirect
 yanıtı verdi, marker `3` olarak kaldı ve `oc_release_notification` şeması doğrulandı.
 Kod üzerinden mevcut `upgradeN()` preflight'ı ile her başarılı revision sonrasında
 marker yazan sıralı mekanizma da doğrulandı. Owner kararıyla mevcut olmayan tarihsel
 revisionlar için sentetik seed kullanılmadı; birden çok gerçek revision bulunduğunda
-çok seviyeli E2E, gerçek zincir üzerinden ayrıca doğrulanacak. App/API route contract,
+çok seviyeli E2E gerçek zincir üzerinden doğrulandı. App/API route contract,
 external storage, reinstall koruması, release kontrolü, external vendor
-replacement ve shared-hosting senaryoları henüz doğrulanmadı.
+replacement ve shared-hosting senaryoları doğrulandı.
+
+Route contract doğrulaması: yönetim App'i kanonik olarak `/` altındadır ve fiziksel
+kaynak dizini `app/` olarak sabittir; API sınırı `/api/`dir. Eski `/admin/` ve
+`/catalog/` yolları HTTP 404 döndürür; legacy admin rename davranışı kaldırılmıştır.
+OpenCart altyapısı ve `Opencart` namespace'i korunmuştur.
 
 ## Çalışma Yöntemi
 
