@@ -4,9 +4,12 @@
        class="nav-link px-2"
        data-bs-toggle="dropdown"
        aria-label="{{ language.name }}">
-      <img src="{{ language.image }}"
-           alt="{{ language.name }}"
-           title="{{ language.name }}"/>
+      <span data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            title="{{ language.name }}">
+        <img src="{{ language.image }}"
+             alt="{{ language.name }}"/>
+      </span>
     </a>
   {% endif %}
 {% endfor %}

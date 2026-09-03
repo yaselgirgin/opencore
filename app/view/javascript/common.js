@@ -25,13 +25,10 @@ function getURLVar(key) {
 $(document).ready(function() {
     // Tooltip
     var oc_tooltip = function() {
-        // Get tooltip instance
-        tooltip = bootstrap.Tooltip.getOrCreateInstance(this);
+        // Get or create Tabler tooltip instance
+        var tooltip = tabler.Tooltip.getOrCreateInstance(this);
 
-        if (!tooltip) {
-            // Apply to current element
-            tooltip.show();
-        }
+        tooltip.show();
     }
 
     $(document).on('mouseenter', '[data-bs-toggle=\'tooltip\']', oc_tooltip);
@@ -245,7 +242,7 @@ $(document).on('submit', 'form', function(e) {
                         var target_element = $(target);
 
                         target_element.filter('[data-bs-toggle=\'tooltip\']').add(target_element.find('[data-bs-toggle=\'tooltip\']')).each(function() {
-                            var tooltip = bootstrap.Tooltip.getInstance(this);
+                            var tooltip = tabler.Tooltip.getInstance(this);
 
                             if (tooltip) {
                                 tooltip.dispose();

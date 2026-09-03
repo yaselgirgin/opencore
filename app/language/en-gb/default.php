@@ -43,6 +43,10 @@ $_['text_month_ago']                = '%s month ago';
 $_['text_months_ago']               = '%s months ago';
 $_['text_year_ago']                 = '%s year ago';
 $_['text_years_ago']                = '%s years ago';
+$_['text_first']                    = 'First page';
+$_['text_previous']                 = 'Previous page';
+$_['text_next']                     = 'Next page';
+$_['text_last']                     = 'Last page';
 
 // Buttons
 $_['button_add']                    = 'Add New';

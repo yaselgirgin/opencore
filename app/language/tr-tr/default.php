@@ -43,6 +43,10 @@ $_['text_month_ago']                = '%s ay önce';
 $_['text_months_ago']               = '%s ay önce';
 $_['text_year_ago']                 = '%s yıl önce';
 $_['text_years_ago']                = '%s yıl önce';
+$_['text_first']                    = 'İlk sayfa';
+$_['text_previous']                 = 'Önceki sayfa';
+$_['text_next']                     = 'Sonraki sayfa';
+$_['text_last']                     = 'Son sayfa';
 
 // Buttons
 $_['button_add']                    = 'Yeni Ekle';
