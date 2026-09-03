@@ -15,14 +15,15 @@
   </div>
   <div class="container-fluid">
     <div class="card">
-      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_form }}</div>
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+          <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ tab_general }}</a></li>
+          <li class="nav-item"><a href="#tab-authorize" data-bs-toggle="tab" class="nav-link">{{ tab_authorize }}</a></li>
+          <li class="nav-item"><a href="#tab-login" data-bs-toggle="tab" class="nav-link">{{ tab_login }}</a></li>
+        </ul>
+      </div>
       <div class="card-body">
         <form id="form-user" action="{{ save }}" method="post" data-oc-toggle="ajax">
-          <ul class="nav nav-tabs">
-            <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ tab_general }}</a></li>
-            <li class="nav-item"><a href="#tab-authorize" data-bs-toggle="tab" class="nav-link">{{ tab_authorize }}</a></li>
-            <li class="nav-item"><a href="#tab-login" data-bs-toggle="tab" class="nav-link">{{ tab_login }}</a></li>
-          </ul>
           <div class="tab-content">
             <div id="tab-general" class="tab-pane active">
               <fieldset>

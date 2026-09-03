@@ -15,15 +15,16 @@
       <div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     {% endif %}
     <div class="card">
-      <div class="card-header"><i class="fa-solid fa-triangle-exclamation"></i> {{ text_list }}</div>
-      <div class="card-body">
-        <ul class="nav nav-tabs">
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
           {% set i = 0 %}
           {% for log in logs %}
             <li class="nav-item"><a href="#tab-log-{{ i }}" data-bs-toggle="tab" class="nav-link{% if i == 0 %} active{% endif %}">{{ log.name }}</a></li>
             {% set i = i + 1 %}
           {% endfor %}
         </ul>
+      </div>
+      <div class="card-body">
         <div class="tab-content">
           {% set i = 0 %}
           {% for log in logs %}

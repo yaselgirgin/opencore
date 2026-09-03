@@ -15,17 +15,18 @@
   </div>
   <div class="container-fluid">
     <div class="card">
-      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
+      <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+          <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ tab_general }}</a></li>
+          <li class="nav-item"><a href="#tab-local" data-bs-toggle="tab" class="nav-link">{{ tab_local }}</a></li>
+          <li class="nav-item"><a href="#tab-option" data-bs-toggle="tab" class="nav-link">{{ tab_option }}</a></li>
+          <li class="nav-item"><a href="#tab-image" data-bs-toggle="tab" class="nav-link">{{ tab_image }}</a></li>
+          <li class="nav-item"><a href="#tab-mail" data-bs-toggle="tab" class="nav-link">{{ tab_mail }}</a></li>
+          <li class="nav-item"><a href="#tab-server" data-bs-toggle="tab" class="nav-link">{{ tab_server }}</a></li>
+        </ul>
+      </div>
       <div class="card-body">
         <form id="form-setting" action="{{ save }}" method="post" data-oc-toggle="ajax">
-          <ul class="nav nav-tabs">
-            <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ tab_general }}</a></li>
-            <li class="nav-item"><a href="#tab-local" data-bs-toggle="tab" class="nav-link">{{ tab_local }}</a></li>
-            <li class="nav-item"><a href="#tab-option" data-bs-toggle="tab" class="nav-link">{{ tab_option }}</a></li>
-            <li class="nav-item"><a href="#tab-image" data-bs-toggle="tab" class="nav-link">{{ tab_image }}</a></li>
-            <li class="nav-item"><a href="#tab-mail" data-bs-toggle="tab" class="nav-link">{{ tab_mail }}</a></li>
-            <li class="nav-item"><a href="#tab-server" data-bs-toggle="tab" class="nav-link">{{ tab_server }}</a></li>
-          </ul>
           <div class="tab-content">
             <div id="tab-general" class="tab-pane active">
               <fieldset>
