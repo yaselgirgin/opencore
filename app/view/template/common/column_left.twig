@@ -1,6 +1,7 @@
-<nav id="column-left">
-	<div id="navigation"><span class="fa-solid fa-bars"></span> {{ text_navigation }}</div>
-	<ul id="menu">
+<aside id="column-left" class="navbar navbar-vertical navbar-expand-lg" aria-label="{{ text_navigation }}">
+	<div class="container-fluid">
+		<div id="navigation" class="navbar-brand"><span class="fa-solid fa-bars"></span> {{ text_navigation }}</div>
+		<ul id="menu" class="navbar-nav">
 		{% set i = 0 %}
 		{% for menu in menus %}
 			<li id="{{ menu.id }}">
@@ -46,5 +47,6 @@
 			</li>
 			{% set i = i + 1 %}
 		{% endfor %}
-	</ul>
-</nav>
+		</ul>
+	</div>
+</aside>

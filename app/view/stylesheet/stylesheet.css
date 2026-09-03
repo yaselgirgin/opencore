@@ -9,6 +9,13 @@ html, body {
     text-rendering: optimizeLegibility;
 }
 
+/* Tabler applies a scrollbar compensation margin to :root on desktop. */
+@media (min-width: 992px) {
+    html, :root {
+        margin-left: 0;
+    }
+}
+
 h1, h2, h3, h4, h5, h6, p {
     margin-top: 0;
 }
@@ -423,6 +430,195 @@ a {
 #footer {
     height: 100px;
     text-align: center;
+}
+
+/* Tabler vertical shell. Keep the legacy IDs because common.js owns menu state. */
+#container {
+    min-height: 100vh;
+    background: var(--tblr-bg-surface-secondary, #f4f6fa);
+    overflow: visible;
+}
+
+#header {
+    min-height: 3.5rem;
+    border: 0;
+    border-bottom: 1px solid var(--tblr-border-color, #e6e7e9);
+    box-shadow: none;
+    background: var(--tblr-bg-surface, #fff);
+}
+
+#header .navbar-brand img {
+    max-height: 2rem;
+    width: auto;
+}
+
+#header .navbar-nav > li > .nav-link,
+#header .navbar-nav li > .nav-link:hover,
+#header .navbar-nav li.show > .nav-link {
+    background: transparent;
+}
+
+#header .navbar-nav > li > .nav-link {
+    color: var(--tblr-body-color, #1f2937);
+}
+
+#button-menu {
+    font-size: 1.25rem;
+    margin: 0 0 0 .5rem;
+    padding: .375rem .5rem;
+    color: var(--tblr-body-color, #1f2937);
+}
+
+#column-left {
+    position: sticky;
+    top: 0;
+    left: 0;
+    align-self: start;
+    z-index: 1029;
+    flex: none;
+    width: 16rem;
+    height: 100vh;
+    padding: 0;
+    overflow-y: auto;
+    background: var(--tblr-bg-surface, #fff);
+    border-right: 1px solid var(--tblr-border-color, #e6e7e9);
+    box-shadow: none;
+}
+
+#column-left .container-fluid {
+    display: block;
+    padding: 0;
+}
+
+#navigation {
+    display: block;
+    padding: 1rem 1.25rem;
+    color: var(--tblr-secondary, #667382);
+    background: transparent;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+}
+
+#menu {
+    margin-bottom: 1rem;
+}
+
+#menu > li {
+    border: 0;
+}
+
+#menu li a {
+    padding: .5rem 1.25rem;
+}
+
+#menu > li > a {
+    color: var(--tblr-body-color, #1f2937);
+    border-radius: 0;
+}
+
+#menu > li > a:hover,
+#menu > li.active > a {
+    color: var(--tblr-primary, #206bc4);
+    background: var(--tblr-primary-lt, #e9f2ff);
+}
+
+#menu > li > ul,
+#menu li li a:hover,
+#menu li li.active > a {
+    background: transparent;
+}
+
+#menu li li a {
+    color: var(--tblr-secondary, #667382);
+}
+
+#menu li li a:hover,
+#menu li li.active > a {
+    color: var(--tblr-primary, #206bc4);
+}
+
+.page-wrapper {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    min-width: 0;
+    min-height: calc(100vh - 3.5rem);
+}
+
+#content {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    padding-bottom: 2rem;
+}
+
+#column-left + #content {
+    grid-column: 2;
+    grid-row: 1;
+    left: 0;
+    margin-left: 0;
+}
+
+#footer {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: auto;
+    padding: 1.5rem 1.25rem;
+    color: var(--tblr-secondary, #667382);
+    background: var(--tblr-bg-surface, #fff);
+    border-top: 1px solid var(--tblr-border-color, #e6e7e9);
+}
+
+#column-left ~ #footer {
+    grid-column: 2;
+}
+
+#column-left + #content + #footer {
+    left: 0;
+    margin-left: 0;
+}
+
+#column-left.active + #content,
+#column-left.active + #content + #footer {
+    left: 0;
+    margin-left: 0;
+}
+
+@media (max-width: 991.98px) {
+    #header {
+        min-height: 3.5rem;
+    }
+
+    .page-wrapper {
+        display: block;
+        min-height: 0;
+    }
+
+    #column-left {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -16rem;
+        grid-column: auto;
+        grid-row: auto;
+        transition: left .3s ease;
+    }
+
+    #column-left.active {
+        left: 0;
+    }
+
+    #column-left.active + .page-wrapper {
+        left: auto;
+    }
+
+    #column-left + #content,
+    #column-left + #content + #footer,
+    #column-left.active + #content,
+    #column-left.active + #content + #footer {
+        left: 0;
+        margin-left: 0;
+    }
 }
 
 .page-header {

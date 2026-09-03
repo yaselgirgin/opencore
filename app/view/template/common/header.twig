@@ -13,11 +13,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
-  <link href="{{ bootstrap }}" rel="stylesheet" media="screen"/>
+  <link href="{{ tabler }}" rel="stylesheet" media="screen"/>
   <link href="{{ icons }}" rel="stylesheet" type="text/css"/>
   <link href="{{ stylesheet }}" rel="stylesheet" type="text/css"/>
   <script src="{{ jquery }}" type="text/javascript"></script>
-  <script type="text/javascript" src="app/view/javascript/common.js"></script>
   {% for style in styles %}
     <link type="text/css" href="{{ style.href }}" rel="{{ style.rel }}" media="{{ style.media }}"/>
   {% endfor %}
@@ -28,15 +27,15 @@
     <script type="text/javascript" src="{{ script.href }}"></script>
   {% endfor %}
 </head>
-<body>
+<body class="layout-fluid">
 <div id="alert"></div>
 <div id="container">
-  <header id="header" class="navbar navbar-expand navbar-light bg-light">
+  <header id="header" class="navbar navbar-expand-md navbar-light d-print-none">
     <div class="container-fluid">
-      <a href="{{ home }}" class="navbar-brand d-none d-lg-block"><img src="app/view/image/logo.png" alt="{{ heading_title }}" title="{{ heading_title }}"/></a>
+      <a href="{{ home }}" class="navbar-brand"><img src="app/view/image/logo.png" alt="{{ heading_title }}" title="{{ heading_title }}"/></a>
       {% if logged %}
-        <button type="button" id="button-menu" class="btn btn-link d-inline-block d-lg-none"><i class="fa-solid fa-bars"></i></button>
-        <ul class="nav navbar-nav">
+        <button type="button" id="button-menu" class="btn btn-icon d-inline-flex d-lg-none"><i class="fa-solid fa-bars"></i></button>
+        <ul class="navbar-nav flex-row ms-auto align-items-center">
           <li id="nav-notification" class="nav-item dropdown">
             <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle"><i class="fa-regular fa-bell"></i>{% if notification_total %} <span class="badge bg-danger">{{ notification_total }}</span>{% endif %}</a>
             <div class="dropdown-menu dropdown-menu-end">
@@ -67,3 +66,4 @@
       {% endif %}
     </div>
   </header>
+  <div class="page-wrapper">

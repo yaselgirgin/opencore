@@ -1,141 +1,97 @@
-# OpenCore UI Geliştirme Planı — Materialize Görsel/Davranış Referansı
+# OpenCore UI Geliştirme Planı — Tabler Tabanlı Arayüz
 
 ## Amaç
 
-OpenCore yönetim arayüzünü modern, tutarlı, responsive ve kullanıcı tarafından özelleştirilebilir ortak bir UI shell'e dönüştürmek.
+OpenCore yönetim arayüzünü modern, tutarlı, responsive, dağıtılabilir ve kullanıcı tarafından özelleştirilebilir ortak bir UI platformuna dönüştürmek.
 
-Materialize HTML vertical-menu template bu çalışma için yalnızca **görsel ve davranışsal referans** olarak kullanılacaktır.
+Yeni kanonik UI foundation olarak **Tabler Admin Template / `@tabler/core`** kullanılacaktır.
 
-OpenCore içine Materialize'ın Envato lisansına tabi proprietary theme asset'leri, CSS dosyaları, görselleri, tasarım asset'leri veya demo/theme runtime kodları kopyalanmayacaktır.
+Tabler bu projede yalnız görsel referans değildir; lisans ve dependency sınırları doğrulandığı ölçüde OpenCore'un gerçek frontend foundation'ı olarak kullanılacaktır.
 
-Nihai arayüz OpenCore'un kendi frontend katmanı olacaktır.
+OpenCore backend/controller/model/route/permission mimarisi korunacaktır.
 
 ---
 
-## Referans Kaynaklar
+# Owner Kararı
 
-OpenCore repository:
+Önceki Materialize referanslı UI implementation hattı terk edilmiştir.
+
+Materialize:
+
+- artık OpenCore UI foundation değildir,
+- yeni implementation için referans değildir,
+- Envato lisanslı asset veya kodları OpenCore'a alınmayacaktır.
+
+`develop` branch, Materialize UI çalışması başlamadan önceki doğrulanmış noktaya geri alınmıştır.
+
+Yeni UI çalışması Tabler ile temiz başlangıç yapacaktır.
+
+---
+
+# Tabler Seçim Gerekçesi
+
+Tabler:
+
+- açık kaynak bir admin/dashboard UI kitidir,
+- Bootstrap tabanlıdır,
+- Admin Template MIT License ile dağıtılmaktadır,
+- Tabler Icons MIT License ile dağıtılmaktadır,
+- ticari ve dağıtılabilir OpenCore ürünü için uygun bir lisans modeli sunmaktadır,
+- vertical navigation, navbar, cards, forms, tables, modals, dropdowns ve benzeri ortak yönetim bileşenlerini bütünleşik bir tasarım diliyle sağlar.
+
+Tabler lisans bildirimi OpenCore distribution'ında korunacaktır.
+
+Tabler Core dışındaki üçüncü taraf dependency'ler ayrıca kendi lisansları üzerinden değerlendirilecektir.
+
+MIT lisanslı Tabler Core kullanılıyor olması, demo/chart/editor veya başka üçüncü taraf paketlerinin otomatik olarak aynı lisans koşullarına sahip olduğu anlamına gelmez.
+
+---
+
+# Resmî Referanslar
+
+Tabler repository:
+
+```text
+https://github.com/tabler/tabler
+```
+
+Tabler lisans:
+
+```text
+https://tabler.io/license
+```
+
+Tabler documentation:
+
+```text
+https://docs.tabler.io/
+```
+
+Tabler Vertical Layout görsel/işlevsel hedef:
+
+```text
+https://tabler.io/admin-template/preview?page=layout-vertical.html
+```
+
+Tabler Core package:
+
+```text
+https://www.npmjs.com/package/@tabler/core
+```
+
+---
+
+# OpenCore Repository
 
 ```text
 C:\xampp\htdocs\opencore
 ```
 
-Materialize referans kaynağı:
-
-```text
-C:\xampp\htdocs\materialize
-```
-
-Ana runtime/görsel referansı:
-
-```text
-http://localhost/materialize/html-version/full-version/html/vertical-menu-template/index.html
-```
-
-Ana filesystem referansı:
-
-```text
-C:\xampp\htdocs\materialize\html-version\full-version\html\vertical-menu-template\index.html
-```
-
-Filesystem kaynakları analiz ve karşılaştırma amacıyla incelenebilir.
-
-Runtime davranışı değerlendirilirken `file://` yerine HTTP referansı esas alınmalıdır.
-
 ---
 
-# Lisans Kararı
+# Kanonik OpenCore View Sınırı
 
-Materialize paketi tek kullanıcı / tek ürün kapsamında satın alınmış ve yeniden dağıtıma uygun bir lisans değildir.
-
-Paket içindeki lisans açıklamasına göre:
-
-- PHP kodu ve integrated HTML GPL kapsamındadır.
-- CSS, görseller, tasarım ve diğer theme parçaları satın alınan Envato lisansına tabidir.
-
-OpenCore dağıtılabilir bir ürün/repository olarak geliştirildiği için Materialize'ın Envato lisansına tabi theme asset'leri OpenCore distribution'ına dahil edilmeyecektir.
-
-Bu nedenle:
-
-## Kullanılabilir
-
-- Materialize ekranlarını görsel referans olarak incelemek
-- Layout davranışını incelemek
-- Menü davranışını incelemek
-- Theme seçeneklerinin kullanıcı deneyimini incelemek
-- Component düzenlerini referans almak
-- GPL veya bağımsız açık kaynak lisansıyla kullanılabilen genel teknik fikirleri değerlendirmek
-- Gerektiğinde açık kaynak dependency'leri kendi upstream lisansları üzerinden ayrıca kullanmak
-
-## OpenCore'a Kopyalanmayacak
-
-- Materialize proprietary CSS/theme dosyaları
-- Materialize proprietary SCSS/theme kaynakları
-- Materialize görsel/tasarım asset'leri
-- Demo customizer runtime'ı
-- Materialize'a özgü proprietary JavaScript/theme runtime kodları
-- Envato lisansına tabi font/icon/image paketleri
-- Materialize distribution'ının theme/source asset'leri
-
-Materialize kaynak dosyasının OpenCore'a fiziksel olarak kopyalanması ancak o dosyanın lisansı ayrıca açıkça doğrulanmış ve yeniden dağıtıma uygun olduğu kanıtlanmışsa değerlendirilebilir.
-
-Tahminle asset kopyalanmayacaktır.
-
----
-
-# Temel Entegrasyon İlkesi
-
-OpenCore Materialize template uygulamasına dönüştürülmeyecektir.
-
-Materialize:
-
-```text
-Görsel referans
-+
-Davranış referansı
-```
-
-olarak kullanılacaktır.
-
-Nihai yapı:
-
-```text
-OpenCore mevcut frontend altyapısı
-+
-OpenCore'a ait yeni CSS / SCSS
-+
-OpenCore'a ait yeni JS davranışları
-+
-OpenCore Twig layout
-```
-
-şeklinde olacaktır.
-
-Mevcut OpenCore runtime contract'ları korunacaktır.
-
----
-
-# Korunacak OpenCore Yapıları
-
-Materialize referansı nedeniyle aşağıdaki yapılar gereksiz yere yeniden tasarlanmamalıdır:
-
-- PHP controller/model mimarisi
-- route sistemi
-- Twig view yapısı
-- `user` / `user_group` permission sistemi
-- notification altyapısı
-- form/controller davranışları
-- AJAX davranışları
-- OpenCart/OpenCore frontend contract'ları
-- mevcut Bootstrap kullanımı
-- mevcut jQuery kullanımı
-- `common.js`
-
----
-
-# OpenCore View Dosya Yapısı — Kanonik Sınır
-
-UI geliştirmesi mevcut OpenCore `app/view/` yapısını bozmayacaktır.
+Tabler entegrasyonu mevcut OpenCore view directory yapısını bozmayacaktır.
 
 Kanonik temel:
 
@@ -162,30 +118,84 @@ C:\xampp\htdocs\opencore\app\view\
     └── ...
 ```
 
-UI çalışması için `app/view/` altında paralel yeni root yapılar oluşturulmamalıdır.
+Tabler için `app/view/` altında paralel yeni root yapılar oluşturulmayacaktır.
 
 Örneğin:
 
 ```text
-app/view/materialize/
+app/view/tabler/
 app/view/theme/
 app/view/assets/
 ```
 
-oluşturulmamalıdır.
+oluşturulmayacaktır.
 
-Yeni OpenCore UI dosyaları mevcut kategoriler altında tutulacaktır:
+Gerekli runtime dosyaları mevcut kategorilerin altında konumlandırılacaktır:
 
 - JavaScript → `app/view/javascript/`
 - CSS / SCSS / fonts → `app/view/stylesheet/`
 - Images → `app/view/image/`
 - Twig/layout → `app/view/template/`
 
-Yeni alt klasör yalnız mevcut ana kategorilerin altında ve gerçek ihtiyaç varsa oluşturulabilir.
+Yeni alt klasörler yalnız mevcut kategori altında, açık dependency gerekçesiyle oluşturulabilir.
 
 ---
 
-# Common.js Koruma Kuralı
+# Tabler Vendor Yerleşim İlkesi
+
+Tabler üçüncü taraf ama OpenCore tarafından dağıtılan bir frontend dependency olacaktır.
+
+Tabler kaynakları:
+
+- rastgele OpenCore CSS/JS içine kopyalanmamalı,
+- upstream kimliği kaybolacak şekilde parçalanmamalı,
+- lisans bildirimi kaldırılmamalı,
+- demo dosyaları runtime'a taşınmamalıdır.
+
+Kesin vendor yerleşimi ilk compatibility audit sonucunda kararlaştırılacaktır.
+
+Ama yerleşim mutlaka mevcut:
+
+```text
+app/view/javascript/
+app/view/stylesheet/
+app/view/image/
+```
+
+sınırları içinde kalacaktır.
+
+---
+
+# Bootstrap Sözleşmesi
+
+Tabler Core Bootstrap tabanlıdır ve Tabler dağıtım CSS'i Bootstrap stillerini kendi build çıktısında içerir.
+
+Bu nedenle OpenCore runtime'ında:
+
+```text
+OpenCore bootstrap.css
++
+Tabler tabler.css içindeki Bootstrap
+```
+
+şeklinde iki ayrı Bootstrap stil katmanı körlemesine aynı anda yüklenmemelidir.
+
+Aynı şekilde duplicate Bootstrap JavaScript initialization oluşturulmamalıdır.
+
+İlk compatibility audit özellikle şunları belirleyecektir:
+
+- OpenCore'un mevcut Bootstrap sürümü,
+- Tabler Core'un kullandığı Bootstrap sürümü,
+- mevcut OpenCore Twig markup'ının Bootstrap bağımlılıkları,
+- `common.js` içindeki Bootstrap API kullanımları,
+- hangi Bootstrap CSS/JS katmanının kanonik runtime olacağı,
+- mevcut OpenCore Bootstrap dosyalarının ne zaman ve nasıl kaldırılabileceği veya korunabileceği.
+
+Bootstrap değişimi dependency audit olmadan yapılmayacaktır.
+
+---
+
+# `common.js` Koruma Sözleşmesi
 
 Kritik dosya:
 
@@ -195,266 +205,412 @@ C:\xampp\htdocs\opencore\app\view\javascript\common.js
 
 `common.js`, OpenCore runtime contract'ının parçasıdır.
 
-UI geliştirmesi sırasında:
+Tabler entegrasyonu sırasında:
 
-- replace edilmemeli
-- overwrite edilmemeli
-- Materialize koduyla değiştirilmemeli
-- üçüncü taraf demo kodu topluca içine eklenmemeli
-- mevcut fonksiyonlar gereksiz yere yeniden yazılmamalı
+- körlemesine replace edilmemeli,
+- Tabler JS ile overwrite edilmemeli,
+- mevcut OpenCore davranışları gereksiz yere yeniden yazılmamalı,
+- file manager, upload, AJAX forms, notifications, session davranışları ve diğer OpenCore frontend contract'ları korunmalıdır.
 
-Yeni UI davranışları gerektiğinde mevcut OpenCore JavaScript yapısına uygun biçimde ayrı ve kontrollü olarak geliştirilecektir.
+Tabler ile conflict varsa önce conflict açıkça sınıflandırılmalıdır.
 
-Her yeni JS davranışı `common.js` ile conflict açısından değerlendirilmelidir.
+Tabler'a geçiş bahanesiyle application davranışı değiştirilmemelidir.
 
 ---
 
-# Mevcut OpenCore Ortak UI Shell
+# Korunacak OpenCore Yapıları
 
-İlk analizde ortak shell için aşağıdaki ana dosyalar tespit edilmiştir:
+Tabler entegrasyonu nedeniyle aşağıdakiler yeniden tasarlanmamalıdır:
+
+- PHP controller/model mimarisi
+- route sistemi
+- Twig view mimarisi
+- `user` / `user_group` yapısı
+- permission sistemi
+- notification altyapısı
+- form/controller contract'ları
+- file manager davranışı
+- upload mekanizması
+- session/auth davranışı
+- database upgrade sistemi
+- kanonik `app/` / `api/` mimarisi
+- OpenCart tabanlı `Opencart\...` namespace yapısı
+
+Tabler yalnız frontend foundation'dır.
+
+---
+
+# Görsel Hedef
+
+Ana görsel/işlevsel hedef Tabler Vertical Layout olacaktır.
+
+Hedef shell:
 
 ```text
-app/view/template/common/header.twig
-app/view/template/common/column_left.twig
-app/view/template/common/footer.twig
+┌──────────── Vertical Sidebar ────────────┬──────── Navbar ────────────────┐
+│ Logo / OpenCore                         │ Search / actions / user        │
+│                                         ├────────────────────────────────┤
+│ Permission-aware navigation             │                                │
+│                                         │          PAGE CONTENT          │
+│                                         │                                │
+│                                         │                                │
+└─────────────────────────────────────────┴────────────────────────────────┘
 ```
 
-Mevcut frontend yükleme zincirinde:
+Tabler demo sayfası birebir kopyalanmayacaktır.
 
-- Bootstrap
-- jQuery
-- Font Awesome
-- `app/view/javascript/common.js`
+OpenCore'un kendi:
 
-davranışları bulunmaktadır.
+- menü verisi,
+- routes,
+- permissions,
+- notifications,
+- profile/account actions
 
-Yeni UI shell bu mevcut yapıların üzerine adapte edilmelidir.
-
----
-
-# Materialize Referansından Alınacak Görsel/Davranış Hedefleri
-
-## Vertical Navigation
-
-OpenCore sol menüsü Materialize vertical-menu-template davranışı ve görsel düzeni referans alınarak yeniden tasarlanacaktır.
-
-Hedefler:
-
-- modern vertical navigation
-- ikon + başlık yapısı
-- aktif menü durumu
-- alt menüler
-- expanded durum
-- collapsed durum
-- responsive/mobile davranış
-- permission-aware mevcut OpenCore menü verisinin korunması
-
-Menü verisi ve permission mantığı yeniden yazılmayacaktır.
+Tabler component markup'ına adapte edilecektir.
 
 ---
 
-## Navbar / Header
+# Sidebar / Menü
 
-Materialize navbar/header görünümü referans alınacaktır.
+OpenCore'un mevcut permission-aware menü ağacı korunacaktır.
 
-Hedefler:
+Tabler tarafında hedef:
 
-- modern header
-- responsive davranış
-- kullanıcı/profil alanı
-- notification entegrasyonu
-- layout ile uyumlu spacing
-- navbar type tercihleri
+- vertical sidebar
+- ikon + başlık
+- active state
+- nested menu
+- expand/collapse
+- responsive/mobile navigation
+- kompakt/collapsed kullanım
+- okunabilir grup hiyerarşisi
+
+Menu controller/data yapısı UI uğruna yeniden yazılmamalıdır.
 
 ---
 
-## Ortak Component Görsel Dili
+# Header / Navbar
 
-OpenCore'un kendi CSS/SCSS katmanında aşağıdaki component'ler standardize edilecektir:
+Tabler navbar yapısı OpenCore'a adapte edilecektir.
+
+En az:
+
+- sidebar toggle
+- notifications
+- language
+- user profile
+- logout
+- ileride global search
+
+alanlarını destekleyecektir.
+
+Mevcut OpenCore profile, notification, language ve logout route/behavior contract'ları korunacaktır.
+
+---
+
+# Ortak Component Sistemi
+
+Yeni OpenCore modülleri mümkün olduğunca Tabler'ın ortak component dilini kullanacaktır.
+
+Öncelikli componentler:
 
 - Cards
 - Forms
+- Inputs
+- Selects
+- Checkboxes / radios / switches
 - Tables
 - Modals
+- Dropdowns
 - Alerts
 - Badges
-- Dropdowns
 - Tabs
 - Buttons
 - Pagination
-- Search/filter alanları
+- Breadcrumbs
+- Filters
+- Empty states
+- Tooltips
+- Offcanvas / responsive navigation
+- Notifications
 
-Mevcut OpenCore form ve controller davranışları korunacaktır.
+Amaç her yeni modülde yeni CSS üretmek değil, ortak Tabler/OpenCore component sözleşmesini tekrar kullanmaktır.
 
 ---
 
-# Template Customizer Yaklaşımı
+# Tabler Icons
 
-Materialize örneğindeki sağdan açılan `Template Customizer` paneli OpenCore'a taşınmayacaktır.
+Tabler Icons, MIT lisanslı ortak ikon sistemi olarak değerlendirilecektir.
 
-Customizer yalnız hangi kullanıcı arayüz tercihlerinin faydalı olduğunu belirlemek için referans alınacaktır.
+İlk audit:
 
-Bu tercihler OpenCore içinde:
+- mevcut Font Awesome kullanımını,
+- Tabler Icons ile overlap'i,
+- webfont / SVG kullanım seçeneklerini,
+- mevcut OpenCore ikon contract'larını
+
+inceleyecektir.
+
+Bir geçiş kararı verilirse ikon sistemi batch halinde değiştirilecektir.
+
+Aynı runtime'da gereksiz çift ikon framework taşınmayacaktır.
+
+---
+
+# Typography
+
+OpenCore varsayılan tipografisi için **Tabler'ın kendi varsayılan font ve typography sistemi** kullanılacaktır.
+
+Önceki Public Sans tercihi iptal edilmiştir.
+
+Amaç:
+
+- Tabler'ın resmî Vertical Layout demosundaki tipografi görünümünü korumak,
+- ekstra font override katmanı oluşturmamak,
+- Tabler'ın spacing, heading, control ve navigation ölçeklerini mümkün olduğunca upstream davranışına yakın tutmak,
+- yalnız gerçek OpenCore ihtiyacı ortaya çıkarsa minimum typography override uygulamaktır.
+
+Harici Google Fonts runtime bağımlılığı eklenmeyecektir.
+
+
+# Kullanıcı Arayüz Tercihleri
+
+Kullanıcı bazlı UI preference sistemi, Tabler'ın kendi **Theme Settings** modelini temel alacaktır.
+
+Ayarlar OpenCore içinde:
 
 ```text
 Profil
 └── Arayüz Tercihleri
 ```
 
-alanında yönetilecektir.
+altında yönetilecektir.
 
----
+Tabler demo içindeki ayar paneli runtime'da ayrı bir floating/customizer panel olarak kullanılmayacaktır.
 
-# Planlanan Kullanıcı Arayüz Tercihleri
+Tercihler kullanıcı bazında DB'de kalıcı saklanacaktır. Kullanıcı başka bir cihazdan giriş yaptığında kendi kayıtlı arayüz tercihleri uygulanmalıdır.
 
-## Theme
+## Renk Modu
 
 - Light
 - Dark
 - System
 
-## Primary Color
+`System`, işletim sistemi / browser `prefers-color-scheme` tercihine uyacaktır.
 
-Kullanıcı desteklenen ana renk seçeneklerinden birini seçebilir.
+## Renk Şeması
 
-## Skin
+Tabler'ın desteklediği theme color palette seçenekleri kullanılacaktır.
 
-- Default
-- Bordered
+OpenCore ayrıca kendi özel palette framework'ünü üretmeyecektir.
 
-## Menu
+Kesin palette listesi kullanılan Tabler sürümünün gerçek Theme Settings seçeneklerinden alınacaktır.
+
+## Font Family
+
+Tabler Theme Settings modelindeki seçenekler kullanılacaktır:
+
+- Sans-serif
+- Serif
+- Monospace
+- Comic
+
+OpenCore varsayılanı Tabler'ın kendi varsayılan font ailesi olacaktır.
+
+Önceki Public Sans owner tercihi iptal edilmiştir.
+
+## Theme Base
+
+Tabler'ın desteklediği taban ton seçenekleri kullanılacaktır:
+
+- Slate
+- Gray
+- Zinc
+- Neutral
+- Stone
+
+## Corner Radius
+
+Tabler'ın Theme Settings modelindeki radius seçenekleri kullanılacaktır:
+
+- 0
+- 0.5
+- 1
+- 1.5
+- 2
+
+## OpenCore Yerleşim Tercihleri
+
+Tabler Theme Settings dışında OpenCore'un gerçek ihtiyacı olan layout tercihleri ayrıca tutulabilir.
+
+İlk hedef:
+
+### Sol Menü
 
 - Expanded
 - Collapsed
 
-## Navbar Type
-
-- Sticky
-- Static
-- Hidden
-
-## Content
+### İçerik Genişliği
 
 - Compact
 - Wide
 
-## Semi Dark
+### Navbar
 
-- Enabled
-- Disabled
+Yalnız Tabler runtime ve OpenCore kullanımında gerçek ihtiyaç doğrulanırsa:
 
-Bu tercihler global setting değildir.
+- Sticky
+- Static
+- Auto-hide
 
-Her login kullanıcısı için ayrı saklanacaktır.
+gibi seçenekler değerlendirilebilir.
 
-Tercihler yalnız browser `localStorage` içinde tutulmamalıdır.
+Kritik profile, language, notification ve logout aksiyonları hiçbir layout tercihinde erişilemez hale gelmemelidir.
 
-Kullanıcı farklı bir bilgisayardan giriş yaptığında da kendi UI tercihlerini kullanabilmelidir.
+## Uygulama İlkesi
 
-Kesin DB/veri modeli mevcut OpenCore kullanıcı yapısı ve ilgili implementation task'ı sırasında minimum kapsamla belirlenecektir.
+Tabler'da doğal karşılığı olmayan eski Materialize kavramları taşınmayacaktır.
+
+Özellikle aşağıdakiler sırf önceki UI denemesinde kullanılmış oldukları için korunmayacaktır:
+
+- Semi Dark
+- Materialize Skin / Bordered kavramı
+- Materialize customizer davranışları
+
+Yeni preference modeli Tabler'ın gerçek capabilities setine dayanacaktır.
+
+## Preview / Save Davranışı
+
+Profil ekranında ayarlar değiştirilirken mümkünse anlık preview uygulanabilir.
+
+Ancak:
+
+- kalıcı değişiklik yalnız kullanıcı `Kaydet` dediğinde DB'ye yazılmalı,
+- kaydetmeden çıkılırsa eski kalıcı tercihler korunmalıdır,
+- preference sistemi yalnız browser `localStorage` üzerine kurulmamalıdır.
+
+Kesin DB schema ve runtime uygulaması UI-T7 / UI-T8 sırasında mevcut user yapısı incelenerek minimum kapsamla tasarlanacaktır.
+
+
+# Lisans ve Dağıtım
+
+OpenCore dağıtılabilir bir üründür.
+
+Tabler Admin Template MIT License şartları gereği ilgili copyright ve izin bildirimi OpenCore distribution'ında korunacaktır.
+
+Aynı kural Tabler Icons için de geçerlidir.
+
+Her yeni frontend dependency için:
+
+1. upstream kaynak,
+2. kullanılan version,
+3. license,
+4. redistribution şartları
+
+kayda alınmalıdır.
+
+Tabler demo repository'sindeki her dependency otomatik olarak OpenCore'a alınmayacaktır.
+
+Özellikle:
+
+- charts
+- editors
+- calendars
+- maps
+- premium/pro
+- illustrations
+- demo-only plugins
+
+gerektiğinde ayrıca incelenecektir.
+
+İhtiyaç olmayan dependency runtime'a eklenmemelidir.
 
 ---
 
-# Materialize Runtime Bulguları
+# External CDN Politikası
 
-Read-only analizde Materialize referansındaki initialization zinciri şu şekilde tespit edilmiştir:
+Production OpenCore üçüncü taraf CDN'lere zorunlu bağımlı olmayacaktır.
 
-```text
-helpers.js
-→ template-customizer.js
-→ config.js
-→ jQuery / Popper / Bootstrap / vendor dependencies
-→ menu.js
-→ main.js
-→ page/dashboard scripts
-```
+Dağıtılan ve gerekli:
 
-Materialize `menu.js` ve `main.js`:
+- CSS
+- JS
+- fonts
+- icons
 
-- Materialize'a özgü DOM yapısına
-- `window.Helpers`
-- `window.templateCustomizer`
-- localStorage davranışına
+OpenCore ile birlikte local/self-hosted gelmelidir.
 
-bağlıdır.
-
-Bu nedenle bu dosyalar OpenCore'a doğrudan taşınmayacaktır.
-
-Materialize demo runtime'ının davranışı gerektiğinde yeniden uygulanacak ancak OpenCore'a ait kod olarak geliştirilecektir.
+CDN yalnız development/demo referansı olabilir.
 
 ---
 
-# Conflict Riski Bulunan Alanlar
+# Yeni Geliştirme Fazları
 
-Yeni UI geliştirilirken özellikle aşağıdaki alanlar korunmalı ve test edilmelidir:
-
-- Bootstrap initialization
-- jQuery/global namespace
-- tooltip
-- modal
-- dropdown
-- AJAX forms
-- upload/file manager
-- notification
-- responsive menu
-- sessionStorage
-- DOMContentLoaded/load handlers
-- global `window` değişkenleri
-- existing OpenCore menu behavior
-
-Materialize demo JS doğrudan eklendiğinde yüksek conflict riski bulunduğu kabul edilmiştir.
-
----
-
-# UI Geliştirme Batch'leri
-
-## UI-1 — OpenCore UI Foundation
+## UI-T0 — Tabler / OpenCore Compatibility Audit
 
 ### Amaç
 
-Materialize vertical-menu-template'i yalnız görsel/davranışsal referans alarak OpenCore'un kendi UI foundation'ını oluşturmak.
+Implementation öncesi mevcut OpenCore frontend ile Tabler Core arasındaki kesin teknik sınırı çıkarmak.
 
-### İlkeler
+### İncelenecek
 
-- Envato lisanslı Materialize asset'i kopyalama
-- mevcut Bootstrap/jQuery altyapısını koru
-- `common.js` davranışını koru
-- mevcut `app/view/` klasör yapısını koru
-- gerekli yeni CSS/SCSS/JS kodunu OpenCore'a ait olarak oluştur
-- demo runtime veya customizer ekleme
+- mevcut Bootstrap version ve kullanım alanları
+- jQuery bağımlılıkları
+- `common.js`
+- header / column_left / footer
+- Bootstrap JS API kullanımları
+- OpenCore form/modal/dropdown markup
+- Tabler Core CSS/JS dependency zinciri
+- Tabler Core Bootstrap entegrasyonu
+- Tabler Icons
+- required vs demo-only assets
+- license inventory
+- distribution strategy
+
+### Çıktı
+
+UI-T1 için kesin minimum dosya ve migration kapsamı.
+
+### Kural
+
+Read-only.
+
+Kod veya DB değiştirilmez.
+
+---
+
+## UI-T1 — Tabler Core Foundation
+
+### Amaç
+
+Tabler Core'un yalnız gerekli runtime foundation'ını OpenCore'a eklemek.
 
 ### Kapsam
 
-- mevcut stylesheet/SCSS yapısını inceleme
-- yeni UI variables/tokens ihtiyacını belirleme
-- typography
-- spacing
-- borders
-- radius
-- surfaces
-- basic light theme
-- navigation için gerekli temel stiller
-- gelecekteki dark/theme preference yapısına uygun CSS tasarımı
+- MIT license/attribution
+- gerekli Tabler core CSS/JS
+- gerekli local fonts/icons kararı
+- Bootstrap duplicate katmanının kontrollü çözümü
+- mevcut `app/view/` yapısına doğru yerleşim
 
 ### Kapsam Dışı
 
-- tam vertical menu dönüşümü
-- full navbar dönüşümü
-- profil preference sistemi
-- DB değişikliği
-- Materialize customizer
-- dashboard-specific UI
-- chart/swiper/autocomplete demo scriptleri
+- full shell dönüşümü
+- menu redesign
+- preferences
+- dashboard redesign
+- business module UI
 
 ---
 
-## UI-2 — Common Layout Shell
+## UI-T2 — Vertical Shell
 
 ### Amaç
 
-OpenCore ortak shell'ini yeni UI foundation üzerinde yeniden düzenlemek.
+Tabler Vertical Layout temeliyle OpenCore common shell oluşturmak.
 
-Ana hedef dosyalar:
+Ana alanlar:
 
 ```text
 app/view/template/common/header.twig
@@ -462,199 +618,282 @@ app/view/template/common/column_left.twig
 app/view/template/common/footer.twig
 ```
 
-Hedefler:
+Hedef:
 
-- header/navbar
-- vertical sidebar
-- content wrapper
+- sidebar
+- navbar
+- page wrapper
+- content
 - footer
-- responsive temel shell
+- responsive shell
 
-Materialize HTML kopyalanmayacaktır; gerekli layout OpenCore Twig yapısı içinde yeniden oluşturulacaktır.
-
----
-
-## UI-3 — Permission-aware OpenCore Menu
-
-### Amaç
-
-Mevcut OpenCore permission-aware menü ağacını yeni vertical navigation üzerinde render etmek.
-
-Korunacak:
-
-- mevcut menu data
-- route mantığı
-- permission mantığı
-
-Geliştirilecek:
-
-- expanded state
-- active item
-- nested menu appearance
-- collapsed presentation
+OpenCore route/controller contract korunacaktır.
 
 ---
 
-## UI-4 — Responsive / Collapsed Navigation
+## UI-T3 — Permission-aware Navigation
 
 ### Amaç
 
-- Expanded
-- Collapsed
-- responsive/mobile navigation
-
-davranışlarını OpenCore'a ait JS/CSS ile tamamlamak.
-
-Materialize `menu.js` kullanılmayacaktır.
-
-Gerekli davranış OpenCore runtime'ına uygun biçimde yeniden geliştirilecektir.
-
----
-
-## UI-5 — Profil / Arayüz Tercihleri
-
-### Amaç
-
-Kullanıcı profil sayfasına `Arayüz Tercihleri` bölümü eklemek.
-
-Tercihler:
-
-- Theme
-- Primary Color
-- Skin
-- Menu
-- Navbar Type
-- Content
-- Semi Dark
-
-Kullanıcı bazında kalıcı saklama sağlanacaktır.
-
----
-
-## UI-6 — Runtime Theme Preference
-
-### Amaç
-
-Login olan kullanıcının kayıtlı tercihlerinin ortak UI shell'e uygulanması.
-
-Özellikle:
-
-- Light / Dark / System
-- Primary Color
-- Default / Bordered
-- Expanded / Collapsed
-- Sticky / Static / Hidden Navbar
-- Compact / Wide Content
-- Semi Dark
-
-davranışları OpenCore'un kendi theme runtime'ı olarak uygulanacaktır.
-
-Materialize template customizer kodu kullanılmayacaktır.
-
----
-
-## UI-7 — Common Component Normalization
-
-### Amaç
-
-Yeni modüllerin kullanacağı ortak component görsel dilini standardize etmek.
+Mevcut OpenCore menü ağacını Tabler navigation markup ve görsel diliyle sunmak.
 
 Kapsam:
 
-- cards
-- forms
-- tables
-- modals
-- alerts
-- badges
-- dropdowns
-- tabs
-- buttons
-- filters
-- pagination
+- active state
+- nested items
+- icons
+- expanded/collapsed
+- desktop/mobile behavior
 
-Bu aşamadan sonra Ajanda, Ar-Ge, CRM, ERP ve diğer yeni modüller aynı ortak UI sistemini kullanmalıdır.
+Permission logic yeniden yazılmayacaktır.
 
 ---
 
-# Kullanıcı Kabul Testi Yaklaşımı
+## UI-T4 — Header Account / Notification Actions
 
-UI çalışmaları görsel ve etkileşimsel olduğu için final acceptance yalnız otomatik testlere bırakılmayacaktır.
+### Amaç
 
-Her anlamlı UI batch'inden sonra:
+Mevcut:
 
-1. deterministik syntax/static kontrolleri,
-2. hedefli browser smoke kontrolleri,
-3. kullanıcı tarafından manuel görsel/işlevsel acceptance
+- profile
+- language
+- notifications
+- logout
 
-uygulanacaktır.
+akışlarını Tabler navbar/dropdown componentleriyle adapte etmek.
+
+Functionality değil presentation değişmelidir.
+
+---
+
+## UI-T5 — Common Component Normalization
+
+### Amaç
+
+OpenCore genel ekranlarını Tabler component standardına getirmek.
+
+Öncelik:
+
+- forms
+- tables
+- cards
+- modals
+- dropdowns
+- alerts
+- tabs
+- buttons
+- pagination
+- filters
+
+Bu aşama yeni Ajanda ve Ar-Ge modüllerinin ortak görsel temelini tamamlamalıdır.
+
+---
+
+## UI-T6 — Typography Alignment
+
+### Amaç
+
+Tabler foundation üzerinde OpenCore tipografisini resmî Tabler Vertical Layout görünümüne yakın tutmak.
+
+Hedef:
+
+- Tabler varsayılan font sistemi
+- headings
+- menu typography
+- tables
+- form labels
+- controls
+- buttons
+
+Özel font override ancak gerçekten gerekli olduğunda minimum kapsamla uygulanacaktır.
+
+Public Sans kullanılmayacaktır.
+
+
+## UI-T7 — Kullanıcı UI Preferences
+
+### Amaç
+
+Profil sayfasına Tabler Theme Settings modelini temel alan kullanıcı bazlı UI tercihlerini eklemek ve kalıcı saklamak.
+
+İlk hedef preference seti:
+
+- Color Mode: Light / Dark / System
+- Color Scheme: kullanılan Tabler sürümünün desteklediği palette
+- Font Family: Sans-serif / Serif / Monospace / Comic
+- Theme Base: Slate / Gray / Zinc / Neutral / Stone
+- Corner Radius: 0 / 0.5 / 1 / 1.5 / 2
+- Menu: Expanded / Collapsed
+- Content Width: Compact / Wide
+- yalnız gerçek ihtiyaç doğrulanırsa Navbar davranışı
+
+Bu fazda preference verileri kullanıcı bazında DB'de kalıcı hale getirilecektir.
+
+Runtime theme/layout uygulaması UI-T8 kapsamıdır.
+
+
+## UI-T8 — Runtime Preferences
+
+### Amaç
+
+Kaydedilen tercihleri Tabler/OpenCore shell'e uygulamak.
+
+Kapsam:
+
+- Light / Dark / System
+- Color Scheme
+- Font Family
+- Theme Base
+- Corner Radius
+- Expanded / Collapsed menu
+- Content Width
+- varsa onaylanmış Navbar davranışı
+
+Tabler Theme Settings ile aynı semantic model kullanılmalıdır.
+
+Tabler demo customizer kodu doğrudan kopyalanmayacaktır; tercihlerin OpenCore user DB kalıcılığıyla çalışan minimum runtime adaptasyonu yapılacaktır.
+
+
+## UI-T9 — Final UI Polish ve Acceptance
+
+### Amaç
+
+Tüm ortak UI üzerinde son görsel tutarlılığı sağlamak.
 
 Özellikle:
 
-- login
-- dashboard
-- sidebar
-- responsive davranış
-- dropdown/modal
-- form davranışları
-- file manager
-- redirect
-- notification
-- theme görünümü
+- sidebar spacing/hierarchy
+- dropdowns
+- modal headers
+- form labels
+- tables
+- buttons
+- responsive behavior
+- focus states
+- accessibility-visible states
 
-manuel acceptance sırasında değerlendirilebilir.
+kontrol edilecektir.
 
 ---
 
-# Paperclip / Codex Çalışma Yaklaşımı
+# Test ve Acceptance Yaklaşımı
 
-Kalıcı kurallar ve bu UI projesinin kararları bu plan dosyasında tutulacaktır.
+UI geliştirmelerinde son acceptance yalnız LLM/otomatik teste bırakılmayacaktır.
 
-Gelecek Paperclip task prompt'ları plan içeriğini tekrar etmeyecektir.
+Her anlamlı batch'te:
 
-Task prompt'ları yalnız:
+1. syntax/static validation
+2. targeted browser smoke
+3. owner manual visual acceptance
+
+uygulanacaktır.
+
+Özellikle manuel kontrol:
+
+- login
+- dashboard
+- long sidebar
+- desktop/mobile
+- dropdowns
+- notifications
+- profile
+- logout
+- forms
+- tables
+- modals
+- file manager
+- dark/light
+- responsive behavior
+
+üzerinde yapılmalıdır.
+
+---
+
+# Paperclip / Codex Çalışma Kuralı
+
+Kalıcı UI kararları bu plan dosyasında tutulacaktır.
+
+Paperclip task prompt'ları planı tekrar etmeyecektir.
+
+Task prompt yalnız:
 
 - task amacı
 - ilgili path/dosyalar
-- task'a özgü sınırlar
+- task'a özel sınırlar
 - beklenen çıktı
 
 ile minimum tutulacaktır.
 
-Her implementation batch'i küçük ve geri alınabilir olmalıdır.
-
-Gereksiz Developer → Test → Review döngüsü oluşturulmamalıdır.
-
-Deterministik kontroller mümkün olduğunca script veya doğrudan araçlarla yapılmalıdır.
-
-Sol yalnız gerçek mimari veya kritik risk escalation durumlarında kullanılmalıdır.
+Genel proje sözleşmeleri Skills ve kanonik ADR/plan dosyalarından okunacaktır.
 
 ---
 
-# Bir Sonraki Geliştirme Adımı
+# Test Workspace Kuralı
 
-Sıradaki implementation task:
+Gerekli geçici/E2E testler yalnız:
 
 ```text
-UI-1 — OpenCore UI Foundation
+C:\xampp\htdocs\opencore_test
+```
+
+altında task'a özel klasörlerde yapılabilir.
+
+Ana repo içinde geçici test fixture oluşturulmayacaktır.
+
+Gerekirse task'a özel izole DB/schema kullanılacaktır.
+
+Task bitince yalnız task'a ait test varlıkları temizlenecek, `opencore_test` ana klasörü korunacaktır.
+
+---
+
+# Git Kuralı
+
+Her UI batch'i owner kabulünden sonra gerektiğinde kontrollü checkpoint commit ile sabitlenebilir.
+
+Git işlemleri `opencore-git-owner-approval` sözleşmesine tabidir.
+
+- otomatik push yok
+- main'e otomatik geçiş yok
+- owner onaysız commit/reset/merge/rebase yok
+
+---
+
+# İlk Sıradaki Task
+
+Yeni Tabler hattının ilk gerçek görevi:
+
+```text
+UI-T0 — Tabler / OpenCore Compatibility Audit
 ```
 
 olacaktır.
 
-UI-1 başlamadan önce repository'nin mevcut stylesheet/SCSS yapısı hedefli olarak incelenmeli ve yalnız gerekli minimum OpenCore UI temel katmanı oluşturulmalıdır.
+Bu task implementation yapmayacak.
 
-Bu çalışma Materialize asset migration görevi değildir.
+Amaç Tabler Core'un OpenCore'a hangi minimum, güvenli ve dağıtılabilir şekilde entegre edileceğini kesinleştirmektir.
 
 ---
 
 # Durum
 
-Bu belge, önceki Materialize asset entegrasyonu yaklaşımının yerini alır.
+Bu belge OpenCore için güncel kanonik UI geliştirme planıdır.
 
-Güncel owner kararı:
+Geçersiz yaklaşım:
 
-> Materialize yalnız görsel ve davranışsal referanstır. Envato lisansına tabi Materialize theme asset'leri OpenCore distribution'ına kopyalanmayacaktır.
+```text
+Materialize referanslı özel UI üretimi
+```
 
-Nihai ürün OpenCore'un kendi UI katmanı olacaktır.
+Yeni yaklaşım:
 
-Mevcut kanonik OpenCore mimarisi, ADR kararları, `app/view/` dizin yapısı ve `common.js` contract'ı korunacaktır.
+```text
+OpenCore backend/runtime
++
+Tabler Core UI foundation
++
+OpenCore Twig/menu/permission davranışı
++
+minimum OpenCore-specific customization
+```
+
+Tabler'ın ortak component sistemi mümkün olduğunca korunacak; OpenCore yalnız gerekli ürün kimliği ve davranış adaptasyonlarını ekleyecektir.
