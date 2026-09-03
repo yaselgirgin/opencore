@@ -1,11 +1,28 @@
 {% for language in languages %}
   {% if language.code == code %}
-    <a href="{{ language.code }}" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><img src="{{ language.image }}" alt="{{ language.name }}" title="{{ language.name }}"/></a>
+    <a href="{{ language.code }}"
+       class="nav-link px-2"
+       data-bs-toggle="dropdown"
+       aria-label="{{ language.name }}">
+      <img src="{{ language.image }}"
+           alt="{{ language.name }}"
+           title="{{ language.name }}"/>
+    </a>
   {% endif %}
 {% endfor %}
-<ul class="dropdown-menu">
+
+<ul id="language-dropdown" class="dropdown-menu dropdown-menu-end p-0">
   {% for language in languages %}
-    <li><a href="{{ language.code }}" class="dropdown-item"><img src="{{ language.image }}" alt="{{ language.name }}" title="{{ language.name }}"/> {{ language.name }}</a></li>
+    <li>
+      <a href="{{ language.code }}" class="dropdown-item language-item">
+        <img src="{{ language.image }}"
+             alt="{{ language.name }}"
+             title="{{ language.name }}"/>
+
+        <span>{{ language.name }}</span>
+      </a>
+    </li>
   {% endfor %}
 </ul>
+
 <input type="hidden" name="redirect" value="{{ redirect }}" id="input-redirect"/>

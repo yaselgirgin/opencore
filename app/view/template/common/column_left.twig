@@ -1,52 +1,105 @@
 <aside id="column-left" class="navbar navbar-vertical navbar-expand-lg" aria-label="{{ text_navigation }}">
 	<div class="container-fluid">
-		<div id="navigation" class="navbar-brand"><span class="fa-solid fa-bars"></span> {{ text_navigation }}</div>
+		<div id="navigation" class="navbar-brand">
+			<span class="fa-solid fa-bars"></span>
+			<span>{{ text_navigation }}</span>
+		</div>
+
 		<ul id="menu" class="navbar-nav">
-		{% set i = 0 %}
-		{% for menu in menus %}
-			<li id="{{ menu.id }}">
-				{% if menu.href %}
-					<a href="{{ menu.href }}"><i class="{{ menu.icon }}"></i> {{ menu.name }}</a>
-				{% else %}
-					<a href="#collapse-{{ i }}" data-bs-toggle="collapse" class="parent collapsed"><i class="{{ menu.icon }}"></i> {{ menu.name }}</a>
-				{% endif %}
-				{% if menu.children %}
-					<ul id="collapse-{{ i }}" class="collapse">
-						{% set j = 0 %}
-						{% for children_1 in menu.children %}
-							<li>{% if children_1.href %}
-									<a href="{{ children_1.href }}">{{ children_1.name }}</a>
-								{% else %}
-									<a href="#collapse-{{ i }}-{{ j }}" data-bs-toggle="collapse" class="parent collapsed">{{ children_1.name }}</a>
-								{% endif %}
-								{% if children_1.children %}
-									<ul id="collapse-{{ i }}-{{ j }}" class="collapse">
-										{% set k = 0 %}
-										{% for children_2 in children_1.children %}
-											<li>{% if children_2.href %}
-													<a href="{{ children_2.href }}">{{ children_2.name }}</a>
-												{% else %}
-													<a href="#collapse-{{ i }}-{{ j }}-{{ k }}" data-bs-toggle="collapse" class="parent collapsed">{{ children_2.name }}</a>
-												{% endif %}
-												{% if children_2.children %}
-													<ul id="collapse-{{ i }}-{{ j }}-{{ k }}" class="collapse">
-														{% for children_3 in children_2.children %}
-															<li><a href="{{ children_3.href }}">{{ children_3.name }}</a></li>
-														{% endfor %}
-													</ul>
-												{% endif %}</li>
-											{% set k = k + 1 %}
-										{% endfor %}
-									</ul>
-								{% endif %}
-							</li>
-							{% set j = j + 1 %}
-						{% endfor %}
-					</ul>
-				{% endif %}
-			</li>
-			{% set i = i + 1 %}
-		{% endfor %}
+			{% set i = 0 %}
+
+			{% for menu in menus %}
+				<li id="{{ menu.id }}" class="nav-item{% if menu.children %} dropdown{% endif %}">
+					{% if menu.href %}
+						<a href="{{ menu.href }}" class="nav-link">
+							<span class="nav-link-icon">
+								<i class="{{ menu.icon }}"></i>
+							</span>
+							<span class="nav-link-title">{{ menu.name }}</span>
+						</a>
+					{% else %}
+						<a href="#collapse-{{ i }}"
+						   class="nav-link parent collapsed"
+						   data-bs-toggle="collapse"
+						   role="button"
+						   aria-expanded="false"
+						   aria-controls="collapse-{{ i }}">
+							<span class="nav-link-icon">
+								<i class="{{ menu.icon }}"></i>
+							</span>
+							<span class="nav-link-title">{{ menu.name }}</span>
+						</a>
+					{% endif %}
+
+					{% if menu.children %}
+						<ul id="collapse-{{ i }}" class="collapse nav flex-column">
+							{% set j = 0 %}
+
+							{% for children_1 in menu.children %}
+								<li class="nav-item">
+									{% if children_1.href %}
+										<a href="{{ children_1.href }}" class="nav-link">
+											<span class="nav-link-title">{{ children_1.name }}</span>
+										</a>
+									{% else %}
+										<a href="#collapse-{{ i }}-{{ j }}"
+										   class="nav-link parent collapsed"
+										   data-bs-toggle="collapse"
+										   role="button"
+										   aria-expanded="false"
+										   aria-controls="collapse-{{ i }}-{{ j }}">
+											<span class="nav-link-title">{{ children_1.name }}</span>
+										</a>
+									{% endif %}
+
+									{% if children_1.children %}
+										<ul id="collapse-{{ i }}-{{ j }}" class="collapse nav flex-column">
+											{% set k = 0 %}
+
+											{% for children_2 in children_1.children %}
+												<li class="nav-item">
+													{% if children_2.href %}
+														<a href="{{ children_2.href }}" class="nav-link">
+															<span class="nav-link-title">{{ children_2.name }}</span>
+														</a>
+													{% else %}
+														<a href="#collapse-{{ i }}-{{ j }}-{{ k }}"
+														   class="nav-link parent collapsed"
+														   data-bs-toggle="collapse"
+														   role="button"
+														   aria-expanded="false"
+														   aria-controls="collapse-{{ i }}-{{ j }}-{{ k }}">
+															<span class="nav-link-title">{{ children_2.name }}</span>
+														</a>
+													{% endif %}
+
+													{% if children_2.children %}
+														<ul id="collapse-{{ i }}-{{ j }}-{{ k }}" class="collapse nav flex-column">
+															{% for children_3 in children_2.children %}
+																<li class="nav-item">
+																	<a href="{{ children_3.href }}" class="nav-link">
+																		<span class="nav-link-title">{{ children_3.name }}</span>
+																	</a>
+																</li>
+															{% endfor %}
+														</ul>
+													{% endif %}
+												</li>
+
+												{% set k = k + 1 %}
+											{% endfor %}
+										</ul>
+									{% endif %}
+								</li>
+
+								{% set j = j + 1 %}
+							{% endfor %}
+						</ul>
+					{% endif %}
+				</li>
+
+				{% set i = i + 1 %}
+			{% endfor %}
 		</ul>
 	</div>
 </aside>

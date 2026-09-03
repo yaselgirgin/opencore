@@ -35,33 +35,133 @@
       <a href="{{ home }}" class="navbar-brand"><img src="app/view/image/logo.png" alt="{{ heading_title }}" title="{{ heading_title }}"/></a>
       {% if logged %}
         <button type="button" id="button-menu" class="btn btn-icon d-inline-flex d-lg-none"><i class="fa-solid fa-bars"></i></button>
-        <ul class="navbar-nav flex-row ms-auto align-items-center">
+        <ul class="navbar-nav flex-row order-md-last ms-auto align-items-center">
           <li id="nav-notification" class="nav-item dropdown">
-            <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle"><i class="fa-regular fa-bell"></i>{% if notification_total %} <span class="badge bg-danger">{{ notification_total }}</span>{% endif %}</a>
-            <div class="dropdown-menu dropdown-menu-end">
+            <a href="#"
+              class="nav-link px-2"
+              data-bs-toggle="dropdown"
+              aria-label="{{ text_notification }}">
+              <i class="fa-regular fa-bell"></i>
+              {% if notification_total %}
+                <span class="badge bg-danger">{{ notification_total }}</span>
+              {% endif %}
+            </a>
+
+            <div id="notification-dropdown" class="dropdown-menu dropdown-menu-end p-0">
+              <div class="notification-header">
+                <strong>{{ text_notification }}</strong>
+              </div>
+
+              <div class="notification-list">
+                {% if notifications %}
+                  {% for notification in notifications %}
+                    <a href="{{ notification.href }}"
+                      data-bs-toggle="modal"
+                      class="notification-item">
+                      <span class="notification-status"></span>
+
+                      <span class="notification-content">
+                        {{ notification.title }}
+                      </span>
+                    </a>
+                  {% endfor %}
+                {% else %}
+                  <div class="notification-empty">
+                    {{ text_no_results }}
+                  </div>
+                {% endif %}
+              </div>
+
               {% if notifications %}
-                {% for notification in notifications %}
-                  <a href="{{ notification.href }}" data-bs-toggle="modal" class="dropdown-item">{{ notification.title }}</a>
-                {% endfor %}
-                <a href="{{ notification_all }}" class="dropdown-item text-center text-primary">{{ text_notification_all }}</a>
-              {% else %}
-                <span class="dropdown-item text-center">{{ text_no_results }}</span>
+                <div class="notification-footer">
+                  <a href="{{ notification_all }}">
+                    {{ text_notification_all }}
+                  </a>
+                </div>
               {% endif %}
             </div>
           </li>
-          <li id="nav-language" class="nav-item dropdown">{{ language }}</li>
+
+          <li id="nav-language" class="nav-item dropdown">
+            {{ language }}
+          </li>
+
           <li id="nav-profile" class="nav-item dropdown">
-            <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle"><img src="{{ image }}" alt="{{ firstname }} {{ lastname }}" title="{{ firstname }} {{ lastname }}" class="rounded-circle"/><span class="d-none d-md-inline d-lg-inline">&nbsp;&nbsp;&nbsp;{{ firstname }} {{ lastname }} <i class="fa-solid fa-caret-down fa-fw"></i></span></a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a href="{{ profile }}" class="dropdown-item"><i class="fa-solid fa-user-circle fa-fw"></i> {{ text_profile }}</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><h6 class="dropdown-header">{{ text_help }}</h6></li>
-              <li><a href="https://www.opencart.com" target="_blank" class="dropdown-item"><i class="fa-brands fa-opencart fa-fw"></i> {{ text_homepage }}</a></li>
-              <li><a href="https://docs.opencart.com" target="_blank" class="dropdown-item"><i class="fa-solid fa-file fa-fw"></i> {{ text_documentation }}</a></li>
-              <li><a href="https://forum.opencart.com" target="_blank" class="dropdown-item"><i class="fa-solid fa-comments fa-fw"></i> {{ text_support }}</a></li>
+            <a href="#"
+              class="nav-link d-flex align-items-center px-2"
+              data-bs-toggle="dropdown">
+              <span class="avatar avatar-sm">
+                <img src="{{ image }}"
+                    alt="{{ firstname }} {{ lastname }}"
+                    title="{{ firstname }} {{ lastname }}">
+              </span>
+
+              <div class="d-none d-xl-block ps-2">
+                <div>{{ firstname }} {{ lastname }}</div>
+              </div>
+            </a>
+
+            <ul id="profile-dropdown" class="dropdown-menu dropdown-menu-end p-0">
+              <li class="profile-dropdown-header">
+                <span class="avatar avatar-sm">
+                  <img src="{{ image }}"
+                      alt="{{ firstname }} {{ lastname }}"
+                      title="{{ firstname }} {{ lastname }}">
+                </span>
+
+                <div>
+                  <div class="profile-dropdown-name">{{ firstname }} {{ lastname }}</div>
+                </div>
+              </li>
+
+              <li class="dropdown-divider m-0"></li>
+
+              <li>
+                <a href="{{ profile }}" class="dropdown-item">
+                  <i class="fa-solid fa-user-circle fa-fw"></i>
+                  <span>{{ text_profile }}</span>
+                </a>
+              </li>
+
+              <li class="dropdown-divider m-0"></li>
+
+              <li class="dropdown-header">{{ text_help }}</li>
+
+              <li>
+                <a href="https://www.opencart.com"
+                  target="_blank"
+                  class="dropdown-item">
+                  <i class="fa-brands fa-opencart fa-fw"></i>
+                  <span>{{ text_homepage }}</span>
+                </a>
+              </li>
+
+              <li>
+                <a href="https://docs.opencart.com"
+                  target="_blank"
+                  class="dropdown-item">
+                  <i class="fa-solid fa-file fa-fw"></i>
+                  <span>{{ text_documentation }}</span>
+                </a>
+              </li>
+
+              <li>
+                <a href="https://forum.opencart.com"
+                  target="_blank"
+                  class="dropdown-item">
+                  <i class="fa-solid fa-comments fa-fw"></i>
+                  <span>{{ text_support }}</span>
+                </a>
+              </li>
             </ul>
           </li>
-          <li id="nav-logout" class="nav-item"><a href="{{ logout }}" class="nav-link"><i class="fa-solid fa-sign-out"></i> <span class="d-none d-md-inline">{{ text_logout }}</span></a></li>
+
+          <li id="nav-logout" class="nav-item">
+            <a href="{{ logout }}" class="nav-link px-2">
+              <i class="fa-solid fa-sign-out me-1"></i>
+              <span class="d-none d-md-inline">{{ text_logout }}</span>
+            </a>
+          </li>
         </ul>
       {% endif %}
     </div>
