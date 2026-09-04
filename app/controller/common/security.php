@@ -320,10 +320,10 @@ class Security extends \Opencart\System\Engine\Controller {
 
 				if (!$json) {
 					$json['success'] = $this->language->get('text_storage_success');
-															 
-																																										 
-					
-			 
+
+
+
+
 				}
 			}
 		}
@@ -398,11 +398,11 @@ class Security extends \Opencart\System\Engine\Controller {
 
 			rmdir($path);
 
-																																		
-																																		
-					 
+
+
+
 			$json['success'] = $this->language->get('text_' . $remove . '_delete_success');
-		
+
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
