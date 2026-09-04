@@ -34,7 +34,7 @@
 					{% endif %}
 
 					{% if menu.children %}
-						<ul id="collapse-{{ i }}" class="collapse nav flex-column">
+						<ul id="collapse-{{ i }}" class="collapse">
 							{% set j = 0 %}
 
 							{% for children_1 in menu.children %}
@@ -57,7 +57,7 @@
 									{% endif %}
 
 									{% if children_1.children %}
-										<ul id="collapse-{{ i }}-{{ j }}" class="collapse nav flex-column">
+										<ul id="collapse-{{ i }}-{{ j }}" class="collapse">
 											{% set k = 0 %}
 
 											{% for children_2 in children_1.children %}
@@ -80,7 +80,7 @@
 													{% endif %}
 
 													{% if children_2.children %}
-														<ul id="collapse-{{ i }}-{{ j }}-{{ k }}" class="collapse nav flex-column">
+														<ul id="collapse-{{ i }}-{{ j }}-{{ k }}" class="collapse">
 															{% for children_3 in children_2.children %}
 																<li class="nav-item">
 																	<a href="{{ children_3.href }}" class="nav-link" aria-label="{{ children_3.name }}" title="{{ children_3.name }}">

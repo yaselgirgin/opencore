@@ -596,11 +596,11 @@ body.auth-page #footer {
     background: var(--tblr-primary-lt, #e9f2ff);
 }
 
-#menu .nav.flex-column {
+#menu ul.collapse {
     padding: .125rem 0 .25rem;
 }
 
-#menu .nav.flex-column .nav-link {
+#menu ul.collapse .nav-link {
     min-height: 2rem;
     padding-top: .375rem;
     padding-bottom: .375rem;
@@ -620,7 +620,7 @@ body.auth-page #footer {
     padding-left: 5rem;
 }
 
-#menu .nav.flex-column .nav-item.active > .nav-link {
+#menu ul.collapse .nav-item.active > .nav-link {
     font-weight: 600;
     color: var(--tblr-primary, #206bc4);
     background: transparent;
