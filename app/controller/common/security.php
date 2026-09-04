@@ -319,18 +319,11 @@ class Security extends \Opencart\System\Engine\Controller {
 				}
 
 				if (!$json) {
-					rsort($files);
-
-					foreach ($files as $file) {
-						if (is_file($file)) {
-							unlink($file);
-						} elseif (is_dir($file)) {
-							rmdir($file);
-						}
-					}
-
-					rmdir($base_old);
 					$json['success'] = $this->language->get('text_storage_success');
+															 
+																																										 
+					
+			 
 				}
 			}
 		}
@@ -404,7 +397,12 @@ class Security extends \Opencart\System\Engine\Controller {
 			}
 
 			rmdir($path);
+
+																																		
+																																		
+					 
 			$json['success'] = $this->language->get('text_' . $remove . '_delete_success');
+		
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
