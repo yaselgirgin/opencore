@@ -32,12 +32,6 @@ class Dashboard extends \Opencart\System\Engine\Controller {
 
 		$data['rows'] = [];
 
-		if ($this->user->hasPermission('access', 'common/developer')) {
-			$data['developer_status'] = true;
-		} else {
-			$data['developer_status'] = false;
-		}
-
 		$data['security'] = $this->load->controller('common/security');
 
 		$data['user_token'] = $this->session->data['user_token'];

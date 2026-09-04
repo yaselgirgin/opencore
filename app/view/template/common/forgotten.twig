@@ -1,27 +1,27 @@
 {{ header }}
 <div id="content">
   <div class="container-fluid">
-    <br/>
-    <br/>
     <div class="row justify-content-sm-center">
-      <div class="col-sm-10 col-md-8 col-lg-5">
-        <div class="card">
-          <div class="card-header">
-            <i class="fa-solid fa-redo"></i> {{ heading_title }}
-          </div>
+      <div class="col-12 auth-layout">
+        <div class="auth-brand" aria-hidden="true"><span class="oc-brand-logo"></span></div>
+        <div class="card card-md">
           <div class="card-body">
-            <form id="form-forgotten" action="{{ confirm }}" method="post" data-oc-toggle="ajax">
-              <p>{{ text_email }}</p>
+            <h2 class="h2 text-center mb-4">{{ heading_title }}</h2>
+
+            <form id="form-forgotten" class="auth-form" action="{{ confirm }}" method="post" data-oc-toggle="ajax">
+              <p class="text-secondary mb-4">{{ text_email }}</p>
+
               <div class="mb-3">
                 <label for="input-email" class="form-label">{{ entry_email }}</label>
-                <div class="input-group">
-                  <div class="input-group-text"><i class="fa-solid fa-envelope"></i></div>
-                  <input type="text" name="email" value="" placeholder="{{ entry_email }}" id="input-email" class="form-control"/>
-                </div>
+                <input type="text" name="email" value="" placeholder="{{ entry_email }}" id="input-email" class="form-control"/>
               </div>
-              <div class="text-end">
-                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> {{ button_reset }}</button>
-                <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a>
+
+              <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">{{ button_reset }}</button>
+              </div>
+
+              <div class="text-center text-secondary mt-3">
+                <a href="{{ back }}">{{ button_back }}</a>
               </div>
             </form>
           </div>

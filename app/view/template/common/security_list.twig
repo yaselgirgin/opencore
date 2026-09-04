@@ -1,16 +1,17 @@
-<div id="modal-security" class="modal show">
-  <div class="modal-dialog">
+<div id="modal-security" class="modal fade" tabindex="-1" aria-labelledby="modal-security-title" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> {{ heading_title }}</h2>
+        <h2 id="modal-security-title" class="modal-title text-danger"><i class="fa-solid fa-triangle-exclamation"></i> {{ heading_title }}</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div id="accordion" class="accordion">
+      <div class="modal-body p-0">
+      <div id="accordion" class="accordion accordion-flush">
         {% if install %}
           <div id="security-install" class="accordion-item">
             <h3 class="accordion-header"><button type="button" data-bs-toggle="collapse" data-bs-target="#accordion-install" class="accordion-button collapsed"><span class="fa-solid fa-trash-can me-1"></span> {{ text_install }}</button></h3>
             <div id="accordion-install" class="accordion-collapse collapse" data-bs-parent="#accordion">
-              <div class="modal-body">
+              <div class="accordion-body">
                 <p>{{ text_install_description }}</p>
                 <div class="input-group mb-3">
                   <div class="input-group-text">{{ text_path }}</div>
@@ -27,7 +28,7 @@
           <div id="security-storage" class="accordion-item">
             <h3 class="accordion-header"><button type="button" data-bs-toggle="collapse" data-bs-target="#accordion-storage" class="accordion-button collapsed"><span class="fa-solid fa-folder me-1"></span> {{ text_storage }}</button></h3>
             <div id="accordion-storage" class="accordion-collapse collapse" data-bs-parent="#accordion">
-              <div class="modal-body">
+              <div class="accordion-body">
                 <form id="form-storage">
                   <p>{{ text_storage_description }}</p>
                   <div class="mb-3">
@@ -58,7 +59,7 @@
           <div id="security-storage-delete" class="accordion-item">
             <h3 class="accordion-header"><button type="button" data-bs-toggle="collapse" data-bs-target="#accordion-storage-delete" class="accordion-button collapsed"><span class="fa-solid fa-trash-can me-1"></span> {{ text_storage_delete }}</button></h3>
             <div id="accordion-storage-delete" class="accordion-collapse collapse" data-bs-parent="#accordion">
-              <div class="modal-body">
+              <div class="accordion-body">
                 <p>{{ text_storage_delete_description }}</p>
                 <div class="input-group mb-3">
                   <div class="input-group-text">{{ text_path }}</div>
@@ -71,6 +72,7 @@
             </div>
           </div>
         {% endif %}
+      </div>
       </div>
     </div>
   </div>

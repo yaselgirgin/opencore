@@ -134,6 +134,47 @@ if (window.ocUiPreferences) {
     applyUiPreferences(window.ocUiPreferences);
 }
 
+$(document).on('change', '#form-theme-settings input', function() {
+    var preferences = $.extend({}, window.ocUiPreferences || {});
+
+    preferences[this.name] = this.value;
+    window.ocUiPreferences = preferences;
+
+    applyUiPreferences(preferences);
+
+    var form = $('#form-theme-settings');
+
+    if (form.data('saving')) {
+        form.data('save-queued', true);
+
+        return;
+    }
+
+    var savePreferences = function() {
+        form.data('saving', true);
+        form.data('save-queued', false);
+
+        $.ajax({
+            url: form.attr('action').replaceAll('&amp;', '&'),
+            type: 'post',
+            data: form.serialize(),
+            dataType: 'json',
+            complete: function() {
+                form.data('saving', false);
+
+                if (form.data('save-queued')) {
+                    savePreferences();
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    };
+
+    savePreferences();
+});
+
 // Observe
 +function($) {
     $.fn.observe = function(callback) {
@@ -202,7 +243,7 @@ function updateNotificationBadge(notification_total) {
 }
 
 $(document).ajaxSuccess(function(event, xhr, settings, data) {
-    if (data && data.ui_preferences) {
+    if (data && data.ui_preferences && !data.oc_ui_preferences_local_save) {
         applyUiPreferences(data.ui_preferences);
     }
 

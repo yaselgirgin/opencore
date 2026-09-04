@@ -246,6 +246,101 @@ a {
     width: auto;
 }
 
+.oc-brand-logo {
+    display: block;
+    width: 7.25rem;
+    height: 2.125rem;
+    background-color: var(--tblr-primary, #206bc4);
+    -webkit-mask: url("../image/tabler-illustrations/tabler-logo.svg") center / contain no-repeat;
+    mask: url("../image/tabler-illustrations/tabler-logo.svg") center / contain no-repeat;
+}
+
+.offcanvas-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#offcanvas-theme-settings {
+    width: min(24rem, 100vw);
+}
+
+/* Standalone authentication routes share Tabler's sign-in illustration layout. */
+body.auth-page #container {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--tblr-bg-surface-secondary, #f4f6fa);
+}
+
+body.auth-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+body.auth-page .auth-brand {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+body.auth-page .page-wrapper {
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    min-height: 0;
+}
+
+body.auth-page #content {
+    position: relative;
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    min-height: 0;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+body.auth-page #content .container-fluid,
+body.auth-page #content .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 30rem;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+body.auth-page .auth-form .mb-3 {
+    margin-bottom: 1.25rem !important;
+}
+
+body.auth-page #content::after {
+    position: absolute;
+    top: 50%;
+    right: max(4rem, calc((100vw - 76rem) / 2));
+    width: min(32vw, 28rem);
+    height: min(42vw, 34rem);
+    content: "";
+    background: url("../image/tabler-illustrations/boy-with-key-light.png") center / contain no-repeat;
+    transform: translateY(-50%);
+}
+
+html[data-bs-theme="dark"] body.auth-page #content::after {
+    background-image: url("../image/tabler-illustrations/boy-with-key-dark.png");
+}
+
+body.auth-page #footer {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 991.98px) {
+    body.auth-page #content::after {
+        display: none;
+    }
+}
+
 #header .navbar-nav > li > .nav-link,
 #header .navbar-nav li > .nav-link:hover,
 #header .navbar-nav li.show > .nav-link {
@@ -693,7 +788,7 @@ div.required .col-form-label:not(span):before, div.required .form-label:before, 
     width: 12rem;
 }
 
-.table thead td span[data-toggle='tooltip']:after, label.form-label span:after {
+.table thead td span[data-toggle='tooltip']:after {
     font-family: 'Font Awesome 6 Free';
     font-weight: 600;
     content: "\f059";

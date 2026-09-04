@@ -29,6 +29,7 @@ class Setting extends \Opencart\System\Engine\Controller {
 		];
 
 		$data['save'] = $this->url->link('setting/setting.save', 'user_token=' . $this->session->data['user_token']);
+		$data['developer_status'] = $this->user->hasPermission('access', 'common/developer');
 
 		// General
 		// Application details

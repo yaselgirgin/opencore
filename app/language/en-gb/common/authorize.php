@@ -19,6 +19,7 @@ $_['entry_code']    = 'Security Code';
 // Button
 $_['button_send']   = 'Send';
 $_['button_reset']  = 'Reset';
+$_['button_verify'] = 'Verify';
 
 // Error
 $_['error_code']    = 'Security code does not match!';

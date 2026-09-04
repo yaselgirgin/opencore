@@ -31,13 +31,14 @@
     <script type="text/javascript" src="{{ script.href }}"></script>
   {% endfor %}
 </head>
-<body class="layout-fluid">
+<body class="{% if auth_page %}auth-page{% else %}layout-fluid{% endif %}">
 <div id="alert"></div>
 <div id="container">
+  {% if not auth_page %}
   <header id="header" class="navbar navbar-expand-md navbar-light d-print-none">
     <div class="container-fluid">
-      <a href="{{ home }}" class="navbar-brand"><img src="app/view/image/logo.png" alt="{{ heading_title }}" title="{{ heading_title }}"/></a>
-      {% if logged %}
+      <a href="{{ home }}" class="navbar-brand" aria-label="{{ heading_title }}" title="{{ heading_title }}"><span class="oc-brand-logo" aria-hidden="true"></span></a>
+      {% if logged and not auth_page %}
         <button type="button" id="button-menu" class="btn btn-icon d-inline-flex d-lg-none"><i class="fa-solid fa-bars"></i></button>
         <ul class="navbar-nav flex-row order-md-last ms-auto align-items-center">
           <li id="nav-notification" class="nav-item dropdown">
@@ -127,6 +128,13 @@
                 </a>
               </li>
 
+              <li>
+                <button type="button" class="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-theme-settings" aria-controls="offcanvas-theme-settings">
+                  <i class="fa-solid fa-palette fa-fw"></i>
+                  <span>{{ text_theme_settings }}</span>
+                </button>
+              </li>
+
               <li class="dropdown-divider m-0"></li>
 
               <li class="dropdown-header">{{ text_help }}</li>
@@ -170,4 +178,42 @@
       {% endif %}
     </div>
   </header>
+  {% if logged %}
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-theme-settings" aria-labelledby="offcanvas-theme-settings-label">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvas-theme-settings-label">{{ text_theme_settings }}</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ button_close }}"></button>
+      </div>
+      <div class="offcanvas-body">
+        <form id="form-theme-settings" action="{{ save_preferences }}" method="post">
+          {% for field in ui_preference_fields %}
+            <div class="theme-settings-field mb-4">
+              <div class="form-label">{{ field.label }}</div>
+              {% if field.name == 'color_scheme' %}
+                <div class="d-flex flex-wrap gap-2">
+                  {% for option in field.options %}
+                    <label class="form-colorinput" title="{{ option.text }}">
+                      <input type="radio" name="{{ field.name }}" value="{{ option.value }}" class="form-colorinput-input" aria-label="{{ option.text }}"{% if option.value == field.value %} checked{% endif %}/>
+                      <span class="form-colorinput-color bg-{{ option.value }}"></span>
+                    </label>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="theme-settings-radios">
+                  {% for option in field.options %}
+                    <div class="form-check">
+                      <input type="radio" name="{{ field.name }}" value="{{ option.value }}" id="input-{{ field.name }}-{{ option.value }}" class="form-check-input"{% if option.value == field.value %} checked{% endif %}/>
+                      <label for="input-{{ field.name }}-{{ option.value }}" class="form-check-label">{{ option.text }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+          <p class="text-secondary small mb-0">{{ text_theme_settings_saved }}</p>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+  {% endif %}
   <div class="page-wrapper">

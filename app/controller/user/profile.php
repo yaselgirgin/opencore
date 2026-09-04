@@ -212,6 +212,47 @@ class Profile extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
+	 * Persist the compact Theme Settings panel without changing profile details.
+	 *
+	 * @return void
+	 */
+	public function preferences(): void {
+		$this->load->language('user/profile');
+
+		$json = [];
+
+		if (!$this->user->hasPermission('modify', 'user/profile')) {
+			$json['error']['warning'] = $this->language->get('error_permission');
+		}
+
+		$preference_data = [];
+
+		foreach ($this->getPreferenceOptions() as $key => $options) {
+			$values = array_column($options, 'value');
+			$value = $this->request->post[$key] ?? null;
+
+			if (!is_string($value) || !in_array($value, $values, true)) {
+				$json['error'][$key] = $this->language->get('error_preference');
+			} else {
+				$preference_data[$key] = $value;
+			}
+		}
+
+		if (!$json) {
+			$this->load->model('user/user');
+
+			$this->model_user_user->editUserPreferences($this->user->getId(), $preference_data);
+
+			$json['success'] = $this->language->get('text_success');
+			$json['ui_preferences'] = $this->model_user_user->getUserPreferences($this->user->getId());
+			$json['oc_ui_preferences_local_save'] = true;
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	/**
 	 * @return array<string, array<int, array{value: string, text: string}>>
 	 */
 	private function getPreferenceOptions(): array {

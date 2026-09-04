@@ -74,6 +74,8 @@ class Authorize extends \Opencart\System\Engine\Controller {
 
 		$data['user_token'] = $this->session->data['user_token'];
 
+		$this->request->get['_auth_page'] = true;
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['footer'] = $this->load->controller('common/footer');
 
@@ -215,6 +217,8 @@ class Authorize extends \Opencart\System\Engine\Controller {
 
 		$data['user_token'] = $this->session->data['user_token'];
 
+		$this->request->get['_auth_page'] = true;
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['footer'] = $this->load->controller('common/footer');
 
@@ -247,10 +251,10 @@ class Authorize extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
+			$json['success'] = $this->language->get('text_link');
+
 			// Create reset code
 			$this->model_user_user->addToken($this->user->getId(), 'authorize', oc_token(32));
-
-			$json['success'] = $this->language->get('text_link');
 		}
 
 		$this->response->addHeader('Content-Type: application/json');

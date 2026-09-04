@@ -35,6 +35,9 @@ class Header extends \Opencart\System\Engine\Controller {
 		$data['scripts'] = $this->document->getScripts();
 
 		$this->load->language('common/header');
+		$data['auth_page'] = (($this->request->get['_auth_page'] ?? false) === true) || in_array($this->request->get['route'] ?? '', [
+			'common/login', 'common/forgotten', 'common/forgotten.reset', 'common/authorize', 'common/authorize.reset', 'common/authorize.unlock'
+		], true);
 
 		if (!isset($this->request->get['user_token']) || !isset($this->session->data['user_token']) || ($this->request->get['user_token'] != $this->session->data['user_token'])) {
 			$data['logged'] = false;
@@ -70,13 +73,40 @@ class Header extends \Opencart\System\Engine\Controller {
 			$data['notification_total'] = $this->model_tool_notification->getTotalNotifications($this->user->getId(), $this->user->getGroupId(), true);
 
 			$data['profile'] = $this->url->link('user/profile', 'user_token=' . $this->session->data['user_token']);
+			$data['save_preferences'] = $this->url->link('user/profile.preferences', 'user_token=' . $this->session->data['user_token']);
 
 			// User
 			$this->load->model('user/user');
+			$this->load->language('user/profile');
 
 			$user_info = $this->model_user_user->getUser($this->user->getId());
 			$data['ui_preferences'] = $this->model_user_user->getUserPreferences($this->user->getId());
 			$data['ui_preferences_json'] = json_encode($data['ui_preferences'], JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG);
+			$data['ui_preference_fields'] = [];
+
+			foreach ([
+				'color_mode', 'color_scheme', 'font_family', 'theme_base', 'corner_radius', 'menu', 'content_width'
+			] as $field) {
+				$data['ui_preference_fields'][] = [
+					'name'    => $field,
+					'label'   => $this->language->get('entry_' . $field),
+					'value'   => $data['ui_preferences'][$field],
+					'options' => array_map(function(string $value) use ($field): array {
+						return [
+							'value' => $value,
+							'text'  => $field == 'corner_radius' ? $value : $this->language->get('text_' . $field . '_' . str_replace('-', '_', $value))
+						];
+					}, [
+						'color_mode'    => ['light', 'dark', 'system'],
+						'color_scheme'  => ['blue', 'azure', 'indigo', 'purple', 'pink', 'red', 'orange', 'yellow', 'lime', 'green', 'teal', 'cyan'],
+						'font_family'   => ['sans-serif', 'serif', 'monospace', 'comic'],
+						'theme_base'    => ['slate', 'gray', 'zinc', 'neutral', 'stone'],
+						'corner_radius' => ['0', '0.5', '1', '1.5', '2'],
+						'menu'          => ['expanded', 'collapsed'],
+						'content_width' => ['compact', 'wide']
+					][$field])
+				];
+			}
 
 			if ($user_info) {
 				$data['firstname'] = $user_info['firstname'];

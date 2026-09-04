@@ -19,6 +19,7 @@ $_['entry_code']    = 'Güvenlik Kodu';
 // Button
 $_['button_send']   = 'Gönder';
 $_['button_reset']  = 'Sıfırla';
+$_['button_verify'] = 'Doğrula';
 
 // Error
 $_['error_code']    = 'Güvenlik kodu eşleşmiyor!';

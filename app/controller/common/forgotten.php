@@ -59,7 +59,7 @@ class Forgotten extends \Opencart\System\Engine\Controller {
 		}
 
 		if (!$json) {
-			$post_info = ['email' => ''] + $this->request->post;
+			$post_info = $this->request->post + ['email' => ''];
 
 			$this->load->model('user/user');
 
@@ -179,7 +179,7 @@ class Forgotten extends \Opencart\System\Engine\Controller {
 		// User
 		$this->load->model('user/user');
 
-		$user_info = $this->model_user_user->getUserByEmail($email);
+		$user_info = $this->model_user_user->getTokenByCode($code);
 
 		if (!$user_info || !$user_info['email'] || $user_info['email'] !== $email || $user_info['type'] != 'password') {
 			// Reset token

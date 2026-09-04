@@ -53,6 +53,8 @@ class Login extends \Opencart\System\Engine\Controller {
 			$data['forgotten'] = '';
 		}
 
+		$this->request->get['_auth_page'] = true;
+
 		$data['header'] = $this->load->controller('common/header');
 		$data['footer'] = $this->load->controller('common/footer');
 

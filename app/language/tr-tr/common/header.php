@@ -12,3 +12,5 @@ $_['text_homepage']          = 'OpenCore Ana Sayfası';
 $_['text_support']           = 'Destek Forumu';
 $_['text_documentation']     = 'Dokümantasyon';
 $_['text_logout']            = 'Oturumu kapat';
+$_['text_theme_settings']      = 'Tema Ayarları';
+$_['text_theme_settings_saved'] = 'Değişiklikler otomatik olarak kaydedilir.';
