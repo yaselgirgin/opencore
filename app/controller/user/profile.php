@@ -35,6 +35,12 @@ class Profile extends \Opencart\System\Engine\Controller {
 		$this->load->model('user/user');
 
 		$user_info = $this->model_user_user->getUser($this->user->getId());
+		$user_preferences = array_replace($this->getPreferenceDefaults(), $this->model_user_user->getUserPreferences($this->user->getId()));
+
+		foreach ($this->getPreferenceOptions() as $key => $options) {
+			$data[$key . '_options'] = $options;
+			$data[$key] = $user_preferences[$key];
+		}
 
 		if (!empty($user_info)) {
 			$data['username'] = $user_info['username'];
@@ -110,6 +116,18 @@ class Profile extends \Opencart\System\Engine\Controller {
 		];
 
 		$post_info = $this->request->post + $required;
+		$preference_data = [];
+
+		foreach ($this->getPreferenceOptions() as $key => $options) {
+			$values = array_column($options, 'value');
+			$value = $this->request->post[$key] ?? null;
+
+			if (!is_string($value) || !in_array($value, $values, true)) {
+				$json['error'][$key] = $this->language->get('error_preference');
+			} else {
+				$preference_data[$key] = $value;
+			}
+		}
 
 		if (!oc_validate_length($post_info['username'], 3, 20)) {
 			$json['error']['username'] = $this->language->get('error_username');
@@ -183,11 +201,53 @@ class Profile extends \Opencart\System\Engine\Controller {
 			]);
 
 			$this->model_user_user->editUser($this->user->getId(), $user_data);
+			$this->model_user_user->editUserPreferences($this->user->getId(), $preference_data);
 
 			$json['success'] = $this->language->get('text_success');
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private function getPreferenceDefaults(): array {
+		return [
+			'color_mode'    => 'system',
+			'color_scheme'  => 'blue',
+			'font_family'   => 'sans-serif',
+			'theme_base'    => 'slate',
+			'corner_radius' => '0.5',
+			'menu'          => 'expanded',
+			'content_width' => 'wide'
+		];
+	}
+
+	/**
+	 * @return array<string, array<int, array{value: string, text: string}>>
+	 */
+	private function getPreferenceOptions(): array {
+		$options = [
+			'color_mode'    => ['light', 'dark', 'system'],
+			'color_scheme'  => ['blue', 'azure', 'indigo', 'purple', 'pink', 'red', 'orange', 'yellow', 'lime', 'green', 'teal', 'cyan'],
+			'font_family'   => ['sans-serif', 'serif', 'monospace', 'comic'],
+			'theme_base'    => ['slate', 'gray', 'zinc', 'neutral', 'stone'],
+			'corner_radius' => ['0', '0.5', '1', '1.5', '2'],
+			'menu'          => ['expanded', 'collapsed'],
+			'content_width' => ['compact', 'wide']
+		];
+
+		foreach ($options as $key => $values) {
+			$options[$key] = array_map(function(string $value) use ($key): array {
+				return [
+					'value' => $value,
+					'text'  => $key == 'corner_radius' ? $value : $this->language->get('text_' . $key . '_' . str_replace('-', '_', $value))
+				];
+			}, $values);
+		}
+
+		return $options;
 	}
 }

@@ -115,6 +115,43 @@ class User extends \Opencart\System\Engine\Model {
 
 		$this->deleteAuthorizes($user_id);
 		$this->deleteLogins($user_id);
+		$this->deleteUserPreferences($user_id);
+	}
+
+	/**
+	 * Get User Preferences
+	 *
+	 * @param int $user_id primary key of the user record
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function getUserPreferences(int $user_id): array {
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "user_preference` WHERE `user_id` = '" . (int)$user_id . "'");
+
+		return $query->row;
+	}
+
+	/**
+	 * Edit User Preferences
+	 *
+	 * @param int                  $user_id primary key of the user record
+	 * @param array<string, mixed> $data preference data
+	 *
+	 * @return void
+	 */
+	public function editUserPreferences(int $user_id, array $data): void {
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "user_preference` SET `user_id` = '" . (int)$user_id . "', `color_mode` = '" . $this->db->escape((string)$data['color_mode']) . "', `color_scheme` = '" . $this->db->escape((string)$data['color_scheme']) . "', `font_family` = '" . $this->db->escape((string)$data['font_family']) . "', `theme_base` = '" . $this->db->escape((string)$data['theme_base']) . "', `corner_radius` = '" . $this->db->escape((string)$data['corner_radius']) . "', `menu` = '" . $this->db->escape((string)$data['menu']) . "', `content_width` = '" . $this->db->escape((string)$data['content_width']) . "' ON DUPLICATE KEY UPDATE `color_mode` = VALUES(`color_mode`), `color_scheme` = VALUES(`color_scheme`), `font_family` = VALUES(`font_family`), `theme_base` = VALUES(`theme_base`), `corner_radius` = VALUES(`corner_radius`), `menu` = VALUES(`menu`), `content_width` = VALUES(`content_width`)");
+	}
+
+	/**
+	 * Delete User Preferences
+	 *
+	 * @param int $user_id primary key of the user record
+	 *
+	 * @return void
+	 */
+	public function deleteUserPreferences(int $user_id): void {
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "user_preference` WHERE `user_id` = '" . (int)$user_id . "'");
 	}
 
 	/**

@@ -172,4 +172,17 @@ class Upgrade extends \Opencart\System\Engine\Model {
 			$this->db->query("UPDATE `" . DB_PREFIX . "event` SET `code` = '" . $new . "' WHERE `code` = '" . $old . "'");
 		}
 	}
+
+	/**
+	 * Upgrade database revision 4 to 5.
+	 *
+	 * @return void
+	 */
+	public function upgrade5(): void {
+		$table = $this->db->query("SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '" . $this->db->escape(DB_PREFIX . 'user_preference') . "' LIMIT 1");
+
+		if (!$table->num_rows) {
+			$this->db->query("CREATE TABLE `" . DB_PREFIX . "user_preference` (`user_id` INT(11) NOT NULL, `color_mode` VARCHAR(16) NOT NULL DEFAULT 'system', `color_scheme` VARCHAR(16) NOT NULL DEFAULT 'blue', `font_family` VARCHAR(16) NOT NULL DEFAULT 'sans-serif', `theme_base` VARCHAR(16) NOT NULL DEFAULT 'slate', `corner_radius` DECIMAL(2,1) NOT NULL DEFAULT '0.5', `menu` VARCHAR(16) NOT NULL DEFAULT 'expanded', `content_width` VARCHAR(16) NOT NULL DEFAULT 'wide', PRIMARY KEY (`user_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+		}
+	}
 }

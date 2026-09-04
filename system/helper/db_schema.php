@@ -827,6 +827,64 @@ function oc_db_schema() {
 	];
 
 	$tables[] = [
+		'name'  => 'user_preference',
+		'field' => [
+			[
+				'name' => 'user_id',
+				'type' => 'int(11)'
+			],
+			[
+				'name'     => 'color_mode',
+				'type'     => 'varchar(16)',
+				'not_null' => true,
+				'default'  => 'system'
+			],
+			[
+				'name'     => 'color_scheme',
+				'type'     => 'varchar(16)',
+				'not_null' => true,
+				'default'  => 'blue'
+			],
+			[
+				'name'     => 'font_family',
+				'type'     => 'varchar(16)',
+				'not_null' => true,
+				'default'  => 'sans-serif'
+			],
+			[
+				'name'     => 'theme_base',
+				'type'     => 'varchar(16)',
+				'not_null' => true,
+				'default'  => 'slate'
+			],
+			[
+				'name'     => 'corner_radius',
+				'type'     => 'decimal(2,1)',
+				'not_null' => true,
+				'default'  => '0.5'
+			],
+			[
+				'name'     => 'menu',
+				'type'     => 'varchar(16)',
+				'not_null' => true,
+				'default'  => 'expanded'
+			],
+			[
+				'name'     => 'content_width',
+				'type'     => 'varchar(16)',
+				'not_null' => true,
+				'default'  => 'wide'
+			]
+		],
+		'primary' => [
+			'user_id'
+		],
+		'engine'  => 'InnoDB',
+		'charset' => 'utf8mb4',
+		'collate' => 'utf8mb4_unicode_ci'
+	];
+
+	$tables[] = [
 		'name'  => 'user_group',
 		'field' => [
 			[

@@ -63,6 +63,20 @@
             </div>
           </fieldset>
           <fieldset>
+            <legend>{{ text_preferences }}</legend>
+            {% for field in ['color_mode', 'color_scheme', 'font_family', 'theme_base', 'corner_radius', 'menu', 'content_width'] %}
+              <div class="row mb-3">
+                <label for="input-{{ field|replace({'_': '-'}) }}" class="col-sm-2 col-form-label">{{ attribute(_context, 'entry_' ~ field) }}</label>
+                <div class="col-sm-10">
+                  <select name="{{ field }}" id="input-{{ field|replace({'_': '-'}) }}" class="form-select">
+                    {% for option in attribute(_context, field ~ '_options') %}<option value="{{ option.value }}"{% if option.value == attribute(_context, field) %} selected{% endif %}>{{ option.text }}</option>{% endfor %}
+                  </select>
+                  <div id="error-{{ field }}" class="invalid-feedback"></div>
+                </div>
+              </div>
+            {% endfor %}
+          </fieldset>
+          <fieldset>
             <legend>{{ text_password }}</legend>
             <div class="row mb-3 required">
               <label for="input-password" class="col-sm-2 col-form-label">{{ entry_password }}</label>
@@ -84,4 +98,4 @@
     </div>
   </div>
 </div>
-{{ footer }} 
+{{ footer }}
