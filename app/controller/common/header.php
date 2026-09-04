@@ -75,6 +75,8 @@ class Header extends \Opencart\System\Engine\Controller {
 			$this->load->model('user/user');
 
 			$user_info = $this->model_user_user->getUser($this->user->getId());
+			$data['ui_preferences'] = $this->model_user_user->getUserPreferences($this->user->getId());
+			$data['ui_preferences_json'] = json_encode($data['ui_preferences'], JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG);
 
 			if ($user_info) {
 				$data['firstname'] = $user_info['firstname'];

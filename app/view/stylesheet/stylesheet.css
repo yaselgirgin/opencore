@@ -892,6 +892,134 @@ div.required .col-form-label:not(span):before, div.required .form-label:before, 
     color: #7ebd38;
 }
 
+/* Persisted UI preferences are applied by the authenticated common header. */
+html[data-ui-theme-base="gray"] {
+    --oc-ui-base: #f3f4f6;
+}
+
+html[data-ui-theme-base="zinc"] {
+    --oc-ui-base: #f4f4f5;
+}
+
+html[data-ui-theme-base="neutral"] {
+    --oc-ui-base: #f5f5f5;
+}
+
+html[data-ui-theme-base="stone"] {
+    --oc-ui-base: #f5f5f4;
+}
+
+html[data-ui-theme-base="slate"] {
+    --oc-ui-base: #f8fafc;
+}
+
+html[data-ui-theme-base] {
+    --tblr-body-bg: var(--oc-ui-base);
+    --tblr-bg-surface-secondary: var(--oc-ui-base);
+}
+
+html[data-bs-theme="dark"][data-ui-theme-base="gray"] {
+    --oc-ui-base: #111827;
+}
+
+html[data-bs-theme="dark"][data-ui-theme-base="zinc"] {
+    --oc-ui-base: #18181b;
+}
+
+html[data-bs-theme="dark"][data-ui-theme-base="neutral"] {
+    --oc-ui-base: #171717;
+}
+
+html[data-bs-theme="dark"][data-ui-theme-base="stone"] {
+    --oc-ui-base: #1c1917;
+}
+
+html[data-bs-theme="dark"][data-ui-theme-base="slate"] {
+    --oc-ui-base: #0f172a;
+}
+
+html[data-ui-font-family="serif"] {
+    --tblr-body-font-family: Georgia, Cambria, "Times New Roman", serif;
+}
+
+html[data-ui-font-family="monospace"] {
+    --tblr-body-font-family: var(--tblr-font-monospace);
+}
+
+html[data-ui-font-family="comic"] {
+    --tblr-body-font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
+@media (min-width: 992px) {
+    html[data-ui-menu="collapsed"] .page-wrapper {
+        grid-template-columns: 4rem minmax(0, 1fr);
+    }
+
+    html[data-ui-menu="collapsed"] #column-left {
+        width: 4rem;
+        overflow: visible;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left #navigation span:last-child,
+    html[data-ui-menu="collapsed"] #column-left .nav-link-title,
+    html[data-ui-menu="collapsed"] #column-left .nav-link.parent::after {
+        display: none;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left #navigation,
+    html[data-ui-menu="collapsed"] #column-left #menu .nav-link {
+        justify-content: center;
+        padding-right: .75rem;
+        padding-left: .75rem;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left:hover,
+    html[data-ui-menu="collapsed"] #column-left:focus-within {
+        width: 16rem;
+        overflow-y: auto;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left:hover #navigation span:last-child,
+    html[data-ui-menu="collapsed"] #column-left:focus-within #navigation span:last-child,
+    html[data-ui-menu="collapsed"] #column-left:hover .nav-link-title,
+    html[data-ui-menu="collapsed"] #column-left:focus-within .nav-link-title,
+    html[data-ui-menu="collapsed"] #column-left:hover .nav-link.parent::after,
+    html[data-ui-menu="collapsed"] #column-left:focus-within .nav-link.parent::after {
+        display: initial;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left:hover #navigation,
+    html[data-ui-menu="collapsed"] #column-left:focus-within #navigation,
+    html[data-ui-menu="collapsed"] #column-left:hover #menu .nav-link,
+    html[data-ui-menu="collapsed"] #column-left:focus-within #menu .nav-link {
+        justify-content: flex-start;
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left:hover #menu > li > ul > li > .nav-link,
+    html[data-ui-menu="collapsed"] #column-left:focus-within #menu > li > ul > li > .nav-link {
+        padding-left: 3rem;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left:hover #menu > li > ul > li > ul > li > .nav-link,
+    html[data-ui-menu="collapsed"] #column-left:focus-within #menu > li > ul > li > ul > li > .nav-link {
+        padding-left: 4rem;
+    }
+
+    html[data-ui-menu="collapsed"] #column-left:hover #menu > li > ul > li > ul > li > ul > li > .nav-link,
+    html[data-ui-menu="collapsed"] #column-left:focus-within #menu > li > ul > li > ul > li > ul > li > .nav-link {
+        padding-left: 5rem;
+    }
+
+    html[data-ui-content-width="compact"] #content {
+        width: 100%;
+        max-width: 88rem;
+        margin-right: auto;
+        margin-left: auto;
+    }
+}
+
 .list-check.list-color-blue li::before {
     color: #02afe9;
 }

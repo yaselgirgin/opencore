@@ -128,7 +128,24 @@ class User extends \Opencart\System\Engine\Model {
 	public function getUserPreferences(int $user_id): array {
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "user_preference` WHERE `user_id` = '" . (int)$user_id . "'");
 
-		return $query->row;
+		return array_replace($this->getDefaultUserPreferences(), $query->row);
+	}
+
+	/**
+	 * Get Default User Preferences
+	 *
+	 * @return array<string, string>
+	 */
+	public function getDefaultUserPreferences(): array {
+		return [
+			'color_mode'    => 'system',
+			'color_scheme'  => 'blue',
+			'font_family'   => 'sans-serif',
+			'theme_base'    => 'slate',
+			'corner_radius' => '0.5',
+			'menu'          => 'expanded',
+			'content_width' => 'wide'
+		];
 	}
 
 	/**

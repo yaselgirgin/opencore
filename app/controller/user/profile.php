@@ -35,7 +35,7 @@ class Profile extends \Opencart\System\Engine\Controller {
 		$this->load->model('user/user');
 
 		$user_info = $this->model_user_user->getUser($this->user->getId());
-		$user_preferences = array_replace($this->getPreferenceDefaults(), $this->model_user_user->getUserPreferences($this->user->getId()));
+		$user_preferences = $this->model_user_user->getUserPreferences($this->user->getId());
 
 		foreach ($this->getPreferenceOptions() as $key => $options) {
 			$data[$key . '_options'] = $options;
@@ -204,25 +204,11 @@ class Profile extends \Opencart\System\Engine\Controller {
 			$this->model_user_user->editUserPreferences($this->user->getId(), $preference_data);
 
 			$json['success'] = $this->language->get('text_success');
+			$json['ui_preferences'] = $this->model_user_user->getUserPreferences($this->user->getId());
 		}
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
-	}
-
-	/**
-	 * @return array<string, string>
-	 */
-	private function getPreferenceDefaults(): array {
-		return [
-			'color_mode'    => 'system',
-			'color_scheme'  => 'blue',
-			'font_family'   => 'sans-serif',
-			'theme_base'    => 'slate',
-			'corner_radius' => '0.5',
-			'menu'          => 'expanded',
-			'content_width' => 'wide'
-		];
 	}
 
 	/**

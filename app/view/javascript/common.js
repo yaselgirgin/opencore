@@ -85,6 +85,55 @@ function decodeHTMLEntities(html) {
     return d.textContent;
 }
 
+function applyUiPreferences(preferences) {
+    if (!preferences || typeof preferences !== 'object') {
+        return;
+    }
+
+    var root = document.documentElement;
+    var attributes = {
+        'data-ui-color-mode': preferences.color_mode,
+        'data-ui-font-family': preferences.font_family,
+        'data-ui-theme-base': preferences.theme_base,
+        'data-ui-menu': preferences.menu,
+        'data-ui-content-width': preferences.content_width
+    };
+
+    for (var attribute in attributes) {
+        if (attributes[attribute]) {
+            root.setAttribute(attribute, attributes[attribute]);
+        }
+    }
+
+    var color_mode = preferences.color_mode;
+
+    root.setAttribute('data-bs-theme', color_mode === 'system' && oc_ui_theme_query && oc_ui_theme_query.matches ? 'dark' : color_mode === 'system' ? 'light' : color_mode);
+    root.style.setProperty('--tblr-primary', 'var(--tblr-' + preferences.color_scheme + ')');
+    root.style.setProperty('--tblr-primary-rgb', 'var(--tblr-' + preferences.color_scheme + '-rgb)');
+    root.style.setProperty('--tblr-primary-lt', 'var(--tblr-' + preferences.color_scheme + '-lt)');
+    root.style.setProperty('--tblr-border-radius', preferences.corner_radius + 'rem');
+    root.style.setProperty('--tblr-border-radius-sm', 'calc(' + preferences.corner_radius + 'rem * .667)');
+    root.style.setProperty('--tblr-border-radius-lg', 'calc(' + preferences.corner_radius + 'rem * 1.333)');
+    root.style.setProperty('--tblr-border-radius-xl', 'calc(' + preferences.corner_radius + 'rem * 2)');
+}
+
+var oc_ui_theme_query = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+var updateSystemUiTheme = function() {
+    if (oc_ui_theme_query && document.documentElement.getAttribute('data-ui-color-mode') === 'system') {
+        document.documentElement.setAttribute('data-bs-theme', oc_ui_theme_query.matches ? 'dark' : 'light');
+    }
+};
+
+if (oc_ui_theme_query && oc_ui_theme_query.addEventListener) {
+    oc_ui_theme_query.addEventListener('change', updateSystemUiTheme);
+} else if (oc_ui_theme_query && oc_ui_theme_query.addListener) {
+    oc_ui_theme_query.addListener(updateSystemUiTheme);
+}
+
+if (window.ocUiPreferences) {
+    applyUiPreferences(window.ocUiPreferences);
+}
+
 // Observe
 +function($) {
     $.fn.observe = function(callback) {
@@ -153,6 +202,10 @@ function updateNotificationBadge(notification_total) {
 }
 
 $(document).ajaxSuccess(function(event, xhr, settings, data) {
+    if (data && data.ui_preferences) {
+        applyUiPreferences(data.ui_preferences);
+    }
+
     if (data && Object.prototype.hasOwnProperty.call(data, 'notification_unread_total')) {
         updateNotificationBadge(data['notification_unread_total']);
     } else {

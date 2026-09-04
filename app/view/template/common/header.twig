@@ -13,10 +13,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
+  {% if logged %}
+    <script>window.ocUiPreferences = {{ ui_preferences_json|raw }};</script>
+  {% endif %}
   <link href="{{ tabler }}" rel="stylesheet" media="screen"/>
   <link href="{{ icons }}" rel="stylesheet" type="text/css"/>
   <link href="{{ stylesheet }}" rel="stylesheet" type="text/css"/>
   <script src="{{ jquery }}" type="text/javascript"></script>
+  <script type="text/javascript" src="app/view/javascript/common.js"></script>
   {% for style in styles %}
     <link type="text/css" href="{{ style.href }}" rel="{{ style.rel }}" media="{{ style.media }}"/>
   {% endfor %}

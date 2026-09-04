@@ -11,7 +11,7 @@
 			{% for menu in menus %}
 				<li id="{{ menu.id }}" class="nav-item{% if menu.children %} dropdown{% endif %}">
 					{% if menu.href %}
-						<a href="{{ menu.href }}" class="nav-link">
+						<a href="{{ menu.href }}" class="nav-link" aria-label="{{ menu.name }}" title="{{ menu.name }}">
 							<span class="nav-link-icon">
 								<i class="{{ menu.icon }}"></i>
 							</span>
@@ -23,7 +23,9 @@
 						   data-bs-toggle="collapse"
 						   role="button"
 						   aria-expanded="false"
-						   aria-controls="collapse-{{ i }}">
+						   aria-controls="collapse-{{ i }}"
+						   aria-label="{{ menu.name }}"
+						   title="{{ menu.name }}">
 							<span class="nav-link-icon">
 								<i class="{{ menu.icon }}"></i>
 							</span>
@@ -38,7 +40,7 @@
 							{% for children_1 in menu.children %}
 								<li class="nav-item">
 									{% if children_1.href %}
-										<a href="{{ children_1.href }}" class="nav-link">
+										<a href="{{ children_1.href }}" class="nav-link" aria-label="{{ children_1.name }}" title="{{ children_1.name }}">
 											<span class="nav-link-title">{{ children_1.name }}</span>
 										</a>
 									{% else %}
@@ -47,7 +49,9 @@
 										   data-bs-toggle="collapse"
 										   role="button"
 										   aria-expanded="false"
-										   aria-controls="collapse-{{ i }}-{{ j }}">
+										   aria-controls="collapse-{{ i }}-{{ j }}"
+										   aria-label="{{ children_1.name }}"
+										   title="{{ children_1.name }}">
 											<span class="nav-link-title">{{ children_1.name }}</span>
 										</a>
 									{% endif %}
@@ -59,7 +63,7 @@
 											{% for children_2 in children_1.children %}
 												<li class="nav-item">
 													{% if children_2.href %}
-														<a href="{{ children_2.href }}" class="nav-link">
+														<a href="{{ children_2.href }}" class="nav-link" aria-label="{{ children_2.name }}" title="{{ children_2.name }}">
 															<span class="nav-link-title">{{ children_2.name }}</span>
 														</a>
 													{% else %}
@@ -68,7 +72,9 @@
 														   data-bs-toggle="collapse"
 														   role="button"
 														   aria-expanded="false"
-														   aria-controls="collapse-{{ i }}-{{ j }}-{{ k }}">
+														   aria-controls="collapse-{{ i }}-{{ j }}-{{ k }}"
+														   aria-label="{{ children_2.name }}"
+														   title="{{ children_2.name }}">
 															<span class="nav-link-title">{{ children_2.name }}</span>
 														</a>
 													{% endif %}
@@ -77,7 +83,7 @@
 														<ul id="collapse-{{ i }}-{{ j }}-{{ k }}" class="collapse nav flex-column">
 															{% for children_3 in children_2.children %}
 																<li class="nav-item">
-																	<a href="{{ children_3.href }}" class="nav-link">
+																	<a href="{{ children_3.href }}" class="nav-link" aria-label="{{ children_3.name }}" title="{{ children_3.name }}">
 																		<span class="nav-link-title">{{ children_3.name }}</span>
 																	</a>
 																</li>
