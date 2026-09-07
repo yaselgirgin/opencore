@@ -62,7 +62,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 
 		$data['refresh'] = $this->url->link('tool/cron', 'user_token=' . $this->session->data['user_token'] . $url);
 		$data['can_modify'] = $this->user->hasPermission('modify', 'tool/cron');
-		$data['scheduler_command'] = 'php ' . DIR_OPENCART . 'cron.php';
+		$data['scheduler_command'] = 'wget "' . HTTP_SERVER . 'api/index.php?route=cron/cron" --read-timeout=5400';
 		$data['crons'] = [];
 
 		$filter_data = [
@@ -80,7 +80,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 			$source_resolved = false;
 
 			if (preg_match('/^cron\/[a-z0-9_]+(?:\/[a-z0-9_]+)*$/', $result['action'])) {
-				$source_resolved = is_file(DIR_APPLICATION . 'controller/' . $result['action'] . '.php');
+				$source_resolved = is_file(DIR_API . 'controller/' . $result['action'] . '.php');
 			}
 
 			$data['crons'][] = [
@@ -207,6 +207,7 @@ class Cron extends \Opencart\System\Engine\Controller {
 	 * @return bool
 	 */
 	private function isActionResolved(string $action): bool {
-		return (bool)preg_match('/^cron\/[a-z0-9_]+(?:\/[a-z0-9_]+)*$/', $action) && is_file(DIR_APPLICATION . 'controller/' . $action . '.php');
+		return (bool)preg_match('/^cron\/[a-z0-9_]+(?:\/[a-z0-9_]+)*$/', $action)
+			&& is_file(DIR_API . 'controller/' . $action . '.php');
 	}
 }

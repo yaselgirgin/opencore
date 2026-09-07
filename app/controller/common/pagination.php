@@ -40,7 +40,7 @@ class Pagination extends \Opencart\System\Engine\Controller {
 		if (isset($setting['limit']) && (int)$setting['limit']) {
 			$limit = (int)$setting['limit'];
 		} else {
-			$limit = 10;
+			$limit = 6;
 		}
 
 		if (isset($setting['url'])) {
@@ -49,7 +49,7 @@ class Pagination extends \Opencart\System\Engine\Controller {
 			$url = '';
 		}
 
-		$num_links = 8;
+		$num_links = 4;
 		$num_pages = ceil($total / $limit);
 
 		if ($url && $page > 1 && $num_pages < $page) {

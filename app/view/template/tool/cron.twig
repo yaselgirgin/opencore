@@ -11,10 +11,31 @@
     </div>
   </div>
   <div class="container-fluid">
-    <div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> <strong>{{ text_scheduler }}</strong><br/>{{ text_scheduler_info }}
-      <div class="mt-2">
-        <label for="input-scheduler-command" class="form-label">{{ entry_scheduler_command }}</label>
-        <input type="text" value="{{ scheduler_command|e('html_attr') }}" id="input-scheduler-command" class="form-control" readonly/>
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fa-solid fa-circle-question me-2"></i>
+        {{ text_scheduler }}
+      </div>
+
+      <div class="card-body">
+        <p class="mb-3">{{ text_scheduler_info }}</p>
+
+        <div class="input-group">
+          <span class="input-group-text">{{ entry_scheduler_command }}</span>
+
+          <input type="text"
+                value="{{ scheduler_command|e('html_attr') }}"
+                id="input-scheduler-command"
+                class="form-control font-monospace"
+                readonly/>
+
+          <button type="button"
+                  class="btn btn-light"
+                  title="Kopyala"
+                  onclick="navigator.clipboard.writeText(document.getElementById('input-scheduler-command').value);">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div id="cron-list" class="card">
@@ -43,10 +64,10 @@
                       <td>{{ cron.description }}</td>
                       <td>{{ cron.cycle }}</td>
                       <td><code>{{ cron.action }}</code></td>
-                      <td>{% if cron.status %}<span class="badge bg-success">{{ text_enabled }}</span>{% else %}<span class="badge bg-secondary">{{ text_disabled }}</span>{% endif %}</td>
+                      <td>{% if cron.status %}<span class="badge bg-green-lt text-green">{{ text_enabled }}</span>{% else %}<span class="badge bg-red-lt text-red">{{ text_disabled }}</span>{% endif %}</td>
                       <td class="d-none d-lg-table-cell">{{ cron.date_added }}</td>
                       <td class="d-none d-lg-table-cell">{{ cron.date_modified }}</td>
-                      <td>{% if cron.source_resolved %}<span class="badge bg-success">{{ text_source_ok }}</span>{% else %}<span class="badge bg-danger">{{ text_source_missing }}</span>{% endif %}</td>
+                      <td>{% if cron.source_resolved %}<span class="badge bg-green-lt text-green">{{ text_source_ok }}</span>{% else %}<span class="badge bg-red-lt text-red">{{ text_source_missing }}</span>{% endif %}</td>
                       <td class="text-end">
                         {% if can_modify %}
                           {% if cron.status %}
@@ -70,11 +91,17 @@
                   </tr>
                 {% endif %}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="9">
+                    <div class="row align-items-center">
+                      <div class="col-sm-6 text-start">{{ pagination }}</div>
+                      <div class="col-sm-6 text-end">{{ results }}</div>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
-        </div>
-        <div class="row">
-          <div class="col-sm-6 text-start">{{ pagination }}</div>
-          <div class="col-sm-6 text-end">{{ results }}</div>
         </div>
       </div>
     </div>

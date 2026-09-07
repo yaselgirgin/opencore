@@ -28,9 +28,15 @@
         </tr>
       {% endif %}
     </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="6">
+        <div class="row align-items-center">
+          <div class="col-sm-6 text-start">{{ pagination }}</div>
+          <div class="col-sm-6 text-end">{{ results }}</div>
+        </div>
+      </td>
+    </tr>
+  </tfoot>
   </table>
-</div>
-<div class="row">
-  <div class="col-sm-6 text-start">{{ pagination }}</div>
-  <div class="col-sm-6 text-end">{{ results }}</div>
 </div>

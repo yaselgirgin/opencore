@@ -82,13 +82,13 @@
                     <td>{{ event.description }}</td>
                     <td><code>{{ event.trigger }}</code></td>
                     <td><code>{{ event.action }}</code></td>
-                    <td>{% if event.status %}<span class="badge bg-success">{{ text_enabled }}</span>{% else %}<span class="badge bg-secondary">{{ text_disabled }}</span>{% endif %}</td>
+                    <td>{% if event.status %}<span class="badge bg-green-lt text-green">{{ text_enabled }}</span>{% else %}<span class="badge bg-secondary-lt text-secondary">{{ text_disabled }}</span>{% endif %}</td>
                     <td>{{ event.sort_order }}</td>
                     <td>
-                      {% if event.trigger_resolution == 'ok' %}<span class="badge bg-success">{{ text_ok }}</span>{% elseif event.trigger_resolution == 'missing' %}<span class="badge bg-danger">{{ text_missing }}</span>{% elseif event.trigger_resolution == 'invalid' %}<span class="badge bg-danger">{{ text_invalid }}</span>{% else %}<span class="badge bg-secondary">{{ text_unsupported }}</span>{% endif %}
+                      {% if event.trigger_resolution == 'ok' %}<span class="badge bg-green-lt text-green">{{ text_ok }}</span>{% elseif event.trigger_resolution == 'missing' %}<span class="badge bg-red-lt text-red">{{ text_missing }}</span>{% elseif event.trigger_resolution == 'invalid' %}<span class="badge bg-red-lt text-red">{{ text_invalid }}</span>{% else %}<span class="badge bg-secondary-lt text-secondary">{{ text_unsupported }}</span>{% endif %}
                     </td>
                     <td>
-                      {% if event.action_resolution == 'ok' %}<span class="badge bg-success">{{ text_ok }}</span>{% elseif event.action_resolution == 'missing' %}<span class="badge bg-danger">{{ text_missing }}</span>{% else %}<span class="badge bg-danger">{{ text_invalid }}</span>{% endif %}
+                      {% if event.action_resolution == 'ok' %}<span class="badge bg-green-lt text-green">{{ text_ok }}</span>{% elseif event.action_resolution == 'missing' %}<span class="badge bg-red-lt text-red">{{ text_missing }}</span>{% else %}<span class="badge bg-red-lt text-red">{{ text_invalid }}</span>{% endif %}
                     </td>
                   </tr>
                 {% endfor %}

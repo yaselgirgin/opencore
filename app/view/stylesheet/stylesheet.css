@@ -1287,3 +1287,22 @@ html[data-ui-font-family="comic"] {
         padding-left: .75rem;
     }
 }
+
+/* Light action buttons */
+.btn-light {
+    color: var(--tblr-body-color, #1f2937);
+    background: var(--tblr-bg-surface, #fff);
+    border-color: var(--tblr-border-color, #d9dbde);
+}
+
+.btn-light:hover,
+.btn-light:focus {
+    color: var(--tblr-body-color, #1f2937);
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    border-color: var(--tblr-border-color-active, #b8bcc2);
+}
+
+/* Repeated / multilingual input groups */
+form .invalid-feedback + .input-group {
+    margin-top: .5rem;
+}

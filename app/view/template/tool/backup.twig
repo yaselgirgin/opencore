@@ -20,12 +20,11 @@
           <div class="row mb-3">
             <label class="col-sm-2 col-form-label">{{ entry_progress }}</label>
             <div class="col-sm-10">
-              <div id="progress-backup" class="progress">
-                <div id="progress-bar" class="progress-bar"></div>
-              </div>
-              <div id="progress-text"></div>
+                <div id="progress-backup" class="progress progress-xl">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                <div id="progress-text"></div>
             </div>
-          </div>
         </fieldset>
         <fieldset>
           <legend>{{ text_option }}</legend>
@@ -108,7 +107,7 @@ $('#button-backup').on('click', function() {
                     $('#button-upload, #history .btn').prop('disabled', false);
                 }
 
-                if (json['progress']) {
+                if (json['progress'] && !json['success']) {
                     $('#progress-bar').css('width', json['progress'] + '%');
                 }
 
@@ -128,6 +127,13 @@ $('#button-backup').on('click', function() {
     };
 
     chain.attach(backup);
+});
+
+// History pagination
+$('#history').on('click', '.pagination a', function(e) {
+    e.preventDefault();
+
+    $('#history').load(this.href);
 });
 
 // Restore
@@ -214,7 +220,7 @@ $('#button-upload').on('click', function() {
         if ((this.files[0].size / 1024) > {{ config_file_max_size }}) {
             $(this).val('');
 
-            alert('{{ error_upload_size }}');
+            alert({{ error_upload_size|json_encode|raw }});
         }
     });
 

@@ -1,4 +1,5 @@
 <form id="form-user-group" method="post" data-oc-toggle="ajax" data-oc-load="{{ action }}" data-oc-target="#user-group">
+  <div class="card-body">
   <div class="table-responsive">
     <table class="table table-bordered table-hover">
       <thead>
@@ -24,9 +25,11 @@
         {% endif %}
       </tbody>
     </table>
+    </div>
   </div>
-  <div class="row">
-    <div class="col-sm-6 text-start">{{ pagination }}</div>
-    <div class="col-sm-6 text-end">{{ results }}</div>
-  </div>
-</form>
+  <div class="card-footer">
+    <div class="row align-items-center">
+      <div class="col-sm-6 text-start">{{ pagination }}</div>
+      <div class="col-sm-6 text-end">{{ results }}</div>
+    </div>
+  </div></form>

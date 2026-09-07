@@ -80,44 +80,80 @@ class Backup extends \Opencart\System\Engine\Controller {
 	 * @return string
 	 */
 	public function getHistory(): string {
-		$this->load->language('tool/backup');
+        $this->load->language('tool/backup');
 
-		$data['histories'] = [];
+        if (isset($this->request->get['page'])) {
+                $page = (int)$this->request->get['page'];
+        } else {
+                $page = 1;
+        }
 
-		$files = glob(DIR_STORAGE . 'backup/*.sql');
+        $limit = (int)$this->config->get('config_pagination_admin');
 
-		foreach ($files as $file) {
-			$size = filesize($file);
+        $files = glob(DIR_STORAGE . 'backup/*.sql');
 
-			$i = 0;
+        if (!$files) {
+                $files = [];
+        }
 
-			$suffix = [
-				'B',
-				'KB',
-				'MB',
-				'GB',
-				'TB',
-				'PB',
-				'EB',
-				'ZB',
-				'YB'
-			];
+        // Newest backups first
+        usort($files, function($a, $b) {
+                return filemtime($b) <=> filemtime($a);
+        });
 
-			while (($size / 1024) > 1) {
-				$size /= 1024;
+        $history_total = count($files);
 
-				$i++;
-			}
+        $files = array_slice($files, ($page - 1) * $limit, $limit);
 
-			$data['histories'][] = [
-				'filename'   => basename($file),
-				'size'       => round(substr($size, 0, strpos($size, '.') + 4), 2) . $suffix[$i],
-				'date_added' => date($this->language->get('datetime_format'), filemtime($file)),
-				'download'   => $this->url->link('tool/backup.download', 'user_token=' . $this->session->data['user_token'] . '&filename=' . urlencode(basename($file))),
-			];
-		}
+        $data['histories'] = [];
 
-		return $this->load->view('tool/backup_history', $data);
+        foreach ($files as $file) {
+                $size = filesize($file);
+
+                $i = 0;
+
+                $suffix = [
+                        'B',
+                        'KB',
+                        'MB',
+                        'GB',
+                        'TB',
+                        'PB',
+                        'EB',
+                        'ZB',
+                        'YB'
+                ];
+
+                while (($size / 1024) > 1) {
+                        $size /= 1024;
+
+                        $i++;
+                }
+
+                $data['histories'][] = [
+                        'filename'   => basename($file),
+                        'size'       => round(substr($size, 0, strpos($size, '.') + 4), 2) . $suffix[$i],
+                        'date_added' => date($this->language->get('datetime_format'), filemtime($file)),
+                        'download'   => $this->url->link('tool/backup.download', 'user_token=' . $this->session->data['user_token'] . '&filename=' . urlencode(basename($file))),
+                ];
+        }
+
+        $data['pagination'] = $this->load->controller('common/pagination', [
+                'total' => $history_total,
+                'page'  => $page,
+                'limit' => $limit,
+                'url'   => $this->url->link('tool/backup.history', 'user_token=' . $this->session->data['user_token'] . '&page={page}')
+        ]);
+
+        $data['results'] = sprintf(
+                $this->language->get('text_pagination'),
+                $history_total ? (($page - 1) * $limit) + 1 : 0,
+                ((($page - 1) * $limit) > ($history_total - $limit)) ? $history_total : (($page - 1) * $limit) + $limit,
+                $history_total,
+                ceil($history_total / $limit)
+        );
+
+        return $this->load->view('tool/backup_history', $data);
 	}
 
 	/**
