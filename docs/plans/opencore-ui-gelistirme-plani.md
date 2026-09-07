@@ -152,7 +152,12 @@ Tabler kaynakları:
 - lisans bildirimi kaldırılmamalı,
 - demo dosyaları runtime'a taşınmamalıdır.
 
-Kesin vendor yerleşimi ilk compatibility audit sonucunda kararlaştırılacaktır.
+Kanonik vendor yerleşimi compatibility audit sonucunda belirlenmiş ve uygulanmıştır:
+
+- CSS: `app/view/stylesheet/tabler/tabler.min.css`
+- JavaScript: `app/view/javascript/tabler/js/tabler.min.js`
+
+Kullanılan kanonik sürüm **Tabler Core 1.5.0**'dır.
 
 Ama yerleşim mutlaka mevcut:
 
@@ -336,6 +341,39 @@ Yeni OpenCore modülleri mümkün olduğunca Tabler'ın ortak component dilini k
 - Notifications
 
 Amaç her yeni modülde yeni CSS üretmek değil, ortak Tabler/OpenCore component sözleşmesini tekrar kullanmaktır.
+
+## Güncel UI Runtime Sözleşmesi
+
+OpenCore'un kanonik frontend foundation sürümü **Tabler Core 1.5.0**'dır.
+
+Runtime'da kullanılan upstream Tabler dosyaları:
+
+```text
+app/view/stylesheet/tabler/tabler.min.css
+app/view/javascript/tabler/js/tabler.min.js
+```
+
+Bu vendor dosyaları upstream dağıtım çıktısı olarak korunmalı ve OpenCore'a özel değişiklikler doğrudan bu dosyalara yazılmamalıdır.
+
+OpenCore'a özel görsel uyarlamalar:
+
+```text
+app/view/stylesheet/stylesheet.css
+```
+
+içinde tutulmalıdır.
+
+Ortak component kullanımı için aşağıdaki sözleşmeler geçerlidir:
+
+- standart secondary action butonlarında `btn-light` kullanılır,
+- Tabler'ın native component ve utility class'ları mümkün olduğunca özel CSS'e tercih edilir,
+- ana liste kartlarında tablo içeriği `card-body`, pagination ve sonuç bilgisi aynı kartın `card-footer` bölümünde yer alır,
+- tab, fieldset veya başka bir component içine gömülü bağımsız tablolarda pagination tabloya aitse `tfoot` içinde tutulur,
+- modal içindeki pagination mevcut modal yapısına uygun olarak `modal-footer` içinde kalır,
+- ortak pagination componenti ekranda en fazla 5 sayfa bağlantısı gösterecek şekilde tutulur,
+- çok dilli tekrar eden input gruplarında dil alanları görsel olarak birbirinden ayrılır.
+
+Bu kurallar yalnız presentation standardıdır; route, controller, model, permission ve AJAX davranışlarının yeniden tasarlanmasını gerektirmez.
 
 ---
 

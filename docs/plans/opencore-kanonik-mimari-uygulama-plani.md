@@ -377,6 +377,42 @@ kaynak dizini `app/` olarak sabittir; API sınırı `/api/`dir. Eski `/admin/` v
 `/catalog/` yolları HTTP 404 döndürür; legacy admin rename davranışı kaldırılmıştır.
 OpenCart altyapısı ve `Opencart` namespace'i korunmuştur.
 
+### Cron Runtime Sözleşmesi
+
+Kanonik cron HTTP endpoint'i API uygulaması altındadır:
+
+```text
+/api/index.php?route=cron/cron
+```
+
+Yönetim arayüzünün kullanıcıya gösterdiği scheduler komutu bu endpoint'i `wget` ile çağırır.
+
+Eski:
+
+```text
+php <root>/cron.php
+```
+
+scheduler komutuna geri dönülmemelidir.
+
+Cron action kaynakları fiziksel olarak API uygulamasına aittir. Yönetim arayüzündeki source-resolution ve diagnostic kontrolleri bu nedenle:
+
+```php
+DIR_API . 'controller/'
+```
+
+altında çözümleme yapmalıdır.
+
+Bu kontrollerde:
+
+```php
+DIR_APPLICATION
+```
+
+kullanılmamalıdır.
+
+Root `cron.php` dosyasının dağıtım ağacında korunması, yönetim arayüzündeki kanonik scheduler endpoint'inin root `cron.php` olduğu anlamına gelmez.
+
 ## Çalışma Yöntemi
 
 - Küçük ve bağımsız batch'ler kullan.
