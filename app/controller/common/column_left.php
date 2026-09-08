@@ -19,6 +19,10 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 		}
 
 		$this->load->language('common/column_left');
+		$this->load->language('common/header');
+
+		$data['home'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token']);
+		$data['heading_title'] = $this->language->get('heading_title');
 
 		$data['menus'] = [];
 		$data['menus'][] = [
