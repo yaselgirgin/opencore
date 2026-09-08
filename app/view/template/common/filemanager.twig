@@ -222,7 +222,7 @@
       CKEDITOR.instances['{{ ckeditor|escape('js') }}'].insertHtml('<img src="' + $(this).attr('href') + '" alt="" title=""/>');
     {% endif %}
 
-      $('#modal-image').modal('hide');
+      tabler.Modal.getOrCreateInstance(document.getElementById('modal-image')).hide();
   });
 
   $('#modal-image').on('click', '.pagination a', function(e) {

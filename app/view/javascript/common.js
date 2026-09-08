@@ -474,7 +474,7 @@ $(document).on('click', '[data-oc-toggle=\'image\']', function(e) {
         success: function(html) {
             $('body').append(html);
 
-            $('#modal-image').modal('show');
+            tabler.Modal.getOrCreateInstance(document.getElementById('modal-image')).show();
         }
     });
 });
@@ -597,7 +597,7 @@ $(document).ready(function() {
             success: function(html) {
                 $('body').append(html);
 
-                $('#modal-notification').modal('show');
+                tabler.Modal.getOrCreateInstance(document.getElementById('modal-notification')).show();
             }
         });
     });

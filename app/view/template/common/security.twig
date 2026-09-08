@@ -2,7 +2,11 @@
 <button type="button" id="button-refresh" class="btn btn-danger d-none"><i class="fa-solid fa-sync"></i></button>
 <script type="text/javascript"><!--
 $(document).ready(function() {
-    $('#modal-security').modal('show');
+    var modal = document.getElementById('modal-security');
+
+    if (modal) {
+        tabler.Modal.getOrCreateInstance(modal).show();
+    }
 
     $('#accordion .accordion-header:first button').trigger('click');
 });
@@ -20,11 +24,19 @@ $('#button-refresh').on('click', function() {
             $(element).button('reset');
         },
         success: function(html) {
-            $('#modal-security').modal('dispose');
+            var modal = document.getElementById('modal-security');
+
+            if (modal) {
+                tabler.Modal.getOrCreateInstance(modal).dispose();
+            }
 
             $('#security').html(html);
 
-            $('#modal-security').modal('show');
+            modal = document.getElementById('modal-security');
+
+            if (modal) {
+                tabler.Modal.getOrCreateInstance(modal).show();
+            }
 
             $('#accordion .accordion-header:first button').trigger('click');
         },
@@ -96,7 +108,11 @@ $('#security').on('click', '#button-storage', function() {
                     $(element).button('reset');
 
                     setTimeout(function() {
-                        $('#modal-security').modal('hide');
+                        var modal = document.getElementById('modal-security');
+
+                        if (modal) {
+                            tabler.Modal.getOrCreateInstance(modal).hide();
+                        }
                     }, 750);
                 }
 

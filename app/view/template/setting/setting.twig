@@ -587,7 +587,7 @@ $('#button-developer').on('click', function() {
 
             $('body').prepend(html);
 
-            $('#modal-developer').modal('show');
+            tabler.Modal.getOrCreateInstance(document.getElementById('modal-developer')).show();
         },
         error: function(xhr, ajaxOptions, thrownError) {
             console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);

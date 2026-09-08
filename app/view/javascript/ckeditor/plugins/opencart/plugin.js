@@ -10,7 +10,7 @@ CKEDITOR.plugins.add('opencart', {
 					success: function(html) {
 						$('body').append(html);
 
-						$('#modal-image').modal('show');
+						tabler.Modal.getOrCreateInstance(document.getElementById('modal-image')).show();
 					}
 				});
 			}

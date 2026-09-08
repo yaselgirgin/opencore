@@ -41,7 +41,7 @@ $('#notification').on('click', 'table a', function(e) {
         success: function(html) {
             $('body').append(html);
 
-            $('#modal-notification').modal('show');
+            tabler.Modal.getOrCreateInstance(document.getElementById('modal-notification')).show();
 
             $(element).parent().parent().removeClass('table-active opacity-50');
             $(element).removeClass('font-weight-bold');
@@ -70,7 +70,7 @@ $('#notification').on('click', '.btn', function(e) {
         success: function(html) {
             $('body').append(html);
 
-            $('#modal-notification').modal('show');
+            tabler.Modal.getOrCreateInstance(document.getElementById('modal-notification')).show();
 
             $(element).parent().parent().removeClass('table-active opacity-50');
             $(element).parent().parent().find('a').removeClass('font-weight-bold');
