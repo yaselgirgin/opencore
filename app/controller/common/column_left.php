@@ -24,6 +24,47 @@ class ColumnLeft extends \Opencart\System\Engine\Controller {
 		$data['home'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token']);
 		$data['heading_title'] = $this->language->get('heading_title');
 
+        $this->load->language('user/profile');
+
+        $data['profile'] = $this->url->link('user/profile', 'user_token=' . $this->session->data['user_token']);
+        $data['notification_all'] = $this->url->link('tool/notification', 'user_token=' . $this->session->data['user_token']);
+        $data['logout'] = $this->url->link('common/logout', 'user_token=' . $this->session->data['user_token']);
+
+        $data['text_profile'] = $this->language->get('text_profile');
+        $data['text_theme_settings'] = $this->language->get('text_theme_settings');
+        $data['text_notification'] = $this->language->get('text_notification');
+        $data['text_logout'] = $this->language->get('text_logout');
+
+        $this->load->model('user/user');
+
+        $user_info = $this->model_user_user->getUser($this->user->getId());
+
+        if ($user_info) {
+            $data['firstname'] = $user_info['firstname'];
+            $data['lastname'] = $user_info['lastname'];
+            $data['user_group'] = $user_info['user_group'] ?? '';
+        } else {
+            $data['firstname'] = '';
+            $data['lastname'] = '';
+            $data['user_group'] = '';
+        }
+
+        $this->load->model('tool/image');
+
+        if ($user_info && !empty($user_info['image']) && is_file(DIR_IMAGE . html_entity_decode($user_info['image'], ENT_QUOTES, 'UTF-8'))) {
+            $data['image'] = $this->model_tool_image->resize($user_info['image'], 45, 45);
+        } else {
+            $data['image'] = $this->model_tool_image->resize('profile.png', 45, 45);
+        }
+
+        $this->load->model('tool/notification');
+
+        $data['notification_total'] = $this->model_tool_notification->getTotalNotifications(
+            $this->user->getId(),
+            $this->user->getGroupId(),
+            true
+        );
+
 		$data['menus'] = [];
 		$data['menus'][] = [
 			'id'       => 'menu-dashboard',

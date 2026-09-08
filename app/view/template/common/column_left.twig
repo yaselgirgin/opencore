@@ -1,6 +1,8 @@
 <aside id="column-left" class="navbar navbar-vertical navbar-expand-lg" aria-label="{{ text_navigation }}">
 	<div class="container-fluid">
 		<a id="sidebar-brand" href="{{ home }}" class="navbar-brand oc-sidebar-brand" aria-label="{{ heading_title }}" title="{{ heading_title }}"><span class="oc-brand-logo" aria-hidden="true"></span></a>
+		<div id="sidebar-mobile-menu" class="sidebar-navigation collapse d-lg-block">
+
 		<div id="navigation" class="navbar-brand">
 			<span class="fa-solid fa-bars"></span>
 			<span>{{ text_navigation }}</span>
@@ -107,6 +109,73 @@
 
 				{% set i = i + 1 %}
 			{% endfor %}
-		</ul>
-	</div>
+        </ul>
+        </div>
+
+        <div id="sidebar-account" class="dropup d-none d-lg-block">
+            <button type="button"
+                    class="sidebar-account-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+
+                <span class="sidebar-account-avatar">
+                    <span class="avatar avatar-sm">
+                        <img src="{{ image }}"
+                             alt="{{ firstname }} {{ lastname }}"
+                             title="{{ firstname }} {{ lastname }}">
+                    </span>
+
+                    <span class="badge bg-red text-white js-notification-badge notification-badge-avatar{% if not notification_total %} d-none{% endif %}">
+                        {{ notification_total }}
+                    </span>
+                </span>
+
+                <span class="sidebar-account-details">
+                    <span class="sidebar-account-name">{{ firstname }} {{ lastname }}</span>
+                    <span class="sidebar-account-group">{{ user_group }}</span>
+                </span>
+
+                <i class="fa-solid fa-ellipsis-vertical sidebar-account-menu" aria-hidden="true"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a href="{{ profile }}" class="dropdown-item">
+                        <i class="fa-solid fa-user-circle fa-fw"></i>
+                        <span>{{ text_profile }}</span>
+                    </a>
+                </li>
+
+                <li>
+                    <button type="button"
+                            class="dropdown-item"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvas-theme-settings"
+                            aria-controls="offcanvas-theme-settings">
+                        <i class="fa-solid fa-palette fa-fw"></i>
+                        <span>{{ text_theme_settings }}</span>
+                    </button>
+                </li>
+
+                <li>
+                    <a href="{{ notification_all }}" class="dropdown-item">
+                        <i class="fa-regular fa-bell fa-fw"></i>
+                        <span>{{ text_notification }}</span>
+                        <span class="badge bg-red text-white js-notification-badge notification-badge-menu{% if not notification_total %} d-none{% endif %}">
+                            {{ notification_total }}
+                        </span>
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li>
+                    <a href="{{ logout }}" class="dropdown-item">
+                        <i class="fa-solid fa-sign-out fa-fw"></i>
+                        <span>{{ text_logout }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </aside>

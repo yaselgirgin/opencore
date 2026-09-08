@@ -48,26 +48,7 @@ class Header extends \Opencart\System\Engine\Controller {
 
 			$data['home'] = $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token']);
 
-			$data['language'] = $this->load->controller('common/language');
-
-			// Notifications
-			$filter_data = [
-				'start' => 0,
-				'limit' => 5
-			];
-
-			$data['notifications'] = [];
-
 			$this->load->model('tool/notification');
-
-			$results = $this->model_tool_notification->getNotifications($this->user->getId(), $this->user->getGroupId(), $filter_data);
-
-			foreach ($results as $result) {
-				$data['notifications'][] = [
-					'title' => $result['title'],
-					'href'  => $this->url->link('tool/notification.info', 'user_token=' . $this->session->data['user_token'] . '&notification_id=' . $result['notification_id'])
-				];
-			}
 
 			$data['notification_all'] = $this->url->link('tool/notification', 'user_token=' . $this->session->data['user_token']);
 			$data['notification_total'] = $this->model_tool_notification->getTotalNotifications($this->user->getId(), $this->user->getGroupId(), true);
@@ -111,9 +92,11 @@ class Header extends \Opencart\System\Engine\Controller {
 			if ($user_info) {
 				$data['firstname'] = $user_info['firstname'];
 				$data['lastname'] = $user_info['lastname'];
+				$data['user_group'] = $user_info['user_group'] ?? '';
 			} else {
 				$data['firstname'] = '';
 				$data['lastname'] = '';
+				$data['user_group'] = '';
 			}
 
 			// Image

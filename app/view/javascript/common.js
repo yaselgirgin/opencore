@@ -231,16 +231,16 @@ function updateNotificationBadge(notification_total) {
         return;
     }
 
-    var notification_badge = $('#nav-notification .badge');
+    var notification_badges = $('.js-notification-badge');
 
     if (notification_total > 0) {
-        if (notification_badge.length) {
-            notification_badge.text(notification_total);
-        } else {
-            $('#nav-notification > .nav-link').append('<span class="badge bg-danger">' + notification_total + '</span>');
-        }
+        notification_badges
+            .text(notification_total)
+            .removeClass('d-none');
     } else {
-        notification_badge.remove();
+        notification_badges
+            .text('')
+            .addClass('d-none');
     }
 }
 
@@ -603,14 +603,6 @@ $(document).ready(function() {
             }
         });
     });
-
-    // Menu
-    $('#button-menu').on('click', function(e) {
-        e.preventDefault();
-
-        $('#column-left').toggleClass('active');
-    });
-
     // Set last page opened on the menu
     $('#menu a[href]').on('click', function() {
         sessionStorage.setItem('menu', $(this).attr('href'));
@@ -629,33 +621,6 @@ $(document).ready(function() {
 
     $('#menu a[href=\'' + sessionStorage.getItem('menu') + '\']').parents('li').addClass('active');
 
-    $('#nav-language .dropdown-item').on('click', function(e) {
-        e.preventDefault();
-
-        var element = this;
-
-        $.ajax({
-            url: 'index.php?route=common/language.save&user_token={{ user_token }}',
-            type: 'post',
-            data: 'code=' + $(element).attr('href') + '&redirect=' + encodeURIComponent($('#input-redirect').val()),
-            dataType: 'json',
-            success: function(json) {
-                console.log($(element).attr('href'));
-                console.log($('input-redirect').val());
-
-                if (json['redirect']) {
-                    location = json['redirect'];
-                }
-
-                if (json['error']) {
-                    $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-                }
-            },
-            error: function(xhr, ajaxOptions, thrownError) {
-                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-            }
-        });
-    });
 });
 
 $(document).on('keydown', '#form-filter input', function(e) {
