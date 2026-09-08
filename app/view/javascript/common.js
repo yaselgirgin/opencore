@@ -111,10 +111,12 @@ function applyUiPreferences(preferences) {
     root.style.setProperty('--tblr-primary', 'var(--tblr-' + preferences.color_scheme + ')');
     root.style.setProperty('--tblr-primary-rgb', 'var(--tblr-' + preferences.color_scheme + '-rgb)');
     root.style.setProperty('--tblr-primary-lt', 'var(--tblr-' + preferences.color_scheme + '-lt)');
-    root.style.setProperty('--tblr-border-radius', preferences.corner_radius + 'rem');
-    root.style.setProperty('--tblr-border-radius-sm', 'calc(' + preferences.corner_radius + 'rem * .667)');
-    root.style.setProperty('--tblr-border-radius-lg', 'calc(' + preferences.corner_radius + 'rem * 1.333)');
-    root.style.setProperty('--tblr-border-radius-xl', 'calc(' + preferences.corner_radius + 'rem * 2)');
+    var corner_radius = preferences.corner_radius * 6;
+
+    root.style.setProperty('--tblr-border-radius', corner_radius + 'px');
+    root.style.setProperty('--tblr-border-radius-sm', corner_radius * 2 / 3 + 'px');
+    root.style.setProperty('--tblr-border-radius-lg', corner_radius * 4 / 3 + 'px');
+    root.style.setProperty('--tblr-border-radius-xl', corner_radius * 2 + 'px');
 }
 
 var oc_ui_theme_query = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-color-scheme: dark)') : null;
