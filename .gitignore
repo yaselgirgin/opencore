@@ -55,3 +55,4 @@ desktop.ini
 # Maintainer tarafında geçici üretilebilen lock dosyası
 /system/storage/composer.lock
 /.htaccess
+/opencore-publish.ps1
