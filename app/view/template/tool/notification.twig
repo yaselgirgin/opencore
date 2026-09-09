@@ -4,11 +4,6 @@
     <div class="container-fluid">
       <div class="float-end"><button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa-regular fa-trash-can"></i></button></div>
       <h1>{{ heading_title }}</h1>
-      <ol class="breadcrumb">
-        {% for breadcrumb in breadcrumbs %}
-          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
-        {% endfor %}
-      </ol>
     </div>
   </div>
   <div class="container-fluid">
