@@ -1,174 +1,227 @@
 # AGENTS.md
 
-## Project
+## 1. Proje Tanımı
 
-OpenCore is an OpenCart-based internal business application platform.
+OpenCore bir ERP değildir.
 
-Canonical OpenCart reference:
+OpenCore; şirket içi operasyonel çalışma, koordinasyon ve karar destek platformudur.
 
-C:\xampp\htdocs\oc4104
+Gerektiğinde dış sistemler, API'ler, yapay zekâ ajanları ve diğer veritabanlarıyla veri alışverişi yaparak çalışabilir.
 
-Follow OpenCart 4.1.0.4 architecture and conventions as closely as possible unless:
-- the relevant OpenCart feature was intentionally removed from OpenCore, or
-- an accepted ADR / explicit owner decision says otherwise.
+Dış sistemlere özgü kod, OpenCore çekirdeğine gereksiz şekilde yayılmamalı; mevcut OpenCore mimarisi içinde mümkün olduğunca ayrık tutulmalıdır.
 
-Do not reintroduce removed scope during OpenCart parity work:
-- e-commerce/storefront
+## 2. OpenCart Temeli
+
+OpenCore, OpenCart 4.1.0.4 altyapısından türetilmiştir.
+
+OpenCart'tan devralınan temel çalışma prensipleri korunur:
+
+- `system/`
+- `engine/`
+- `helper/`
+- `library/`
+- `storage/`
+- loader ve router yapısı
+- event ve ortak runtime mekanizmaları
+- OpenCart/OpenCore MVC yaklaşımı
+
+OpenCore artık OpenCart ile birebir parity hedeflemez.
+
+Aşağıdaki OpenCart alanları bilinçli olarak kaldırılmıştır ve yeniden eklenmemelidir:
+
+- e-commerce / storefront
+- Marketplace
 - OCMOD
-- extension/marketplace infrastructure
-- runtime self-updater
+- runtime self-update
 
-## Architecture
+Gerektiğinde OpenCart 4.1.0.4 upstream kaynakları, korunan altyapının çalışma şeklini anlamak için referans olarak kullanılabilir.
 
-Use:
+Yeni bir ihtiyaç mevcut `engine`, `helper`, `library` veya diğer ortak mekanizmalarla çözülebiliyorsa paralel bir sistem oluşturulmaz.
 
-Controller -> Model -> Database
+Gerçek bir ortak ihtiyaç varsa yeni helper veya library eklenebilir; ancak mevcut OpenCart/OpenCore çalışma prensiplerine uygun geliştirilmelidir.
 
-Do not introduce Service, Repository, ORM, DI container, migration framework,
-custom routing framework, or another architectural layer unless explicitly approved.
+## 3. Kanonik Uygulama Yapısı
 
-Controllers handle request/validation/permission/response/view concerns.
-Models handle database access and persistence.
-Controllers must not contain direct SQL.
+Yönetim uygulamasının fiziksel uygulama dizini:
 
-Custom modules should follow native OpenCart MVC conventions.
-API controllers remain under catalog/controller/api/.
+`app/`
 
-## OpenCart Helper Reuse
+API uygulamasının fiziksel uygulama dizini:
 
-Before implementing utility or framework-level logic, check whether OpenCart 4.1.0.4
-already provides an equivalent helper under `system/helper/`.
+`api/`
 
-If an applicable OpenCart helper exists, prefer preserving and reusing it instead of
-duplicating the behavior with native PHP calls, custom helpers, or ad-hoc utility code.
+Site kökü `/`, yönetim uygulamasını çalıştırır.
 
-Keep OpenCart helper semantics as closely as possible.
+API sınırı `/api/` altında çalışır.
 
-Exceptions:
-- the helper belongs only to functionality intentionally removed from OpenCore, or
-- an accepted ADR / explicit owner decision requires different behavior.
+Eski `admin/` ve `catalog/` uygulama yapıları yeni geliştirmelerde kullanılmaz.
 
-Do not reintroduce removed e-commerce, extension, marketplace, OCMOD, or updater scope
-only because an OpenCart helper exists.
+OpenCore ürün ve runtime işlevleri CLI kullanımına bağımlı olmamalıdır. Kurulum, upgrade, cron ve benzeri operasyonel akışlar HTTP üzerinden çalışabilmelidir.
 
-## Canonical Distribution
+Bu kural geliştiricinin Git, PHP syntax check veya benzeri geliştirme amaçlı CLI araçlarını kullanmasını engellemez.
 
-Default admin directory:
+## 4. Geliştirme Mimarisi
 
-admin/
+Kanonik geliştirme modeli:
 
-Default storage directory:
+`Controller → Model → Language → View`
 
-system/storage/
+SQL yalnız `Model` içinde bulunur.
 
-Runtime code must always use DIR_STORAGE and must not hard-code a storage path.
+`Controller` veya `View` içine doğrudan SQL yazılmaz.
 
-OpenCore uses one root config.php.
-There is no separate admin config.php.
+Mevcut yapıda karşılığı olmayan yeni mimari katmanlar veya framework'ler, owner açıkça onaylamadan eklenmez.
 
-config-dist.php is a tracked empty placeholder and must not be populated automatically.
+Yeni bir üçüncü taraf library veya package ancak mevcut OpenCore/OpenCart altyapısıyla makul şekilde çözülemeyen gerçek bir ihtiyaç varsa ve owner onayladıktan sonra eklenebilir.
 
-Runtime vendor dependencies are distributed under:
+Mevcut OpenCore/OpenCart kod stili ve isimlendirme yaklaşımı korunur.
 
-system/storage/vendor/
+Route, class, method, variable, file ve database isimlendirmelerinde ayrı bir standart oluşturulmaz.
 
-Final users must not need Composer.
+Mevcut hata yönetimi ve loglama mekanizmaları kullanılır; paralel bir logging sistemi kurulmaz.
 
-Post-install Security behavior should follow OpenCart 4.1.0.4 semantics for:
-- install directory removal
-- moving the complete storage directory outside the web root
-- admin directory rename
+## 5. Ortak Altyapının Kullanımı
 
-Do not invent installer-specific alternatives for these operations unless explicitly approved.
+Yeni modül ve özelliklerde mevcut ortak altyapılar öncelikle yeniden kullanılmalıdır.
 
-## Safety and Owner Approval
+Örnekler:
 
-Read-only inspection is allowed.
+- user
+- user_group
+- permission
+- notification
+- file / upload
+- cron
+- mevcut helper ve library yapıları
 
-Do not perform any of the following without explicit owner approval:
-- git add / staging
-- commit
+Aynı işi yapan ikinci bir paralel altyapı oluşturulmamalıdır.
+
+Yetkilendirme mevcut `user_group` `access/modify` permission sistemiyle yapılır.
+
+Yeni kullanıcıya açık route ve menüler mevcut permission sistemine bağlanmalıdır.
+
+Yeni database tabloları ve alanları mevcut OpenCore/OpenCart database yapı ve isimlendirme prensiplerini takip etmelidir.
+
+Database schema veya gerekli source-controlled data değişiklikleri mevcut `install/upgrade` zincirine eklenmelidir.
+
+## 6. Language ve UI
+
+Kullanıcıya görünen metinler mevcut language mekanizmasıyla yönetilir.
+
+Kullanıcıya görünen metinler `Controller` veya `View` içine hard-code edilmez.
+
+Yeni kullanıcı arayüzlerinde en az:
+
+- `tr-tr`
+- `en-gb`
+
+language karşılıkları bulunmalıdır.
+
+UI görevlerinde güncel kanonik UI geliştirme planı takip edilir.
+
+## 7. Görev Kapsamı
+
+Yalnız verilen görevin kapsamı içinde çalış.
+
+Görev kendi içinde gerekli küçük alt işlere bölünebilir ve geliştirici bunları kendi organize edebilir.
+
+Ancak verilen görev yeni bir proje, yeni bir roadmap, ilgisiz bir refactor, genel repository temizliği veya ayrı bir geliştirme programı haline dönüştürülmemelidir.
+
+Değişiklik yapmadan önce ilgili dosyayı ve doğrudan bağımlılıklarını incele.
+
+İncelemeyi görev kapsamıyla sınırlı tut; tüm repository'yi varsayılan olarak tarama.
+
+Görev için gerekli olmayan refactor veya temizlik yapılmaz.
+
+Görev açıkça değiştirmeyi gerektirmiyorsa mevcut çalışan route, permission, data flow ve kullanıcı davranışı korunur.
+
+Normal implementation kararlarını geliştirici verebilir.
+
+Projenin temel mimarisini veya kabul edilmiş yapısal kararlarını değiştirmek gerekiyorsa dur ve owner'a sor.
+
+## 8. Dokümantasyon
+
+Proje dokümantasyonu Türkçe yazılır.
+
+Teknik terimler, code, route, class, path ve benzeri teknik isimler gerektiğinde İngilizce kalabilir.
+
+Yalnız verilen görevle ilgili ADR, plan ve diğer dokümanları oku.
+
+Varsayılan olarak bütün proje dokümantasyonunu tarama.
+
+Talimat ve karar önceliği:
+
+1. Güncel ve açık owner talimatı
+2. Accepted ADR
+3. `AGENTS.md`
+4. Güncel ilgili plan veya doküman
+5. Mevcut OpenCore kodu ve çalışma biçimi
+6. Gerektiğinde OpenCart 4.1.0.4 upstream referansı
+
+Tarihsel belgeler `docs/history/` altında tutulur ve güncel mimari talimat olarak kullanılmaz.
+
+Bir kod değişikliği mevcut bir ADR veya aktif planı geçersiz hale getiriyorsa, ilgili doküman aynı görev kapsamında güncellenmelidir.
+
+Kod değişikliği dokümante edilmiş davranışı değiştirmiyorsa gereksiz doküman değişikliği yapılmaz.
+
+## 9. Test
+
+Yerel ve geçici test işleri repository içindeki:
+
+`test/`
+
+dizini altında yapılır.
+
+`test/` Git tarafından ignore edilir.
+
+Aynı görev için gereksiz yere birden fazla test ortamı veya test database'i oluşturulmaz.
+
+Önce implementation tamamlanır, ardından gerekli testler yapılır.
+
+Ana OpenCore database'i veri değiştirmeyen kontroller için kullanılabilir.
+
+Database değişikliği gerekiyorsa önce izole test database'inde doğrulanır.
+
+Testler başarılı olduktan sonra mevcut ana database'e uygulanması gerekiyorsa owner onayı alınır.
+
+Görev için oluşturulan geçici test dosyaları ve test database'leri test sonunda temizlenir.
+
+## 10. Git
+
+Geliştirici görevini tamamlayıp ilgili kontroller başarılı olduktan sonra commit oluşturabilir.
+
+Owner onayı olmadan aşağıdaki işlemler yapılmaz:
+
 - push
 - reset
-- clean
 - rebase
-- cherry-pick
-- branch deletion
-- force push
-- file or directory deletion
-- destructive database changes
+- clean
+- force işlemleri
+- history değiştiren veya destructive Git işlemleri
 
-Never mutate the main OpenCore database for testing.
+Owner gerektiğinde kendi Git/publish workflow'unu ayrıca kullanabilir.
 
-Destructive or E2E database tests must use an explicitly approved isolated test environment.
+## 11. Görev Tamamlama
 
-Do not delete temporary backups without explicit approval.
+Görev tamamlandığında:
 
-If a task requires a new architectural or product decision, stop and report the decision
-instead of choosing on behalf of the owner.
+1. gerekli testleri tamamla,
+2. testler başarılıysa commit oluştur,
+3. kısa sonuç raporu ver,
+4. dur.
 
-## Task and Context Discipline
+Sonuç raporu yalnız şunları içermelidir:
 
-Work only on the requested task.
+- ne yapıldı
+- değişen dosyalar
+- yapılan testler ve sonuçları
+- commit ID
+- varsa açık kalan sorun veya owner kararı gereken konu
 
-Do not perform repository-wide scans, audits, refactors, or comparisons unless explicitly requested.
+Yeni bir göreve kendiliğinden geçme.
 
-Start from exact files, paths, routes, classes, or symbols provided by the task.
+## 12. İletişim
 
-Use narrow rg/find searches only when a dependency must be located.
+Owner-facing iletişim varsayılan olarak Türkçe olmalıdır.
 
-Do not read unrelated ADRs, plans, reports, or historical project documents.
-Read only documents explicitly relevant to the current task.
-
-Do not repeat checks already established as passing unless the current change could invalidate them.
-
-Make the smallest safe change.
-Do not include unrelated cleanup or refactoring.
-
-## Validation
-
-Run only checks relevant to the changed scope.
-
-For PHP changes, run syntax checks on changed PHP files when practical.
-
-Use targeted tests instead of broad E2E or repository-wide audits unless broad validation
-is explicitly requested.
-
-After implementation report only:
-- changed files
-- validation performed and result
-- unresolved issue or required owner decision, if any
-
-Do not provide a long narrative unless requested.
-
-## Git and Sensitive Files
-
-The repository must remain private.
-
-Never commit:
-- config.php
-- .env or .env.*
-- credentials or API keys
-- mail/FTP passwords
-- runtime logs
-- cache/session files
-- temporary uploads
-- database backups
-- customer data exports
-
-SQL dumps and backups must not be committed.
-
-The following canonical installer seed files are intentional tracked source files and are exceptions:
-
-install/opencart-tr-tr.sql
-install/opencart-en-gb.sql
-
-## Instruction Priority
-
-1. Explicit current owner instruction
-2. Accepted ADR
-3. AGENTS.md
-4. Existing OpenCore conventions
-5. Native OpenCart 4.1.0.4 conventions
-
-Never silently override an accepted ADR or owner decision.
+Code, route, class, path, command ve diğer teknik ifadeler gerektiğinde İngilizce kalabilir.
