@@ -1,126 +1,60 @@
 # OpenCore UI Geliştirme Planı — Tabler Tabanlı Arayüz
 
-## Amaç
+## 1. Amaç
 
-OpenCore yönetim arayüzünü modern, tutarlı, responsive, dağıtılabilir ve kullanıcı tarafından özelleştirilebilir ortak bir UI platformuna dönüştürmek.
+OpenCore yönetim arayüzünü modern, tutarlı, responsive, dağıtılabilir ve kullanıcı tarafından özelleştirilebilir ortak bir UI platformu olarak geliştirmek.
 
-Yeni kanonik UI foundation olarak **Tabler Admin Template / `@tabler/core`** kullanılacaktır.
+Kanonik frontend foundation:
 
-Tabler bu projede yalnız görsel referans değildir; lisans ve dependency sınırları doğrulandığı ölçüde OpenCore'un gerçek frontend foundation'ı olarak kullanılacaktır.
+**Tabler Admin Template / `@tabler/core`**
 
-OpenCore backend/controller/model/route/permission mimarisi korunacaktır.
+Tabler yalnız görsel referans değildir; OpenCore'un gerçek frontend foundation'ıdır.
 
----
-
-# Owner Kararı
-
-Önceki Materialize referanslı UI implementation hattı terk edilmiştir.
-
-Materialize:
-
-- artık OpenCore UI foundation değildir,
-- yeni implementation için referans değildir,
-- Envato lisanslı asset veya kodları OpenCore'a alınmayacaktır.
-
-`develop` branch, Materialize UI çalışması başlamadan önceki doğrulanmış noktaya geri alınmıştır.
-
-Yeni UI çalışması Tabler ile temiz başlangıç yapacaktır.
+UI geliştirmeleri mevcut OpenCore backend, route, permission, language ve runtime davranışlarını korumalıdır.
 
 ---
 
-# Tabler Seçim Gerekçesi
+## 2. Temel UI Kararı
 
-Tabler:
+OpenCore UI foundation'ı Tabler'dır.
 
-- açık kaynak bir admin/dashboard UI kitidir,
-- Bootstrap tabanlıdır,
-- Admin Template MIT License ile dağıtılmaktadır,
-- Tabler Icons MIT License ile dağıtılmaktadır,
-- ticari ve dağıtılabilir OpenCore ürünü için uygun bir lisans modeli sunmaktadır,
-- vertical navigation, navbar, cards, forms, tables, modals, dropdowns ve benzeri ortak yönetim bileşenlerini bütünleşik bir tasarım diliyle sağlar.
+Materialize veya başka bir admin template yeni geliştirmelerde UI foundation olarak kullanılmaz.
 
-Tabler lisans bildirimi OpenCore distribution'ında korunacaktır.
+Tabler demo sayfaları birebir kopyalanmaz.
 
-Tabler Core dışındaki üçüncü taraf dependency'ler ayrıca kendi lisansları üzerinden değerlendirilecektir.
+OpenCore'un kendi:
 
-MIT lisanslı Tabler Core kullanılıyor olması, demo/chart/editor veya başka üçüncü taraf paketlerinin otomatik olarak aynı lisans koşullarına sahip olduğu anlamına gelmez.
+- route
+- controller/model davranışı
+- permission sistemi
+- menü verisi
+- notification sistemi
+- profile/account akışları
+- form ve AJAX contract'ları
 
----
+Tabler component ve layout yapısına adapte edilir.
 
-# Resmî Referanslar
-
-Tabler repository:
-
-```text
-https://github.com/tabler/tabler
-```
-
-Tabler lisans:
-
-```text
-https://tabler.io/license
-```
-
-Tabler documentation:
-
-```text
-https://docs.tabler.io/
-```
-
-Tabler Vertical Layout görsel/işlevsel hedef:
-
-```text
-https://tabler.io/admin-template/preview?page=layout-vertical.html
-```
-
-Tabler Core package:
-
-```text
-https://www.npmjs.com/package/@tabler/core
-```
+Functionality yalnız UI değişikliği gerekçesiyle yeniden tasarlanmaz.
 
 ---
 
-# OpenCore Repository
+## 3. Kanonik View Sınırı
+
+UI kaynakları mevcut `app/view/` yapısı içinde tutulur.
+
+Temel alanlar:
 
 ```text
-C:\xampp\htdocs\opencore
+app/view/
+├── image/
+├── javascript/
+├── stylesheet/
+└── template/
 ```
 
----
+Tabler için paralel yeni bir view root'u oluşturulmaz.
 
-# Kanonik OpenCore View Sınırı
-
-Tabler entegrasyonu mevcut OpenCore view directory yapısını bozmayacaktır.
-
-Kanonik temel:
-
-```text
-C:\xampp\htdocs\opencore\app\view\
-
-├── image\
-├── javascript\
-│   ├── bootstrap\
-│   ├── ckeditor\
-│   ├── codemirror\
-│   ├── jquery\
-│   ├── common.js
-│   └── ...
-├── stylesheet\
-│   ├── fonts\
-│   ├── scss\
-│   ├── bootstrap.css
-│   ├── stylesheet.css
-│   └── ...
-└── template\
-    ├── common\
-    ├── error\
-    └── ...
-```
-
-Tabler için `app/view/` altında paralel yeni root yapılar oluşturulmayacaktır.
-
-Örneğin:
+Örneğin aşağıdaki gibi yapılar oluşturulmaz:
 
 ```text
 app/view/tabler/
@@ -128,223 +62,20 @@ app/view/theme/
 app/view/assets/
 ```
 
-oluşturulmayacaktır.
-
-Gerekli runtime dosyaları mevcut kategorilerin altında konumlandırılacaktır:
+Gerekli dosyalar mevcut kategorilerin altında tutulur:
 
 - JavaScript → `app/view/javascript/`
 - CSS / SCSS / fonts → `app/view/stylesheet/`
 - Images → `app/view/image/`
 - Twig/layout → `app/view/template/`
 
-Yeni alt klasörler yalnız mevcut kategori altında, açık dependency gerekçesiyle oluşturulabilir.
-
 ---
 
-# Tabler Vendor Yerleşim İlkesi
+## 4. Güncel Runtime Sözleşmesi
 
-Tabler üçüncü taraf ama OpenCore tarafından dağıtılan bir frontend dependency olacaktır.
+Kanonik frontend foundation sürümü:
 
-Tabler kaynakları:
-
-- rastgele OpenCore CSS/JS içine kopyalanmamalı,
-- upstream kimliği kaybolacak şekilde parçalanmamalı,
-- lisans bildirimi kaldırılmamalı,
-- demo dosyaları runtime'a taşınmamalıdır.
-
-Kanonik vendor yerleşimi compatibility audit sonucunda belirlenmiş ve uygulanmıştır:
-
-- CSS: `app/view/stylesheet/tabler/tabler.min.css`
-- JavaScript: `app/view/javascript/tabler/js/tabler.min.js`
-
-Kullanılan kanonik sürüm **Tabler Core 1.5.0**'dır.
-
-Ama yerleşim mutlaka mevcut:
-
-```text
-app/view/javascript/
-app/view/stylesheet/
-app/view/image/
-```
-
-sınırları içinde kalacaktır.
-
----
-
-# Bootstrap Sözleşmesi
-
-Tabler Core Bootstrap tabanlıdır ve Tabler dağıtım CSS'i Bootstrap stillerini kendi build çıktısında içerir.
-
-Bu nedenle OpenCore runtime'ında:
-
-```text
-OpenCore bootstrap.css
-+
-Tabler tabler.css içindeki Bootstrap
-```
-
-şeklinde iki ayrı Bootstrap stil katmanı körlemesine aynı anda yüklenmemelidir.
-
-Aynı şekilde duplicate Bootstrap JavaScript initialization oluşturulmamalıdır.
-
-İlk compatibility audit özellikle şunları belirleyecektir:
-
-- OpenCore'un mevcut Bootstrap sürümü,
-- Tabler Core'un kullandığı Bootstrap sürümü,
-- mevcut OpenCore Twig markup'ının Bootstrap bağımlılıkları,
-- `common.js` içindeki Bootstrap API kullanımları,
-- hangi Bootstrap CSS/JS katmanının kanonik runtime olacağı,
-- mevcut OpenCore Bootstrap dosyalarının ne zaman ve nasıl kaldırılabileceği veya korunabileceği.
-
-Bootstrap değişimi dependency audit olmadan yapılmayacaktır.
-
----
-
-# `common.js` Koruma Sözleşmesi
-
-Kritik dosya:
-
-```text
-C:\xampp\htdocs\opencore\app\view\javascript\common.js
-```
-
-`common.js`, OpenCore runtime contract'ının parçasıdır.
-
-Tabler entegrasyonu sırasında:
-
-- körlemesine replace edilmemeli,
-- Tabler JS ile overwrite edilmemeli,
-- mevcut OpenCore davranışları gereksiz yere yeniden yazılmamalı,
-- file manager, upload, AJAX forms, notifications, session davranışları ve diğer OpenCore frontend contract'ları korunmalıdır.
-
-Tabler ile conflict varsa önce conflict açıkça sınıflandırılmalıdır.
-
-Tabler'a geçiş bahanesiyle application davranışı değiştirilmemelidir.
-
----
-
-# Korunacak OpenCore Yapıları
-
-Tabler entegrasyonu nedeniyle aşağıdakiler yeniden tasarlanmamalıdır:
-
-- PHP controller/model mimarisi
-- route sistemi
-- Twig view mimarisi
-- `user` / `user_group` yapısı
-- permission sistemi
-- notification altyapısı
-- form/controller contract'ları
-- file manager davranışı
-- upload mekanizması
-- session/auth davranışı
-- database upgrade sistemi
-- kanonik `app/` / `api/` mimarisi
-- OpenCart tabanlı `Opencart\...` namespace yapısı
-
-Tabler yalnız frontend foundation'dır.
-
----
-
-# Görsel Hedef
-
-Ana görsel/işlevsel hedef Tabler Vertical Layout olacaktır.
-
-Hedef shell:
-
-```text
-┌──────────── Vertical Sidebar ────────────┬──────── Navbar ────────────────┐
-│ Logo / OpenCore                         │ Search / actions / user        │
-│                                         ├────────────────────────────────┤
-│ Permission-aware navigation             │                                │
-│                                         │          PAGE CONTENT          │
-│                                         │                                │
-│                                         │                                │
-└─────────────────────────────────────────┴────────────────────────────────┘
-```
-
-Tabler demo sayfası birebir kopyalanmayacaktır.
-
-OpenCore'un kendi:
-
-- menü verisi,
-- routes,
-- permissions,
-- notifications,
-- profile/account actions
-
-Tabler component markup'ına adapte edilecektir.
-
----
-
-# Sidebar / Menü
-
-OpenCore'un mevcut permission-aware menü ağacı korunacaktır.
-
-Tabler tarafında hedef:
-
-- vertical sidebar
-- ikon + başlık
-- active state
-- nested menu
-- expand/collapse
-- responsive/mobile navigation
-- kompakt/collapsed kullanım
-- okunabilir grup hiyerarşisi
-
-Menu controller/data yapısı UI uğruna yeniden yazılmamalıdır.
-
----
-
-# Header / Navbar
-
-Tabler navbar yapısı OpenCore'a adapte edilecektir.
-
-En az:
-
-- sidebar toggle
-- notifications
-- language
-- user profile
-- logout
-- ileride global search
-
-alanlarını destekleyecektir.
-
-Mevcut OpenCore profile, notification, language ve logout route/behavior contract'ları korunacaktır.
-
----
-
-# Ortak Component Sistemi
-
-Yeni OpenCore modülleri mümkün olduğunca Tabler'ın ortak component dilini kullanacaktır.
-
-Öncelikli componentler:
-
-- Cards
-- Forms
-- Inputs
-- Selects
-- Checkboxes / radios / switches
-- Tables
-- Modals
-- Dropdowns
-- Alerts
-- Badges
-- Tabs
-- Buttons
-- Pagination
-- Breadcrumbs
-- Filters
-- Empty states
-- Tooltips
-- Offcanvas / responsive navigation
-- Notifications
-
-Amaç her yeni modülde yeni CSS üretmek değil, ortak Tabler/OpenCore component sözleşmesini tekrar kullanmaktır.
-
-## Güncel UI Runtime Sözleşmesi
-
-OpenCore'un kanonik frontend foundation sürümü **Tabler Core 1.5.0**'dır.
+**Tabler Core 1.5.0**
 
 Runtime'da kullanılan upstream Tabler dosyaları:
 
@@ -353,302 +84,92 @@ app/view/stylesheet/tabler/tabler.min.css
 app/view/javascript/tabler/js/tabler.min.js
 ```
 
-Bu vendor dosyaları upstream dağıtım çıktısı olarak korunmalı ve OpenCore'a özel değişiklikler doğrudan bu dosyalara yazılmamalıdır.
+Bu dosyalar upstream vendor çıktısı olarak korunur.
 
-OpenCore'a özel görsel uyarlamalar:
+OpenCore'a özel görsel uyarlamalar doğrudan vendor dosyalarına yazılmaz.
+
+OpenCore-specific CSS:
 
 ```text
 app/view/stylesheet/stylesheet.css
 ```
 
-içinde tutulmalıdır.
-
-Ortak component kullanımı için aşağıdaki sözleşmeler geçerlidir:
-
-- standart secondary action butonlarında `btn-light` kullanılır,
-- Tabler'ın native component ve utility class'ları mümkün olduğunca özel CSS'e tercih edilir,
-- ana liste kartlarında tablo içeriği `card-body`, pagination ve sonuç bilgisi aynı kartın `card-footer` bölümünde yer alır,
-- tab, fieldset veya başka bir component içine gömülü bağımsız tablolarda pagination tabloya aitse `tfoot` içinde tutulur,
-- modal içindeki pagination mevcut modal yapısına uygun olarak `modal-footer` içinde kalır,
-- ortak pagination componenti ekranda en fazla 5 sayfa bağlantısı gösterecek şekilde tutulur,
-- çok dilli tekrar eden input gruplarında dil alanları görsel olarak birbirinden ayrılır.
-
-Bu kurallar yalnız presentation standardıdır; route, controller, model, permission ve AJAX davranışlarının yeniden tasarlanmasını gerektirmez.
+içinde tutulur.
 
 ---
 
-# Tabler Icons
+## 5. Bootstrap ve JavaScript Sınırı
 
-Tabler Icons, MIT lisanslı ortak ikon sistemi olarak değerlendirilecektir.
+Tabler Bootstrap tabanlıdır.
 
-İlk audit:
+Runtime'da birbirini tekrar eden veya çakışan iki ayrı Bootstrap CSS/JS katmanı oluşturulmamalıdır.
 
-- mevcut Font Awesome kullanımını,
-- Tabler Icons ile overlap'i,
-- webfont / SVG kullanım seçeneklerini,
-- mevcut OpenCore ikon contract'larını
+Mevcut OpenCore JavaScript davranışları korunmalıdır.
 
-inceleyecektir.
-
-Bir geçiş kararı verilirse ikon sistemi batch halinde değiştirilecektir.
-
-Aynı runtime'da gereksiz çift ikon framework taşınmayacaktır.
-
----
-
-# Typography
-
-OpenCore varsayılan tipografisi için **Tabler'ın kendi varsayılan font ve typography sistemi** kullanılacaktır.
-
-Önceki Public Sans tercihi iptal edilmiştir.
-
-Amaç:
-
-- Tabler'ın resmî Vertical Layout demosundaki tipografi görünümünü korumak,
-- ekstra font override katmanı oluşturmamak,
-- Tabler'ın spacing, heading, control ve navigation ölçeklerini mümkün olduğunca upstream davranışına yakın tutmak,
-- yalnız gerçek OpenCore ihtiyacı ortaya çıkarsa minimum typography override uygulamaktır.
-
-Harici Google Fonts runtime bağımlılığı eklenmeyecektir.
-
-
-# Kullanıcı Arayüz Tercihleri
-
-Kullanıcı bazlı UI preference sistemi, Tabler'ın kendi **Theme Settings** modelini temel alacaktır.
-
-Ayarlar OpenCore içinde:
+Kritik ortak dosya:
 
 ```text
-Profil
-└── Arayüz Tercihleri
+app/view/javascript/common.js
 ```
 
-altında yönetilecektir.
+`common.js`:
 
-Tabler demo içindeki ayar paneli runtime'da ayrı bir floating/customizer panel olarak kullanılmayacaktır.
-
-Tercihler kullanıcı bazında DB'de kalıcı saklanacaktır. Kullanıcı başka bir cihazdan giriş yaptığında kendi kayıtlı arayüz tercihleri uygulanmalıdır.
-
-## Renk Modu
-
-- Light
-- Dark
-- System
-
-`System`, işletim sistemi / browser `prefers-color-scheme` tercihine uyacaktır.
-
-## Renk Şeması
-
-Tabler'ın desteklediği theme color palette seçenekleri kullanılacaktır.
-
-OpenCore ayrıca kendi özel palette framework'ünü üretmeyecektir.
-
-Kesin palette listesi kullanılan Tabler sürümünün gerçek Theme Settings seçeneklerinden alınacaktır.
-
-## Font Family
-
-Tabler Theme Settings modelindeki seçenekler kullanılacaktır:
-
-- Sans-serif
-- Serif
-- Monospace
-- Comic
-
-OpenCore varsayılanı Tabler'ın kendi varsayılan font ailesi olacaktır.
-
-Önceki Public Sans owner tercihi iptal edilmiştir.
-
-## Theme Base
-
-Tabler'ın desteklediği taban ton seçenekleri kullanılacaktır:
-
-- Slate
-- Gray
-- Zinc
-- Neutral
-- Stone
-
-## Corner Radius
-
-Tabler'ın Theme Settings modelindeki radius seçenekleri kullanılacaktır:
-
-- 0
-- 0.5
-- 1
-- 1.5
-- 2
-
-## OpenCore Yerleşim Tercihleri
-
-Tabler Theme Settings dışında OpenCore'un gerçek ihtiyacı olan layout tercihleri ayrıca tutulabilir.
-
-İlk hedef:
-
-### Sol Menü
-
-- Expanded
-- Collapsed
-
-### İçerik Genişliği
-
-- Compact
-- Wide
-
-### Navbar
-
-Yalnız Tabler runtime ve OpenCore kullanımında gerçek ihtiyaç doğrulanırsa:
-
-- Sticky
-- Static
-- Auto-hide
-
-gibi seçenekler değerlendirilebilir.
-
-Kritik profile, language, notification ve logout aksiyonları hiçbir layout tercihinde erişilemez hale gelmemelidir.
-
-## Uygulama İlkesi
-
-Tabler'da doğal karşılığı olmayan eski Materialize kavramları taşınmayacaktır.
-
-Özellikle aşağıdakiler sırf önceki UI denemesinde kullanılmış oldukları için korunmayacaktır:
-
-- Semi Dark
-- Materialize Skin / Bordered kavramı
-- Materialize customizer davranışları
-
-Yeni preference modeli Tabler'ın gerçek capabilities setine dayanacaktır.
-
-## Preview / Save Davranışı
-
-Profil ekranında ayarlar değiştirilirken mümkünse anlık preview uygulanabilir.
-
-Ancak:
-
-- kalıcı değişiklik yalnız kullanıcı `Kaydet` dediğinde DB'ye yazılmalı,
-- kaydetmeden çıkılırsa eski kalıcı tercihler korunmalıdır,
-- preference sistemi yalnız browser `localStorage` üzerine kurulmamalıdır.
-
-Kesin DB schema ve runtime uygulaması UI-T7 / UI-T8 sırasında mevcut user yapısı incelenerek minimum kapsamla tasarlanacaktır.
-
-
-# Lisans ve Dağıtım
-
-OpenCore dağıtılabilir bir üründür.
-
-Tabler Admin Template MIT License şartları gereği ilgili copyright ve izin bildirimi OpenCore distribution'ında korunacaktır.
-
-Aynı kural Tabler Icons için de geçerlidir.
-
-Her yeni frontend dependency için:
-
-1. upstream kaynak,
-2. kullanılan version,
-3. license,
-4. redistribution şartları
-
-kayda alınmalıdır.
-
-Tabler demo repository'sindeki her dependency otomatik olarak OpenCore'a alınmayacaktır.
+- Tabler JS ile overwrite edilmez,
+- gereksiz yere yeniden yazılmaz,
+- mevcut OpenCore frontend contract'larını korur.
 
 Özellikle:
 
-- charts
-- editors
-- calendars
-- maps
-- premium/pro
-- illustrations
-- demo-only plugins
+- file manager
+- upload
+- AJAX forms
+- notifications
+- session/auth ile ilişkili frontend davranışları
 
-gerektiğinde ayrıca incelenecektir.
-
-İhtiyaç olmayan dependency runtime'a eklenmemelidir.
+UI değişikliği sırasında bozulmamalıdır.
 
 ---
 
-# External CDN Politikası
+## 6. Korunacak OpenCore Yapıları
 
-Production OpenCore üçüncü taraf CDN'lere zorunlu bağımlı olmayacaktır.
+Tabler entegrasyonu nedeniyle aşağıdakiler yeniden tasarlanmamalıdır:
 
-Dağıtılan ve gerekli:
+- Controller / Model mimarisi
+- route sistemi
+- Twig view mimarisi
+- language sistemi
+- `user` / `user_group`
+- permission sistemi
+- notification altyapısı
+- form/controller contract'ları
+- file manager
+- upload
+- session/auth
+- database upgrade sistemi
+- `app/` / `api/` uygulama sınırları
+- mevcut `Opencart\...` namespace yaklaşımı
 
-- CSS
-- JS
-- fonts
-- icons
-
-OpenCore ile birlikte local/self-hosted gelmelidir.
-
-CDN yalnız development/demo referansı olabilir.
-
----
-
-# Yeni Geliştirme Fazları
-
-## UI-T0 — Tabler / OpenCore Compatibility Audit
-
-### Amaç
-
-Implementation öncesi mevcut OpenCore frontend ile Tabler Core arasındaki kesin teknik sınırı çıkarmak.
-
-### İncelenecek
-
-- mevcut Bootstrap version ve kullanım alanları
-- jQuery bağımlılıkları
-- `common.js`
-- header / column_left / footer
-- Bootstrap JS API kullanımları
-- OpenCore form/modal/dropdown markup
-- Tabler Core CSS/JS dependency zinciri
-- Tabler Core Bootstrap entegrasyonu
-- Tabler Icons
-- required vs demo-only assets
-- license inventory
-- distribution strategy
-
-### Çıktı
-
-UI-T1 için kesin minimum dosya ve migration kapsamı.
-
-### Kural
-
-Read-only.
-
-Kod veya DB değiştirilmez.
+Tabler frontend foundation'dır; application architecture değildir.
 
 ---
 
-## UI-T1 — Tabler Core Foundation
+## 7. Ana Layout
 
-### Amaç
+Ana hedef Tabler Vertical Layout yaklaşımıdır.
 
-Tabler Core'un yalnız gerekli runtime foundation'ını OpenCore'a eklemek.
+Temel yapı:
 
-### Kapsam
+```text
+┌──────────── Vertical Sidebar ────────────┬──────── Navbar ────────────────┐
+│ Logo / OpenCore                         │ Search / actions / user        │
+│                                         ├────────────────────────────────┤
+│ Permission-aware navigation             │                                │
+│                                         │          PAGE CONTENT          │
+│                                         │                                │
+└─────────────────────────────────────────┴────────────────────────────────┘
+```
 
-- MIT license/attribution
-- gerekli Tabler core CSS/JS
-- gerekli local fonts/icons kararı
-- Bootstrap duplicate katmanının kontrollü çözümü
-- mevcut `app/view/` yapısına doğru yerleşim
-
-### Kapsam Dışı
-
-- full shell dönüşümü
-- menu redesign
-- preferences
-- dashboard redesign
-- business module UI
-
----
-
-## UI-T2 — Vertical Shell
-
-### Amaç
-
-Tabler Vertical Layout temeliyle OpenCore common shell oluşturmak.
-
-Ana alanlar:
+Ortak shell için temel Twig alanları:
 
 ```text
 app/view/template/common/header.twig
@@ -656,147 +177,242 @@ app/view/template/common/column_left.twig
 app/view/template/common/footer.twig
 ```
 
-Hedef:
-
-- sidebar
-- navbar
-- page wrapper
-- content
-- footer
-- responsive shell
-
-OpenCore route/controller contract korunacaktır.
+Sidebar ve header davranışları mevcut permission ve route contract'larını kullanır.
 
 ---
 
-## UI-T3 — Permission-aware Navigation
+## 8. Sidebar ve Navigation
 
-### Amaç
+Sidebar:
 
-Mevcut OpenCore menü ağacını Tabler navigation markup ve görsel diliyle sunmak.
-
-Kapsam:
-
+- vertical navigation
+- icon + title
 - active state
-- nested items
-- icons
-- expanded/collapsed
-- desktop/mobile behavior
+- nested menu
+- expand/collapse
+- responsive/mobile navigation
+- okunabilir grup hiyerarşisi
 
-Permission logic yeniden yazılmayacaktır.
+özelliklerini desteklemelidir.
+
+Mevcut permission-aware menü yapısı korunur.
+
+UI amacıyla menu controller/data yapısı yeniden yazılmaz.
 
 ---
 
-## UI-T4 — Header Account / Notification Actions
+## 9. Header / Navbar
 
-### Amaç
+Header en az aşağıdaki mevcut akışları desteklemelidir:
 
-Mevcut:
-
-- profile
-- language
+- sidebar toggle
 - notifications
+- language
+- user profile
 - logout
 
-akışlarını Tabler navbar/dropdown componentleriyle adapte etmek.
+İleride gerçek ihtiyaç oluşursa global search eklenebilir.
 
-Functionality değil presentation değişmelidir.
+Profile, language, notification ve logout aksiyonları layout tercihlerinden bağımsız olarak erişilebilir kalmalıdır.
 
 ---
 
-## UI-T5 — Common Component Normalization
+## 10. Ortak Component Standardı
 
-### Amaç
+Yeni ve mevcut OpenCore ekranları mümkün olduğunca Tabler'ın native component ve utility class'larını kullanmalıdır.
 
-OpenCore genel ekranlarını Tabler component standardına getirmek.
+Öncelikli componentler:
 
-Öncelik:
-
-- forms
-- tables
 - cards
+- forms
+- inputs
+- selects
+- checkboxes / radios / switches
+- tables
 - modals
 - dropdowns
 - alerts
+- badges
 - tabs
 - buttons
 - pagination
+- breadcrumbs
 - filters
+- empty states
+- tooltips
+- responsive navigation
+- notifications
 
-Bu aşama yeni Ajanda ve Ar-Ge modüllerinin ortak görsel temelini tamamlamalıdır.
+Amaç her modül için yeni bir CSS sistemi üretmek değil, ortak Tabler/OpenCore component dilini tekrar kullanmaktır.
+
+### Ortak Presentation Kuralları
+
+- Standart secondary action butonlarında `btn-light` kullanılır.
+- Tabler native component/utility class'ları mümkün olduğunca özel CSS'e tercih edilir.
+- Ana liste kartlarında tablo içeriği `card-body` içinde tutulur.
+- Ana liste pagination ve sonuç bilgisi aynı kartın `card-footer` alanında tutulur.
+- Tab veya fieldset içindeki bağımsız tablolarda pagination tabloya aitse `tfoot` kullanılabilir.
+- Modal içindeki pagination mevcut modal yapısına uygun olarak `modal-footer` içinde kalabilir.
+- Ortak pagination componenti ekranda en fazla 5 sayfa bağlantısı gösterecek şekilde tutulur.
+- Çok dilli tekrar eden input gruplarında dil alanları görsel olarak ayrılır.
+
+Bu kurallar presentation standardıdır; backend contract'larını değiştirmez.
 
 ---
 
-## UI-T6 — Typography Alignment
+## 11. Typography
 
-### Amaç
+Varsayılan olarak Tabler'ın kendi font ve typography sistemi kullanılır.
 
-Tabler foundation üzerinde OpenCore tipografisini resmî Tabler Vertical Layout görünümüne yakın tutmak.
+Ek font framework veya gereksiz typography override oluşturulmaz.
 
-Hedef:
+Özel override yalnız gerçek OpenCore ihtiyacı olduğunda minimum kapsamda yapılır.
 
-- Tabler varsayılan font sistemi
-- headings
-- menu typography
-- tables
-- form labels
-- controls
-- buttons
+Harici Google Fonts runtime bağımlılığı eklenmez.
 
-Özel font override ancak gerçekten gerekli olduğunda minimum kapsamla uygulanacaktır.
+---
 
-Public Sans kullanılmayacaktır.
+## 12. Icons
 
+Tabler Icons ortak ikon sistemi olarak kullanılabilir.
 
-## UI-T7 — Kullanıcı UI Preferences
+Yeni ikon ihtiyacında öncelik mevcut Tabler Icons setidir.
 
-### Amaç
+Aynı runtime'da gereksiz şekilde birden fazla ikon framework taşınmamalıdır.
 
-Profil sayfasına Tabler Theme Settings modelini temel alan kullanıcı bazlı UI tercihlerini eklemek ve kalıcı saklamak.
+Mevcut legacy ikonların toplu dönüşümü ayrı ve kontrollü bir UI görevi olarak ele alınmalıdır.
+
+---
+
+## 13. Kullanıcı Arayüz Tercihleri
+
+Kullanıcı bazlı UI tercihleri profil altında yönetilir:
+
+```text
+Profil
+└── Arayüz Tercihleri
+```
+
+Tercihler kullanıcı bazında database'de kalıcı tutulur.
+
+Sistem yalnız browser `localStorage` üzerine kurulmaz.
 
 İlk hedef preference seti:
 
-- Color Mode: Light / Dark / System
-- Color Scheme: kullanılan Tabler sürümünün desteklediği palette
-- Font Family: Sans-serif / Serif / Monospace / Comic
-- Theme Base: Slate / Gray / Zinc / Neutral / Stone
-- Corner Radius: 0 / 0.5 / 1 / 1.5 / 2
-- Menu: Expanded / Collapsed
-- Content Width: Compact / Wide
-- yalnız gerçek ihtiyaç doğrulanırsa Navbar davranışı
+### Color Mode
 
-Bu fazda preference verileri kullanıcı bazında DB'de kalıcı hale getirilecektir.
+- Light
+- Dark
+- System
 
-Runtime theme/layout uygulaması UI-T8 kapsamıdır.
+### Color Scheme
 
+Kullanılan Tabler sürümünün desteklediği palette seçenekleri.
 
-## UI-T8 — Runtime Preferences
+### Font Family
 
-### Amaç
+- Sans-serif
+- Serif
+- Monospace
+- Comic
 
-Kaydedilen tercihleri Tabler/OpenCore shell'e uygulamak.
+### Theme Base
 
-Kapsam:
+- Slate
+- Gray
+- Zinc
+- Neutral
+- Stone
 
-- Light / Dark / System
-- Color Scheme
-- Font Family
-- Theme Base
-- Corner Radius
-- Expanded / Collapsed menu
-- Content Width
-- varsa onaylanmış Navbar davranışı
+### Corner Radius
 
-Tabler Theme Settings ile aynı semantic model kullanılmalıdır.
+- 0
+- 0.5
+- 1
+- 1.5
+- 2
 
-Tabler demo customizer kodu doğrudan kopyalanmayacaktır; tercihlerin OpenCore user DB kalıcılığıyla çalışan minimum runtime adaptasyonu yapılacaktır.
+### Menu
 
+- Expanded
+- Collapsed
 
-## UI-T9 — Final UI Polish ve Acceptance
+### Content Width
 
-### Amaç
+- Compact
+- Wide
 
-Tüm ortak UI üzerinde son görsel tutarlılığı sağlamak.
+Navbar davranışı ancak gerçek ihtiyaç doğrulanırsa ayrıca eklenir.
+
+Kalıcı değişiklik kullanıcı `Kaydet` dediğinde yazılmalıdır.
+
+Kaydetmeden çıkıldığında mevcut kalıcı tercih korunmalıdır.
+
+---
+
+## 14. Lisans ve Dependency Politikası
+
+OpenCore dağıtılabilir bir üründür.
+
+Tabler Admin Template ve Tabler Icons lisans bildirimleri distribution içinde korunmalıdır.
+
+Yeni frontend dependency eklenmeden önce:
+
+1. upstream kaynak,
+2. kullanılan version,
+3. license,
+4. redistribution şartları
+
+doğrulanmalıdır.
+
+Tabler demo repository'sindeki dependency'ler otomatik olarak OpenCore'a alınmaz.
+
+Özellikle charts, editors, calendars, maps, premium/pro, illustrations ve demo-only plugin'ler yalnız gerçek ihtiyaç varsa ayrıca değerlendirilir.
+
+Yeni üçüncü taraf dependency eklenmesi `AGENTS.md` kurallarına tabidir.
+
+---
+
+## 15. External CDN Politikası
+
+Production OpenCore üçüncü taraf CDN'lere zorunlu bağımlı olmaz.
+
+Dağıtım için gerekli:
+
+- CSS
+- JavaScript
+- fonts
+- icons
+
+OpenCore ile birlikte local/self-hosted olarak gelmelidir.
+
+CDN yalnız development veya referans amacıyla kullanılabilir.
+
+---
+
+## 16. Aktif UI Geliştirme Alanları
+
+Tabler foundation, ortak shell, navigation ve temel header entegrasyonu mevcut baseline olarak korunur.
+
+Bundan sonraki UI geliştirmeleri öncelikle aşağıdaki alanlarda ilerler:
+
+### UI-1 — Common Component Normalization
+
+Forms, tables, cards, modals, dropdowns, alerts, tabs, buttons, pagination ve filters üzerinde ortak Tabler/OpenCore standardını yaygınlaştır.
+
+### UI-2 — Typography ve Görsel Tutarlılık
+
+Sidebar hierarchy, spacing, headings, form labels, tables, controls ve buttons üzerinde Tabler foundation ile tutarlılığı tamamla.
+
+### UI-3 — Kullanıcı UI Preferences
+
+Profil ekranında kullanıcı bazlı UI tercihlerini mevcut user yapısı içinde minimum database değişikliğiyle kalıcı hale getir.
+
+### UI-4 — Runtime Preferences
+
+Kaydedilen tercihleri common shell ve ilgili componentlere uygula.
+
+### UI-5 — Final UI Polish ve Acceptance
 
 Özellikle:
 
@@ -810,27 +426,25 @@ Tüm ortak UI üzerinde son görsel tutarlılığı sağlamak.
 - focus states
 - accessibility-visible states
 
-kontrol edilecektir.
+üzerinde son tutarlılık kontrolü yap.
 
 ---
 
-# Test ve Acceptance Yaklaşımı
+## 17. Test ve Acceptance
 
-UI geliştirmelerinde son acceptance yalnız LLM/otomatik teste bırakılmayacaktır.
+UI görevlerinde `AGENTS.md` içindeki genel test kuralları geçerlidir.
 
-Her anlamlı batch'te:
+UI değişikliğinin kapsamına göre gerekli syntax/static kontroller yapılır.
 
-1. syntax/static validation
-2. targeted browser smoke
-3. owner manual visual acceptance
+Geçici test varlıkları repository içindeki `test/` alanında tutulur ve görev sonunda temizlenir.
 
-uygulanacaktır.
+Son görsel kabul yalnız otomatik teste bırakılmaz.
 
-Özellikle manuel kontrol:
+Gerekli olduğunda owner tarafından browser üzerinde özellikle şu alanlar kontrol edilir:
 
 - login
 - dashboard
-- long sidebar
+- sidebar
 - desktop/mobile
 - dropdowns
 - notifications
@@ -840,98 +454,25 @@ uygulanacaktır.
 - tables
 - modals
 - file manager
-- dark/light
+- light/dark
 - responsive behavior
 
-üzerinde yapılmalıdır.
-
 ---
 
-# Paperclip / Codex Çalışma Kuralı
+## 18. Durum
 
-Kalıcı UI kararları bu plan dosyasında tutulacaktır.
+Bu belge OpenCore için aktif kanonik UI geliştirme planıdır.
 
-Paperclip task prompt'ları planı tekrar etmeyecektir.
-
-Task prompt yalnız:
-
-- task amacı
-- ilgili path/dosyalar
-- task'a özel sınırlar
-- beklenen çıktı
-
-ile minimum tutulacaktır.
-
-Genel proje sözleşmeleri Skills ve kanonik ADR/plan dosyalarından okunacaktır.
-
----
-
-# Test Workspace Kuralı
-
-Gerekli geçici/E2E testler yalnız:
-
-```text
-C:\xampp\htdocs\opencore_test
-```
-
-altında task'a özel klasörlerde yapılabilir.
-
-Ana repo içinde geçici test fixture oluşturulmayacaktır.
-
-Gerekirse task'a özel izole DB/schema kullanılacaktır.
-
-Task bitince yalnız task'a ait test varlıkları temizlenecek, `opencore_test` ana klasörü korunacaktır.
-
----
-
-# Git Kuralı
-
-Her UI batch'i owner kabulünden sonra gerektiğinde kontrollü checkpoint commit ile sabitlenebilir.
-
-Git işlemleri `opencore-git-owner-approval` sözleşmesine tabidir.
-
-- otomatik push yok
-- main'e otomatik geçiş yok
-- owner onaysız commit/reset/merge/rebase yok
-
----
-
-# İlk Sıradaki Task
-
-Yeni Tabler hattının ilk gerçek görevi:
-
-```text
-UI-T0 — Tabler / OpenCore Compatibility Audit
-```
-
-olacaktır.
-
-Bu task implementation yapmayacak.
-
-Amaç Tabler Core'un OpenCore'a hangi minimum, güvenli ve dağıtılabilir şekilde entegre edileceğini kesinleştirmektir.
-
----
-
-# Durum
-
-Bu belge OpenCore için güncel kanonik UI geliştirme planıdır.
-
-Geçersiz yaklaşım:
-
-```text
-Materialize referanslı özel UI üretimi
-```
-
-Yeni yaklaşım:
+Kanonik yaklaşım:
 
 ```text
 OpenCore backend/runtime
 +
 Tabler Core UI foundation
 +
-OpenCore Twig/menu/permission davranışı
+OpenCore Twig/menu/permission behavior
 +
 minimum OpenCore-specific customization
 ```
 
-Tabler'ın ortak component sistemi mümkün olduğunca korunacak; OpenCore yalnız gerekli ürün kimliği ve davranış adaptasyonlarını ekleyecektir.
+UI geliştirmeleri mümkün olduğunca Tabler'ın ortak component sistemini kullanmalı ve mevcut OpenCore application davranışını korumalıdır.

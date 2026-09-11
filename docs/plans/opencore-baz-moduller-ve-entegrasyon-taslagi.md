@@ -2,9 +2,13 @@
 
 ## Amaç
 
-OpenCore'u ERP veya CRM gibi büyük iş modüllerine geçmeden önce, şirket içi uygulamaların üzerinde çalışabileceği ortak ve entegre bir baz platform olarak ayağa kaldırmak.
+OpenCore; şirket içi operasyonel çalışma, koordinasyon ve karar destek platformudur.
 
-Bu doküman mevcut kanonik OpenCore mimarisini değiştirmez. Buradaki amaç, bundan sonraki ürün geliştirme yönünü ve baz modüller arasındaki ilişkileri tanımlamaktır.
+Bu dokümanın amacı, OpenCore üzerinde geliştirilecek ortak baz modülleri ve bu modüller arasındaki temel ilişkileri tanımlamaktır.
+
+OpenCore bir ERP veya CRM değildir. Gerektiğinde ERP, CRM, diğer dış sistemler, API'ler, yapay zekâ ajanları ve farklı veritabanlarıyla veri alışverişi yapabilir.
+
+Bu doküman mevcut kanonik OpenCore mimarisini değiştirmez.
 
 ---
 
@@ -16,20 +20,18 @@ OpenCore'da üç farklı kavram birbirinden ayrı tutulacaktır:
 
 Mevcut `user_group` ve OpenCart/OpenCore permission mekanizması kullanılmaya devam eder.
 
-`user_group` temel olarak kullanıcının hangi modül veya route'a erişebileceğini ve hangi işlemleri değiştirebileceğini belirler.
+`user_group`, kullanıcının hangi modül veya route'a erişebileceğini ve hangi işlemleri değiştirebileceğini belirler.
 
 Örnek:
 
-- `access` izni: Kullanıcı ilgili modülü/ekranı açabilir.
-- `modify` izni: Kullanıcı ilgili modülde değişiklik yapabilir.
-
-Kullanıcının bir ekrana gerekli erişim veya değiştirme izni yoksa, sistem bu durumu anlaşılır biçimde bildirir. Kullanıcı gerekli olduğunda sistem yöneticisinden yetki talep eder.
+- `access`: kullanıcı ilgili modülü veya ekranı açabilir.
+- `modify`: kullanıcı ilgili modülde değişiklik yapabilir.
 
 ### 2. Membership — Ekip Üyeliği
 
 `Team / Ekip`, `user_group` ile aynı şey değildir.
 
-Ekipler departmanları veya yetki gruplarını temsil etmek için kullanılmaz. Bunun yerine belirli bir proje, çalışma veya amaç için farklı alanlardan kullanıcıların bir araya getirildiği çapraz fonksiyonlu çalışma gruplarıdır.
+Ekipler departman veya yetki grubu değildir. Belirli bir proje, çalışma veya amaç için farklı alanlardan kullanıcıların bir araya geldiği çapraz fonksiyonlu çalışma gruplarıdır.
 
 Örnek:
 
@@ -48,11 +50,11 @@ Görev gibi kayıtlar gerektiğinde:
 
 - belirli bir kullanıcıya,
 - bir kullanıcı grubuna,
-- veya bir ekibe
+- bir ekibe
 
 atanabilir.
 
-Bu kavram permission ve team membership'ten ayrıdır.
+Assignment, permission ve team membership'ten ayrı bir kavramdır.
 
 ---
 
@@ -78,7 +80,9 @@ Bu kavram permission ve team membership'ten ayrıdır.
 └── Bilgi Bankası
 ```
 
-ERP, CRM, Satış, Satın Alma ve diğer iş modülleri bu temel yapı oturduktan sonra ayrıca geliştirilecektir.
+Diğer operasyonel modüller, bu ortak yapı oturduktan sonra ihtiyaç bazında ayrıca geliştirilebilir.
+
+ERP, CRM ve benzeri dış sistemlerde bulunan veriler gerektiğinde entegrasyon yoluyla OpenCore içinde kullanılabilir; bu sistemlerin tamamını OpenCore içinde yeniden oluşturmak hedef değildir.
 
 ---
 
@@ -163,8 +167,8 @@ Antispray Geliştirme Ekibi
 
 Kullanıcı Projeler ekranına girdiğinde:
 
-1. Önce `user_group` üzerinden Projeler modülüne erişim izni kontrol edilir.
-2. Kullanıcının modüle erişim izni varsa, normal kullanımda kendisinin üyesi olduğu ekiplerle ilişkili projeler gösterilebilir.
+1. `user_group` üzerinden Projeler modülüne erişim izni kontrol edilir.
+2. Gerekli permission varsa, kayıt görünürlüğü Team membership gibi ilgili kurallara göre sınırlandırılabilir.
 
 Temel ilişki:
 
@@ -180,49 +184,23 @@ Users
 
 Proje üyeleri Team üyelerinden ayrıca kopyalanmamalıdır.
 
-İleride bir projeye birden fazla ekip bağlanması gerekebileceği için veri modeli gereksiz biçimde tek-ekip varsayımına kilitlenmemelidir. Ancak ilk sürüm minimum kapsamla geliştirilebilir.
+İleride bir projeye birden fazla ekip bağlanması gerekebileceği için veri modeli gereksiz biçimde tek-ekip varsayımına kilitlenmemelidir. İlk sürüm minimum kapsamla geliştirilebilir.
 
 ---
 
 # Ajanda → Görevler
 
-Görevler sistemin ilk ortak iş akışı modüllerinden biri olacaktır.
+Görevler sistemin ortak iş akışı modüllerinden biri olacaktır.
 
 Bir görev:
 
 - kullanıcıya,
 - kullanıcı grubuna,
-- veya ekibe
+- ekibe
 
 atanabilir.
 
-Örnekler:
-
-```text
-Görev:
-Yeni kalıp çizimini hazırla
-
-Atanan:
-Kullanıcı A
-```
-
-```text
-Görev:
-Test numunelerini hazırla
-
-Atanan:
-Antispray Geliştirme Ekibi
-```
-
-```text
-Görev:
-Belirli işlemi kontrol et
-
-Atanan:
-Bir kullanıcı grubu
-```
-
-Mantıksal olarak görev ataması şu üç tipi desteklemelidir:
+Mantıksal görev atama tipleri:
 
 ```text
 user
@@ -230,7 +208,9 @@ user_group
 team
 ```
 
-Kesin veri modeli implementation öncesinde tasarlanacaktır. Gereksiz karmaşık generic ACL veya relation framework kurulmayacaktır.
+Kesin veri modeli implementation öncesinde tasarlanacaktır.
+
+Gereksiz generic ACL veya relation framework kurulmayacaktır.
 
 ## Benim Görevlerim Mantığı
 
@@ -246,15 +226,15 @@ Kullanıcının görev listesinde aşağıdakilerden biri geçerliyse görev gö
 
 Görevler yalnız bağımsız kayıtlar olmayacaktır.
 
-Bir görev ileride ilgili bir kayıtla bağlantılı olabilir:
+Bir görev ilgili bir kayıtla bağlantılı olabilir:
 
 - Proje
 - Toplantı
 - Fuar
 - Bilgi Bankası kaydı
-- ileride CRM kaydı
-- ileride ERP kaydı
-- diğer modüller
+- firma veya kişi kaydı
+- dış sistemden gelen ilgili operasyonel kayıt
+- diğer OpenCore modülleri
 
 Örnek:
 
@@ -287,19 +267,11 @@ Veriler modüller arasında kopyalanmamalı; gerçek kayıtlar ortak ilişkiler 
 
 # Ajanda → Takvim
 
-Takvim iki farklı veri tipini bir araya getirecektir.
+Takvim iki temel veri tipini bir araya getirecektir.
 
 ## 1. Kullanıcının Kendi Etkinlikleri
 
-Kullanıcı kendi özel takvim etkinliklerini oluşturabilir ve takip edebilir.
-
-Örnek:
-
-```text
-15:30 — Kişisel Etkinlik
-```
-
-Bu kayıt kullanıcının kendi takvim verisidir.
+Kullanıcı kendi takvim etkinliklerini oluşturabilir ve takip edebilir.
 
 İleride gerekirse paylaşılabilir etkinlik davranışı ayrıca değerlendirilebilir.
 
@@ -313,10 +285,10 @@ Takvim diğer modüllerde bulunan tarihli kayıtları ortak görünümde göster
 - Proje tarihleri / milestone'ları
 - Toplantılar
 - Fuarlar
-- ileride müşteri ziyaretleri
+- müşteri ziyaretleri
 - teklif takip tarihleri
 - sipariş teslim tarihleri
-- diğer modüllerin tarihli kayıtları
+- diğer modüllerin veya entegre sistemlerin tarihli kayıtları
 
 Temel yaklaşım:
 
@@ -355,18 +327,17 @@ Temel kullanım:
 - gerektiğinde paylaşılan notlar,
 - ileride başka kayıtlarla ilişkilendirilebilir notlar.
 
-İleride bir not:
+Bir not ileride:
 
 - projeye,
 - toplantıya,
 - fuara,
 - firmaya,
-- CRM kaydına,
-- başka bir iş kaydına
+- başka bir operasyonel kayda
 
 bağlanabilecek şekilde genişletilebilir.
 
-İlk sürümde gereksiz generic paylaşım/ACL sistemi kurulmayacaktır.
+İlk sürümde gereksiz generic paylaşım veya ACL sistemi kurulmayacaktır.
 
 ---
 
@@ -408,7 +379,7 @@ Fuarlar bağımsız kayıtlar olarak yönetilebilir.
 - toplantılar,
 - notlar,
 - dosyalar,
-- CRM firmaları ve kişiler
+- firma ve kişi kayıtları
 
 ile ilişkilendirilebilir.
 
@@ -449,13 +420,13 @@ Bu kayıt altında:
 
 tutulabilir.
 
-İleride Bilgi Bankası kayıtları:
+Bilgi Bankası kayıtları ileride:
 
 - Projeler
 - Fuarlar
 - Firmalar
 - Ürünler
-- CRM kayıtları
+- diğer operasyonel kayıtlar
 
 ile ilişkilendirilebilir.
 
@@ -493,22 +464,20 @@ Kullanıcı bir Project Team üyesi olsa bile Projeler modülü için gerekli `a
 
 Tersi durumda, modüle erişim izni olsa bile kayıt seviyesinde Team membership gibi bir filtre uygulanıyorsa yalnız ilgili kayıtları görür.
 
-Erişim engellendiğinde kullanıcıya anlaşılır bir mesaj gösterilmelidir. Kullanıcı gerekli yetkinin sistem yöneticisi tarafından verilmesini isteyebilir.
-
 ---
 
 # Tasarım İlkeleri
 
 1. Mevcut OpenCore/OpenCart kullanıcı ve permission altyapısını gereksiz yere yeniden yazma.
 2. `user_group` yetkilendirme için kullanılmaya devam etsin.
-3. Team ayrı ve basit bir organizasyon/çalışma ilişkisi olarak tasarlansın.
-4. Gereksiz generic ACL framework oluşturma.
+3. Team ayrı ve basit bir çalışma ilişkisi olarak tasarlansın.
+4. Gereksiz generic ACL veya relation framework oluşturma.
 5. Modüller birbirlerinin verilerini kopyalamak yerine ilişki kursun.
 6. Yeni modüller mevcut notification, file, cron, user ve permission altyapısını mümkün olduğunca kullansın.
 7. Ortak ihtiyaç ortaya çıkmadan soyut framework geliştirme.
-8. Küçük ve bağımsız geliştirme batch'leri kullan.
-9. Önce temel entity ve ilişkileri kur, sonra entegrasyonları ekle.
-10. ERP/CRM geliştirmesine baz platform oturduktan sonra geç.
+8. Önce temel entity ve ilişkileri kur, sonra entegrasyonları ekle.
+9. Dış sistemlere özgü kod OpenCore çekirdeğine gereksiz şekilde yayılmasın.
+10. OpenCore'un amacı dış ERP/CRM sistemlerini yeniden üretmek değil, operasyonel çalışma katmanını oluşturmaktır.
 
 ---
 
@@ -525,7 +494,7 @@ Mevcut:
 
 incelenecek.
 
-Amaç mevcut yapıyı yeniden tasarlamak değil; Team ve sonraki modüller için hangi minimum eklemelerin gerekli olduğunu belirlemektir.
+Amaç mevcut yapıyı yeniden tasarlamak değil; Team ve sonraki modüller için gerekli minimum eklemeleri belirlemektir.
 
 ## Aşama 2 — Ar-Ge / Ekipler
 
@@ -547,13 +516,13 @@ Görevler:
 
 atanabilecek.
 
-Ekip altyapısını kullanan ilk gerçek ortak modül olacaktır.
+Ekip altyapısını kullanan ilk ortak modüllerden biri olacaktır.
 
 ## Aşama 4 — Ar-Ge / Projeler
 
 Projeler ekiplerle ilişkilendirilecek.
 
-Kullanıcıların kendilerinin dahil olduğu projeleri görebilmesi için gerekli minimum membership filtering uygulanacak.
+Kullanıcıların ilgili projeleri görebilmesi için gerekli minimum membership filtering uygulanacak.
 
 Görevler projelerle ilişkilendirilebilecek.
 
@@ -574,22 +543,14 @@ ortak takvim görünümünde bir araya getirilecek.
 - Ar-Ge / Fuarlar
 - Ar-Ge / Bilgi Bankası
 
-Baz platform oturduktan sonra:
-
-- CRM
-- ERP
-- Satış
-- Satın Alma
-- diğer iş modülleri
-
-geliştirilebilir.
+Baz platform oturduktan sonra diğer operasyonel modüller ve dış sistem entegrasyonları ihtiyaç bazında geliştirilebilir.
 
 ---
 
 ## Durum
 
-Bu doküman şu aşamada ürün geliştirme taslağıdır.
+Bu doküman aktif ürün geliştirme taslağıdır.
 
-Kesin database schema, route adları, controller/model yapıları ve migration detayları mevcut OpenCore repository'si incelendikten ve ilgili geliştirme task'ı kararlaştırıldıktan sonra belirlenecektir.
+Kesin database schema, route adları, controller/model yapıları ve upgrade detayları ilgili geliştirme görevi başlamadan önce mevcut OpenCore repository'si incelenerek belirlenir.
 
-Mevcut kanonik OpenCore mimarisi ve daha önce onaylanmış ADR/uygulama kararları bu doküman tarafından değiştirilmez.
+Mevcut `AGENTS.md`, accepted ADR'ler ve kanonik OpenCore mimarisi bu dokümandan üstündür.
