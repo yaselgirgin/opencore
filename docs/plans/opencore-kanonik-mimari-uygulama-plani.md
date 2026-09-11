@@ -1,31 +1,31 @@
-# OpenCore Kanonik Mimari Uygulama Planı
+# OpenCore Kanonik Mimari Uygulama PlanÄ±
 
-## Amaç
+## AmaÃ§
 
-Bu plan ADR-006'yı uygular. Uygulama sıralamasının, bağımlılık audit'lerinin, geri alınabilir batch'lerin ve kabul kapılarının sahibidir. Mimari yetki ADR-006'da kalır; bu belge ADR değildir.
+Bu plan ADR-003'yÄ± uygular. Uygulama sÄ±ralamasÄ±nÄ±n, baÄŸÄ±mlÄ±lÄ±k audit'lerinin, geri alÄ±nabilir batch'lerin ve kabul kapÄ±larÄ±nÄ±n sahibidir. Mimari yetki ADR-003'da kalÄ±r; bu belge ADR deÄŸildir.
 
-## Tamamlanmış Tarihsel Düzeltme
+## TamamlanmÄ±ÅŸ Tarihsel DÃ¼zeltme
 
-Aşağıdaki işler tamamlanmıştır ve gelecek faz değildir:
+AÅŸaÄŸÄ±daki iÅŸler tamamlanmÄ±ÅŸtÄ±r ve gelecek faz deÄŸildir:
 
-- Repository denetlenmiş `af55e66` baseline'ına geri alınmıştır.
-- Zone listesi düzeltmesi yeniden uygulanmıştır.
-- Uygulama filtrelerinde Enter ile submit davranışı yeniden uygulanmıştır.
-- Terk edilmiş ADR-004 kaldırılmıştır.
-- `af55e66` sonrasındaki native runtime self-updater uygulaması Git geçmişi düzeltmesiyle kaldırılmıştır.
-- `update_gate`, updater startup gate ve baseline sonrası release builder dahil runtime updater'a özgü dosyalar artık yoktur.
-- Eski uygulama `Maintenance -> Upgrade` arayüzü kaldırılmıştır.
-- Runtime'daki tam `tool/upgrade` referansları kaldırılmıştır.
-- Yalın SQL Backup/Restore davranışı rollback ile geri gelmiştir.
-- Rollback sonrası yerel smoke testleri geçmiştir.
+- Repository denetlenmiÅŸ `af55e66` baseline'Ä±na geri alÄ±nmÄ±ÅŸtÄ±r.
+- Zone listesi dÃ¼zeltmesi yeniden uygulanmÄ±ÅŸtÄ±r.
+- Uygulama filtrelerinde Enter ile submit davranÄ±ÅŸÄ± yeniden uygulanmÄ±ÅŸtÄ±r.
+- Terk edilmiÅŸ ADR-004 kaldÄ±rÄ±lmÄ±ÅŸtÄ±r.
+- `af55e66` sonrasÄ±ndaki native runtime self-updater uygulamasÄ± Git geÃ§miÅŸi dÃ¼zeltmesiyle kaldÄ±rÄ±lmÄ±ÅŸtÄ±r.
+- `update_gate`, updater startup gate ve baseline sonrasÄ± release builder dahil runtime updater'a Ã¶zgÃ¼ dosyalar artÄ±k yoktur.
+- Eski uygulama `Maintenance -> Upgrade` arayÃ¼zÃ¼ kaldÄ±rÄ±lmÄ±ÅŸtÄ±r.
+- Runtime'daki tam `tool/upgrade` referanslarÄ± kaldÄ±rÄ±lmÄ±ÅŸtÄ±r.
+- YalÄ±n SQL Backup/Restore davranÄ±ÅŸÄ± rollback ile geri gelmiÅŸtir.
+- Rollback sonrasÄ± yerel smoke testleri geÃ§miÅŸtir.
 
-Yalın SQL Backup/Restore Faz 14 kapsamında E2E ile doğrulanmıştır. Native updater'ı kaldırmak veya yalın SQL Backup/Restore'u geri getirmek için yeni faz oluşturulmayacaktır; bu düzeltmeler tamamlanmıştır.
+YalÄ±n SQL Backup/Restore Faz 14 kapsamÄ±nda E2E ile doÄŸrulanmÄ±ÅŸtÄ±r. Native updater'Ä± kaldÄ±rmak veya yalÄ±n SQL Backup/Restore'u geri getirmek iÃ§in yeni faz oluÅŸturulmayacaktÄ±r; bu dÃ¼zeltmeler tamamlanmÄ±ÅŸtÄ±r.
 
-## Terminoloji ve Sorumluluk Sınırları
+## Terminoloji ve Sorumluluk SÄ±nÄ±rlarÄ±
 
 ### Runtime self-updater
 
-Runtime self-updater; application release indirir veya stage eder, application/vendor dosyalarını değiştirir, application rollback/recovery yapar ya da updater lock/state tutar. Yasaktır ve kaldırılmıştır.
+Runtime self-updater; application release indirir veya stage eder, application/vendor dosyalarÄ±nÄ± deÄŸiÅŸtirir, application rollback/recovery yapar ya da updater lock/state tutar. YasaktÄ±r ve kaldÄ±rÄ±lmÄ±ÅŸtÄ±r.
 
 ### Manuel application update
 
@@ -33,88 +33,88 @@ Desteklenen model:
 
 ```text
 stable release bildirimi
--> operatör resmi stable source archive'i indirir
--> application dosyalarını manuel deploy eder
--> external storage etkinse bootstrap preflight release vendor payload'ını DIR_STORAGE/vendor/ ile değiştirir
--> DB işi gerekiyorsa install/upgrade çalıştırır
+-> operatÃ¶r resmi stable source archive'i indirir
+-> application dosyalarÄ±nÄ± manuel deploy eder
+-> external storage etkinse bootstrap preflight release vendor payload'Ä±nÄ± DIR_STORAGE/vendor/ ile deÄŸiÅŸtirir
+-> DB iÅŸi gerekiyorsa install/upgrade Ã§alÄ±ÅŸtÄ±rÄ±r
 ```
 
 ### `install/upgrade`
 
-`install/upgrade`, daha önce kurulmuş OpenCore veritabanı için DB-only sistemdir. `database_version` değerini okur, açık source-controlled schema/data upgrade adımlarını çalıştırır ve `database_version` değerini ilerletir.
+`install/upgrade`, daha Ã¶nce kurulmuÅŸ OpenCore veritabanÄ± iÃ§in DB-only sistemdir. `database_version` deÄŸerini okur, aÃ§Ä±k source-controlled schema/data upgrade adÄ±mlarÄ±nÄ± Ã§alÄ±ÅŸtÄ±rÄ±r ve `database_version` deÄŸerini ilerletir.
 
-Application dosyalarını indirmez, stage etmez veya değiştirmez; vendor'ı değiştirmez ya da senkronize etmez; application rollback yapmaz.
+Application dosyalarÄ±nÄ± indirmez, stage etmez veya deÄŸiÅŸtirmez; vendor'Ä± deÄŸiÅŸtirmez ya da senkronize etmez; application rollback yapmaz.
 
-## Faz 1 — Release / Build / Deployment / Updater Kalıntılarının Temizliği
+## Faz 1 â€” Release / Build / Deployment / Updater KalÄ±ntÄ±larÄ±nÄ±n TemizliÄŸi
 
-Git rollback sonrasında kalmış, `af55e66` öncesine ait eski altyapıyı audit et ve kaldır.
+Git rollback sonrasÄ±nda kalmÄ±ÅŸ, `af55e66` Ã¶ncesine ait eski altyapÄ±yÄ± audit et ve kaldÄ±r.
 
-Audit adayları:
+Audit adaylarÄ±:
 
 - `system/build/`
 - eski build/deploy tooling
-- release/deployment sözleşmeleri
+- release/deployment sÃ¶zleÅŸmeleri
 - updater/release terminolojisi
-- eski runtime ve deployment kalıntıları
+- eski runtime ve deployment kalÄ±ntÄ±larÄ±
 
-Her bağımlılığı kaldırmadan önce sınıflandır. Mevcut runtime'ın ihtiyaç duyduğu Composer/vendor tooling, Faz 2 kanonik karşılığını sağlamadan kaldırılmamalıdır.
+Her baÄŸÄ±mlÄ±lÄ±ÄŸÄ± kaldÄ±rmadan Ã¶nce sÄ±nÄ±flandÄ±r. Mevcut runtime'Ä±n ihtiyaÃ§ duyduÄŸu Composer/vendor tooling, Faz 2 kanonik karÅŸÄ±lÄ±ÄŸÄ±nÄ± saÄŸlamadan kaldÄ±rÄ±lmamalÄ±dÄ±r.
 
-Yalnız adında `upgrade` geçtiği için `install/`, `startup/upgrade` veya gelecekteki DB-upgrade kavramlarını self-updater kalıntısı sayma.
+YalnÄ±z adÄ±nda `upgrade` geÃ§tiÄŸi iÃ§in `install/`, `startup/upgrade` veya gelecekteki DB-upgrade kavramlarÄ±nÄ± self-updater kalÄ±ntÄ±sÄ± sayma.
 
-OpenCart `install/` referans dizini henüz eklenmemiştir ve bu fazın parçası değildir.
+OpenCart `install/` referans dizini henÃ¼z eklenmemiÅŸtir ve bu fazÄ±n parÃ§asÄ± deÄŸildir.
 
-## Faz 2 — Dağıtım / Composer / Vendor Kanonik Mimarisi
+## Faz 2 â€” DaÄŸÄ±tÄ±m / Composer / Vendor Kanonik Mimarisi
 
 Hedef durum:
 
-- Repository eksiksiz dağıtım ağacıdır.
-- Stable tag'in üretilmiş source archive'i doğrudan kurulabilir.
-- Özel release builder yoktur.
-- Vendor `system/storage/vendor/` altında tracked ve distributed olur.
+- Repository eksiksiz daÄŸÄ±tÄ±m aÄŸacÄ±dÄ±r.
+- Stable tag'in Ã¼retilmiÅŸ source archive'i doÄŸrudan kurulabilir.
+- Ã–zel release builder yoktur.
+- Vendor `system/storage/vendor/` altÄ±nda tracked ve distributed olur.
 - `system/storage/composer.json` kalabilir.
-- Root Composer/build/deployer dağıtım sözleşmesi kaldırılır veya yeniden tasarlanır.
-- Production ve son kullanıcı Composer, SSH veya shell erişimine ihtiyaç duymaz.
+- Root Composer/build/deployer daÄŸÄ±tÄ±m sÃ¶zleÅŸmesi kaldÄ±rÄ±lÄ±r veya yeniden tasarlanÄ±r.
+- Production ve son kullanÄ±cÄ± Composer, SSH veya shell eriÅŸimine ihtiyaÃ§ duymaz.
 
-Geçiş tooling'i kaldırılmadan önce maintainer dependency workflow, incelenmiş vendor değişiklikleri, repository tracking kuralları ve runtime Composer bootstrap tanımlanıp doğrulanmalıdır.
+GeÃ§iÅŸ tooling'i kaldÄ±rÄ±lmadan Ã¶nce maintainer dependency workflow, incelenmiÅŸ vendor deÄŸiÅŸiklikleri, repository tracking kurallarÄ± ve runtime Composer bootstrap tanÄ±mlanÄ±p doÄŸrulanmalÄ±dÄ±r.
 
-## Faz 3 — Tek Root `config.php`
+## Faz 3 â€” Tek Root `config.php`
 
 Hedef durum:
 
 - Tek root `config.php`.
-- Ayrı application config dosyası yok.
-- App, API ve Cron bağlama özgü yolları bootstrap'tan türetir.
-- Installer sonunda yalnız root config üretir.
+- AyrÄ± application config dosyasÄ± yok.
+- App, API ve Cron baÄŸlama Ã¶zgÃ¼ yollarÄ± bootstrap'tan tÃ¼retir.
+- Installer sonunda yalnÄ±z root config Ã¼retir.
 
-`DIR_APPLICATION`, `DIR_CATALOG`, `DIR_STORAGE`, `HTTP_SERVER`, config include noktaları ve tekrarlanan application-specific değerler audit edilmelidir.
+`DIR_APPLICATION`, `DIR_CATALOG`, `DIR_STORAGE`, `HTTP_SERVER`, config include noktalarÄ± ve tekrarlanan application-specific deÄŸerler audit edilmelidir.
 
-## Faz 4 — `app/` ve `api/` Uygulama Yolları
+## Faz 4 â€” `app/` ve `api/` Uygulama YollarÄ±
 
-Repository'nin uygulama dizinlerini `app/` ve `api/` yap. Eski `/admin/` ve `/catalog/` yolları 404 döndürür; redirect veya deprecation alias ekleme.
+Repository'nin uygulama dizinlerini `app/` ve `api/` yap. Eski `/admin/` ve `/catalog/` yollarÄ± 404 dÃ¶ndÃ¼rÃ¼r; redirect veya deprecation alias ekleme.
 
-## Faz 5 — Kanonik `system/storage/` Yapısı
+## Faz 5 â€” Kanonik `system/storage/` YapÄ±sÄ±
 
-Runtime vendor ve gerekli yazılabilir yapılar dahil `system/storage/` dizinini desteklenen varsayılan `DIR_STORAGE` olarak kur.
+Runtime vendor ve gerekli yazÄ±labilir yapÄ±lar dahil `system/storage/` dizinini desteklenen varsayÄ±lan `DIR_STORAGE` olarak kur.
 
-External storage desteğini koru. External taşıma zorunlu olmadan internal ve external `DIR_STORAGE` davranışını tanımla ve doğrula.
+External storage desteÄŸini koru. External taÅŸÄ±ma zorunlu olmadan internal ve external `DIR_STORAGE` davranÄ±ÅŸÄ±nÄ± tanÄ±mla ve doÄŸrula.
 
-## Faz 6 — Yeni Kurulum Installer'ı
+## Faz 6 â€” Yeni Kurulum Installer'Ä±
 
-Orijinal OpenCart 4.1.0.3 `install/` uygulamasını manuel olarak referans/base şeklinde getir ve OpenCore'a uyarla. Stok installer davranışını körlemesine geri yükleme.
+Orijinal OpenCart 4.1.0.3 `install/` uygulamasÄ±nÄ± manuel olarak referans/base ÅŸeklinde getir ve OpenCore'a uyarla. Stok installer davranÄ±ÅŸÄ±nÄ± kÃ¶rlemesine geri yÃ¼kleme.
 
-Installer içindeki şu bağımlılıkları audit et ve kaldır:
+Installer iÃ§indeki ÅŸu baÄŸÄ±mlÄ±lÄ±klarÄ± audit et ve kaldÄ±r:
 
 - e-ticaret schema ve seed data
-- storefront varsayımları
-- extension ve Marketplace altyapısı
+- storefront varsayÄ±mlarÄ±
+- extension ve Marketplace altyapÄ±sÄ±
 - OCMOD
-- çift config üretimi
-- eski application path varsayımları
-- eski OpenCart upgrade davranışı
+- Ã§ift config Ã¼retimi
+- eski application path varsayÄ±mlarÄ±
+- eski OpenCart upgrade davranÄ±ÅŸÄ±
 
-Yeni kurulum; gereksinim kontrolleri, DB bağlantı doğrulaması, kanonik schema, gerekli seed data, ilk uygulama kullanıcısı, root `config.php` ve başlangıç `database_version` değerini sağlamalıdır.
+Yeni kurulum; gereksinim kontrolleri, DB baÄŸlantÄ± doÄŸrulamasÄ±, kanonik schema, gerekli seed data, ilk uygulama kullanÄ±cÄ±sÄ±, root `config.php` ve baÅŸlangÄ±Ã§ `database_version` deÄŸerini saÄŸlamalÄ±dÄ±r.
 
-Güncel yeni-veritabanı referansı 25 tablodur:
+GÃ¼ncel yeni-veritabanÄ± referansÄ± 25 tablodur:
 
 ```text
 address_format
@@ -144,44 +144,44 @@ zone
 zone_description
 ```
 
-Bu liste uygulamaya karşı doğrulanacak referanstır; main veritabanını değiştirme yetkisi vermez.
+Bu liste uygulamaya karÅŸÄ± doÄŸrulanacak referanstÄ±r; main veritabanÄ±nÄ± deÄŸiÅŸtirme yetkisi vermez.
 
-## Faz 7 — Post-install Security: Install Removal ve Storage Taşıma — Tamamlandı
+## Faz 7 â€” Post-install Security: Install Removal ve Storage TaÅŸÄ±ma â€” TamamlandÄ±
 
-Bu işlemler installer adımı değil, post-install Security akışındadır; install directory removal aynı hardening kapsamındadır.
+Bu iÅŸlemler installer adÄ±mÄ± deÄŸil, post-install Security akÄ±ÅŸÄ±ndadÄ±r; install directory removal aynÄ± hardening kapsamÄ±ndadÄ±r.
 
-Storage davranışı:
+Storage davranÄ±ÅŸÄ±:
 
-- Varsayılan `system/storage/`.
-- Installer external yol önerebilir.
-- Storage taşıma opsiyoneldir.
-- Kabul edilirse vendor dahil gerekli storage ağacının tamamı tutarlı biçimde taşınır.
-- Varsayılan storage'ı korumak geçerlidir ve sonradan zorunlu uyarı üretmez.
+- VarsayÄ±lan `system/storage/`.
+- Installer external yol Ã¶nerebilir.
+- Storage taÅŸÄ±ma opsiyoneldir.
+- Kabul edilirse vendor dahil gerekli storage aÄŸacÄ±nÄ±n tamamÄ± tutarlÄ± biÃ§imde taÅŸÄ±nÄ±r.
+- VarsayÄ±lan storage'Ä± korumak geÃ§erlidir ve sonradan zorunlu uyarÄ± Ã¼retmez.
 
-## Faz 8 — Yeniden Kurulum Koruması ve `install/` Dizini Davranışı — Tamamlandı
+## Faz 8 â€” Yeniden Kurulum KorumasÄ± ve `install/` Dizini DavranÄ±ÅŸÄ± â€” TamamlandÄ±
 
-Fresh/missing/empty/partial config installer davranışı ile configured-install fail-closed davranışı uygulanmıştır.
+Fresh/missing/empty/partial config installer davranÄ±ÅŸÄ± ile configured-install fail-closed davranÄ±ÅŸÄ± uygulanmÄ±ÅŸtÄ±r.
 
-Şu kuralları uygula:
+Åu kurallarÄ± uygula:
 
 - Yeni kurulum mevcut OpenCore'u overwrite edemez.
 - Fiziksel `install/` dizini kalabilir.
-- Silme önerilebilir ama zorunlu değildir.
-- Post-install Security install dizini removal modal'ı sağlar.
-- Config yoksa ve installer mevcutsa yeni kurulum akışına girilebilir.
-- Kurulu sistem `install/` fiziksel olarak kalsa da normal çalışır.
+- Silme Ã¶nerilebilir ama zorunlu deÄŸildir.
+- Post-install Security install dizini removal modal'Ä± saÄŸlar.
+- Config yoksa ve installer mevcutsa yeni kurulum akÄ±ÅŸÄ±na girilebilir.
+- Kurulu sistem `install/` fiziksel olarak kalsa da normal Ã§alÄ±ÅŸÄ±r.
 
-## Faz 9 — Yalnız Veritabanı için `install/upgrade` — Tamamlandı / Doğrulandı
+## Faz 9 â€” YalnÄ±z VeritabanÄ± iÃ§in `install/upgrade` â€” TamamlandÄ± / DoÄŸrulandÄ±
 
-Kanonik revision modeli `system/version.php` içindeki `DATABASE_VERSION` (baseline `1`) ile `oc_setting` altındaki pozitif, monoton integer `system/database_version` değeridir; `VERSION`'dan bağımsızdır. Fresh install migration çalıştırmaz; güncel `DATABASE_VERSION` değerini seed eder; mevcut baseline `1`'dir.
+Kanonik revision modeli `system/version.php` iÃ§indeki `DATABASE_VERSION` (baseline `1`) ile `oc_setting` altÄ±ndaki pozitif, monoton integer `system/database_version` deÄŸeridir; `VERSION`'dan baÄŸÄ±msÄ±zdÄ±r. Fresh install migration Ã§alÄ±ÅŸtÄ±rmaz; gÃ¼ncel `DATABASE_VERSION` deÄŸerini seed eder; mevcut baseline `1`'dir.
 
-Tek controller/model DB-only upgrade zinciri, pending tüm `upgradeN()` methodlarını mutation öncesi Model Proxy-native `isset()` ile preflight eder. Revisionlar forward-only uygulanır; her başarılı revision sonrası marker ilerletilir. Missing method, invalid revision veya downgrade durumu fail-closed'dur. Upgrade için explicit backup confirmation ve action gerekir; otomatik backup, rollback, manifest veya ayrı auth/token sistemi yoktur.
+Tek controller/model DB-only upgrade zinciri, pending tÃ¼m `upgradeN()` methodlarÄ±nÄ± mutation Ã¶ncesi Model Proxy-native `isset()` ile preflight eder. Revisionlar forward-only uygulanÄ±r; her baÅŸarÄ±lÄ± revision sonrasÄ± marker ilerletilir. Missing method, invalid revision veya downgrade durumu fail-closed'dur. Upgrade iÃ§in explicit backup confirmation ve action gerekir; otomatik backup, rollback, manifest veya ayrÄ± auth/token sistemi yoktur.
 
-Configured runtime guard: App DB `<` target durumunda mevcut `install/` ile upgrade ekranına yönlendirir; install yoksa fail-closed olur. API HTML redirect yerine HTTP 503 machine-readable error döner. DB `=` target normaldir; configured `/install/` blocked ekranı verir; DB `>` target ve invalid revision fail-closed'dur. Direct upgrade route, upgrade gerekmiyorsa bypass sağlamaz.
+Configured runtime guard: App DB `<` target durumunda mevcut `install/` ile upgrade ekranÄ±na yÃ¶nlendirir; install yoksa fail-closed olur. API HTML redirect yerine HTTP 503 machine-readable error dÃ¶ner. DB `=` target normaldir; configured `/install/` blocked ekranÄ± verir; DB `>` target ve invalid revision fail-closed'dur. Direct upgrade route, upgrade gerekmiyorsa bypass saÄŸlamaz.
 
-External storage'da release ile yeniden gelen `system/storage/vendor/`, Composer autoload öncesi bootstrap tarafından aktif external vendor ile tamamen değiştirilir. Bu DB migration değildir ve cache/logs/session/upload/backup dizinlerine dokunmaz.
+External storage'da release ile yeniden gelen `system/storage/vendor/`, Composer autoload Ã¶ncesi bootstrap tarafÄ±ndan aktif external vendor ile tamamen deÄŸiÅŸtirilir. Bu DB migration deÄŸildir ve cache/logs/session/upload/backup dizinlerine dokunmaz.
 
-Tam veritabanı version sözleşmesi:
+Tam veritabanÄ± version sÃ¶zleÅŸmesi:
 
 ```text
 table : oc_setting
@@ -190,61 +190,61 @@ key   : database_version
 value : pozitif integer (1, 2, 3, ...)
 ```
 
-Uygulanan davranış:
+Uygulanan davranÄ±ÅŸ:
 
-- Yalnız mevcut kurulum veritabanında çalışır.
-- Açık, okunabilir, versioned schema/data adımları kullanır.
-- Eksik adımları kronolojik çalıştırır.
-- Her application release için boş migration zorunlu değildir.
-- İlerlemeyi yalnız başarılı seviyelerden sonra kaydeder.
-- Hedef `database_version` değerine yalnız tam başarıdan sonra ulaşır.
-- Upgrade authorization modeli backup confirmation ve explicit action kullanır; ayrı application session/token mekanizması yoktur.
+- YalnÄ±z mevcut kurulum veritabanÄ±nda Ã§alÄ±ÅŸÄ±r.
+- AÃ§Ä±k, okunabilir, versioned schema/data adÄ±mlarÄ± kullanÄ±r.
+- Eksik adÄ±mlarÄ± kronolojik Ã§alÄ±ÅŸtÄ±rÄ±r.
+- Her application release iÃ§in boÅŸ migration zorunlu deÄŸildir.
+- Ä°lerlemeyi yalnÄ±z baÅŸarÄ±lÄ± seviyelerden sonra kaydeder.
+- Hedef `database_version` deÄŸerine yalnÄ±z tam baÅŸarÄ±dan sonra ulaÅŸÄ±r.
+- Upgrade authorization modeli backup confirmation ve explicit action kullanÄ±r; ayrÄ± application session/token mekanizmasÄ± yoktur.
 - Genel migration framework getirmez.
-- Application/vendor dosyalarını hiçbir zaman indirmez veya değiştirmez.
+- Application/vendor dosyalarÄ±nÄ± hiÃ§bir zaman indirmez veya deÄŸiÅŸtirmez.
 
-Revision `2` (`Upgrade2`), legacy `notification.status` sütunu mevcutsa önce tüm
-`notification` satırlarını siler, sonra bu sütunu kaldırır. Ardından
-`notification_target` ve `notification_user` tablolarını oluşturur,
-`config_notification_expire_days` ayarını varsayılan `7` ile ve günlük bildirim
-temizleme cron kaydını seed eder.
+Revision `2` (`Upgrade2`), legacy `notification.status` sÃ¼tunu mevcutsa Ã¶nce tÃ¼m
+`notification` satÄ±rlarÄ±nÄ± siler, sonra bu sÃ¼tunu kaldÄ±rÄ±r. ArdÄ±ndan
+`notification_target` ve `notification_user` tablolarÄ±nÄ± oluÅŸturur,
+`config_notification_expire_days` ayarÄ±nÄ± varsayÄ±lan `7` ile ve gÃ¼nlÃ¼k bildirim
+temizleme cron kaydÄ±nÄ± seed eder.
 
-Bildirim çekirdeğinde `is_global=1` tüm kullanıcılara görünür; global olmayan bir
-bildirimin en az bir `user` veya `user_group` hedefi vardır. Görünürlük sorgusu,
-`notification_user` kaydı yoksa `COALESCE` ile `status=0` döndürür; `status=1`
-okunmuş, `status=2` dismiss edilmiştir. Buna karşılık `unread_only`/badge filtresi
-yalnız `notification_user` satırı olmayan bildirimleri (`nu.status IS NULL`) sayar.
-Süre sonu
-`config_notification_expire_days` ile hesaplanır. Günlük
-`notification_cleanup` cron'u süresi dolmuş bildirimleri ve onlara ait target/user
-satırlarını siler.
+Bildirim Ã§ekirdeÄŸinde `is_global=1` tÃ¼m kullanÄ±cÄ±lara gÃ¶rÃ¼nÃ¼r; global olmayan bir
+bildirimin en az bir `user` veya `user_group` hedefi vardÄ±r. GÃ¶rÃ¼nÃ¼rlÃ¼k sorgusu,
+`notification_user` kaydÄ± yoksa `COALESCE` ile `status=0` dÃ¶ndÃ¼rÃ¼r; `status=1`
+okunmuÅŸ, `status=2` dismiss edilmiÅŸtir. Buna karÅŸÄ±lÄ±k `unread_only`/badge filtresi
+yalnÄ±z `notification_user` satÄ±rÄ± olmayan bildirimleri (`nu.status IS NULL`) sayar.
+SÃ¼re sonu
+`config_notification_expire_days` ile hesaplanÄ±r. GÃ¼nlÃ¼k
+`notification_cleanup` cron'u sÃ¼resi dolmuÅŸ bildirimleri ve onlara ait target/user
+satÄ±rlarÄ±nÄ± siler.
 
-Şema sözleşmesi: `notification_target` için
+Åema sÃ¶zleÅŸmesi: `notification_target` iÃ§in
 `UNIQUE(notification_id, target_type, target_id)` ve hedef arama indeksi;
-`notification_user` için `PRIMARY KEY(notification_id, user_id)`,
-`status`/`date_modified` alanları ve `user_status` indeksi.
+`notification_user` iÃ§in `PRIMARY KEY(notification_id, user_id)`,
+`status`/`date_modified` alanlarÄ± ve `user_status` indeksi.
 
-Kod doğrulama referansları: `app/model/tool/notification.php`,
+Kod doÄŸrulama referanslarÄ±: `app/model/tool/notification.php`,
 `system/helper/db_schema.php`,
-`install/model/upgrade/upgrade.php` içindeki `upgrade2()`,
+`install/model/upgrade/upgrade.php` iÃ§indeki `upgrade2()`,
 `api/controller/cron/notification_cleanup.php` ve
 `api/model/tool/notification.php`.
 
-## Faz 10 — Yalnız Bildirim Amaçlı Stable Release Kontrolü — Tamamlandı / Doğrulandı
+## Faz 10 â€” YalnÄ±z Bildirim AmaÃ§lÄ± Stable Release KontrolÃ¼ â€” TamamlandÄ± / DoÄŸrulandÄ±
 
-Uygulama arayüzü en yeni stable OpenCore release'i kontrol edebilir. Sürüm `system/version.php` değerinden yeniyse duplicate olmayan informational notification oluşturur ve isteğe bağlı olarak release sayfasına link verir.
+Uygulama arayÃ¼zÃ¼ en yeni stable OpenCore release'i kontrol edebilir. SÃ¼rÃ¼m `system/version.php` deÄŸerinden yeniyse duplicate olmayan informational notification oluÅŸturur ve isteÄŸe baÄŸlÄ± olarak release sayfasÄ±na link verir.
 
-Kontrol; download, staging, application/vendor/DB mutation veya rollback/recovery yapmaz. Prerelease normal kullanıcılara bildirilmez.
+Kontrol; download, staging, application/vendor/DB mutation veya rollback/recovery yapmaz. Prerelease normal kullanÄ±cÄ±lara bildirilmez.
 
-## Faz 11 — Settings -> System Diagnostics — Tamamlandı / Doğrulandı
+## Faz 11 â€” Settings -> System Diagnostics â€” TamamlandÄ± / DoÄŸrulandÄ±
 
-Merkezi, bilgilendirici ve tavsiye niteliğinde diagnostics alanı sağla.
+Merkezi, bilgilendirici ve tavsiye niteliÄŸinde diagnostics alanÄ± saÄŸla.
 
 OpenCore durumu:
 
 - Kurulu Version
 - En Yeni Stable Version
 - Database Version
-- Version/DB uyumluluğu
+- Version/DB uyumluluÄŸu
 
 Ortam durumu:
 
@@ -260,49 +260,49 @@ Ortam durumu:
 - `post_max_size`
 - `max_execution_time`
 
-Yol ve güvenlik durumu:
+Yol ve gÃ¼venlik durumu:
 
 - uygulama dizini
 - storage dizini
 - install dizini
-- storage yazılabilirliği
-- cache yazılabilirliği
-- logs yazılabilirliği
-- uploads yazılabilirliği
+- storage yazÄ±labilirliÄŸi
+- cache yazÄ±labilirliÄŸi
+- logs yazÄ±labilirliÄŸi
+- uploads yazÄ±labilirliÄŸi
 
-Önem seviyeleri:
+Ã–nem seviyeleri:
 
-- yeşil: sağlıklı
-- turuncu: öneri
-- kırmızı: gerçek sorun
+- yeÅŸil: saÄŸlÄ±klÄ±
+- turuncu: Ã¶neri
+- kÄ±rmÄ±zÄ±: gerÃ§ek sorun
 
-Varsayılan `/app/`, varsayılan `/system/storage/` ve mevcut `/install/` otomatik hata değildir. Diagnostics bir updater veya deployment engine'e dönüşemez.
+VarsayÄ±lan `/app/`, varsayÄ±lan `/system/storage/` ve mevcut `/install/` otomatik hata deÄŸildir. Diagnostics bir updater veya deployment engine'e dÃ¶nÃ¼ÅŸemez.
 
-## Faz 12 — README / Dokümantasyon / Tools Son Temizliği — Kısmen Tamamlandı
+## Faz 12 â€” README / DokÃ¼mantasyon / Tools Son TemizliÄŸi â€” KÄ±smen TamamlandÄ±
 
-Kanonik mimari büyük ölçüde uygulandıktan sonra:
+Kanonik mimari bÃ¼yÃ¼k Ã¶lÃ§Ã¼de uygulandÄ±ktan sonra:
 
-- README'yi sadeleştir
-- güncel ürün ağacındaki eski cleanup/history belgelerini kaldır
-- eski ADR ve runtime mimari kalıntılarını kaldır
-- kullanılmayan `tools/` içeriğini kaldır
-- eski development-only ürün ağacı içeriğini kaldır
+- README'yi sadeleÅŸtir
+- gÃ¼ncel Ã¼rÃ¼n aÄŸacÄ±ndaki eski cleanup/history belgelerini kaldÄ±r
+- eski ADR ve runtime mimari kalÄ±ntÄ±larÄ±nÄ± kaldÄ±r
+- kullanÄ±lmayan `tools/` iÃ§eriÄŸini kaldÄ±r
+- eski development-only Ã¼rÃ¼n aÄŸacÄ± iÃ§eriÄŸini kaldÄ±r
 
-Kök `README.md` eklenmiştir; OpenCore amacı, gereksinimler, kurulum, app/storage
-seçenekleri, tek root config, SQL Backup/Restore, manuel application update,
+KÃ¶k `README.md` eklenmiÅŸtir; OpenCore amacÄ±, gereksinimler, kurulum, app/storage
+seÃ§enekleri, tek root config, SQL Backup/Restore, manuel application update,
 external-storage vendor replacement lifecycle, DB-only `install/upgrade`,
-bildirim/release denetimi, System Diagnostics ve lisansı belgeler.
+bildirim/release denetimi, System Diagnostics ve lisansÄ± belgeler.
 
-`tools/` dizini mevcut değildir. `docs/cleanup/` altındaki tarihsel envanter ve audit
-belgeleri silinmemiştir; tracked dosya silme için ayrı owner onayı gerekir.
+`tools/` dizini mevcut deÄŸildir. `docs/history/cleanup/` altÄ±ndaki tarihsel envanter ve audit
+belgeleri silinmemiÅŸtir; tracked dosya silme iÃ§in ayrÄ± owner onayÄ± gerekir.
 
-Terk edilmiş self-updater mimarisini belgeleme.
+Terk edilmiÅŸ self-updater mimarisini belgeleme.
 
-## Faz 13 — Kanonik Dağıtım Ağacı Audit'i — Tamamlandı
+## Faz 13 â€” Kanonik DaÄŸÄ±tÄ±m AÄŸacÄ± Audit'i â€” TamamlandÄ±
 
-Stable repository'nin kurulabilir ürünün kendisi olduğunu doğrula.
+Stable repository'nin kurulabilir Ã¼rÃ¼nÃ¼n kendisi olduÄŸunu doÄŸrula.
 
-Yaklaşık hedef root:
+YaklaÅŸÄ±k hedef root:
 
 ```text
 app/
@@ -317,75 +317,75 @@ README.md
 LICENSE
 ```
 
-Yalnız gerçekten gerekli ek runtime dosyalarına izin ver. Release builder veya distribution-artifact mekanizması kalmamalıdır.
+YalnÄ±z gerÃ§ekten gerekli ek runtime dosyalarÄ±na izin ver. Release builder veya distribution-artifact mekanizmasÄ± kalmamalÄ±dÄ±r.
 
-ERT-21 completion kaydı: kanonik dağıtım ağacı audit'i tamamlandı. Owner kararıyla
-`.htaccess.txt` canonical dağıtım dosyası olarak korunur; `.htaccess`e dönüştürülmez.
-Root `cron.php`, `error.html`, `php.ini` ve `docs/cleanup/` tarihsel audit belgeleri
-korunur. Bu istisnalar release builder veya distribution-artifact mekanizması değildir.
+ERT-21 completion kaydÄ±: kanonik daÄŸÄ±tÄ±m aÄŸacÄ± audit'i tamamlandÄ±. Owner kararÄ±yla
+`.htaccess.txt` canonical daÄŸÄ±tÄ±m dosyasÄ± olarak korunur; `.htaccess`e dÃ¶nÃ¼ÅŸtÃ¼rÃ¼lmez.
+Root `cron.php`, `error.html`, `php.ini` ve `docs/history/cleanup/` tarihsel audit belgeleri
+korunur. Bu istisnalar release builder veya distribution-artifact mekanizmasÄ± deÄŸildir.
 
-## Faz 14 — Tam E2E Doğrulama — Tamamlandı / Doğrulandı
+## Faz 14 â€” Tam E2E DoÄŸrulama â€” TamamlandÄ± / DoÄŸrulandÄ±
 
-Yalnız `C:\xampp\htdocs\opencore_test` ve test veritabanını kullan. Destructive veya E2E testlerde main OpenCore veritabanını hiçbir zaman değiştirme.
+YalnÄ±z `C:\xampp\htdocs\opencore_test` ve test veritabanÄ±nÄ± kullan. Destructive veya E2E testlerde main OpenCore veritabanÄ±nÄ± hiÃ§bir zaman deÄŸiÅŸtirme.
 
-En az şunları doğrula:
+En az ÅŸunlarÄ± doÄŸrula:
 
-- varsayılan yeni kurulum
+- varsayÄ±lan yeni kurulum
 - `app/` ve `api/` yolu ile yeni kurulum
 - internal-storage kurulum
 - external-storage kurulum
-- yeniden kurulum koruması
-- tek-root-config davranışı
+- yeniden kurulum korumasÄ±
+- tek-root-config davranÄ±ÅŸÄ±
 - API ve app runtime
 - SQL backup ve restore
-- birden çok gerekli seviyeden geçen DB-upgrade zinciri
-- yalnız bildirim amaçlı stable release kontrolü
+- birden Ã§ok gerekli seviyeden geÃ§en DB-upgrade zinciri
+- yalnÄ±z bildirim amaÃ§lÄ± stable release kontrolÃ¼
 - System Diagnostics
-- stable source archive'den doğrudan kurulum
+- stable source archive'den doÄŸrudan kurulum
 - external-storage release vendor replacement
-- shared-hosting varsayımları
+- shared-hosting varsayÄ±mlarÄ±
 
-ERT-21 Faz 14 durumu: tamamlandı / doğrulandı. İlk olarak `git archive HEAD` kaynak arşivi
-`C:\xampp\htdocs\opencore_test\ert21-source` altında doğrudan kurulum için açıldı.
-Bu arşivde `config.php` yokken boş tracked `config-dist.php` bulunması nedeniyle
-fresh-install `step_2` denetiminde ilerleyemedi. Ardından single-root config
-yazılabilirlik denetimi düzeltmeleri (`step_2.php` ve `step_3.php`) uygulandı ve test
-çalışma kopyasına aktarıldı. Bu ikinci, güncellenmiş çalışma kopyasında varsayılan
-internal-storage fresh install tamamlandı ve root `config.php` üretildi. App, API
-ping, App login, System Diagnostics ve SQL Backup HTTP doğrulandı.
+ERT-21 Faz 14 durumu: tamamlandÄ± / doÄŸrulandÄ±. Ä°lk olarak `git archive HEAD` kaynak arÅŸivi
+`C:\xampp\htdocs\opencore_test\ert21-source` altÄ±nda doÄŸrudan kurulum iÃ§in aÃ§Ä±ldÄ±.
+Bu arÅŸivde `config.php` yokken boÅŸ tracked `config-dist.php` bulunmasÄ± nedeniyle
+fresh-install `step_2` denetiminde ilerleyemedi. ArdÄ±ndan single-root config
+yazÄ±labilirlik denetimi dÃ¼zeltmeleri (`step_2.php` ve `step_3.php`) uygulandÄ± ve test
+Ã§alÄ±ÅŸma kopyasÄ±na aktarÄ±ldÄ±. Bu ikinci, gÃ¼ncellenmiÅŸ Ã§alÄ±ÅŸma kopyasÄ±nda varsayÄ±lan
+internal-storage fresh install tamamlandÄ± ve root `config.php` Ã¼retildi. App, API
+ping, App login, System Diagnostics ve SQL Backup HTTP doÄŸrulandÄ±.
 
-İlk SQL Restore denemesinde restore `oc_setting` tablosunu truncate ettikten sonraki
-HTTP isteğinde runtime database-version guard `Database version could not be
-determined` ile fail-closed oldu. Backup dosyasında `system/database_version` kaydı
-bulunmasına rağmen guard, onu yeniden insert eden restore isteğine ulaşılmasını
-engelledi. Bunun için App guard'a yalnız `tool/backup.restore` rotasıyla sınırlı
-bypass eklendi; Backup Restore controller'ın permission ve filename doğrulamaları
-değiştirilmedi. İzole `opencore_ert21` test veritabanındaki restore zinciri E2E ile
-doğrulandı. `C:\xampp\htdocs\opencore_test\ert21-source` çalışma
-kopyası ve gerçek `opencore_ert21` veritabanında DB marker `2`den `3`e ilerletildi;
+Ä°lk SQL Restore denemesinde restore `oc_setting` tablosunu truncate ettikten sonraki
+HTTP isteÄŸinde runtime database-version guard `Database version could not be
+determined` ile fail-closed oldu. Backup dosyasÄ±nda `system/database_version` kaydÄ±
+bulunmasÄ±na raÄŸmen guard, onu yeniden insert eden restore isteÄŸine ulaÅŸÄ±lmasÄ±nÄ±
+engelledi. Bunun iÃ§in App guard'a yalnÄ±z `tool/backup.restore` rotasÄ±yla sÄ±nÄ±rlÄ±
+bypass eklendi; Backup Restore controller'Ä±n permission ve filename doÄŸrulamalarÄ±
+deÄŸiÅŸtirilmedi. Ä°zole `opencore_ert21` test veritabanÄ±ndaki restore zinciri E2E ile
+doÄŸrulandÄ±. `C:\xampp\htdocs\opencore_test\ert21-source` Ã§alÄ±ÅŸma
+kopyasÄ± ve gerÃ§ek `opencore_ert21` veritabanÄ±nda DB marker `2`den `3`e ilerletildi;
 `install/upgrade` HTTP controller'a `backup=1&admin=admin` POST'u 200 JSON redirect
-yanıtı verdi, marker `3` olarak kaldı ve `oc_release_notification` şeması doğrulandı.
-Kod üzerinden mevcut `upgradeN()` preflight'ı ile her başarılı revision sonrasında
-marker yazan sıralı mekanizma da doğrulandı. Owner kararıyla mevcut olmayan tarihsel
-revisionlar için sentetik seed kullanılmadı; birden çok gerçek revision bulunduğunda
-çok seviyeli E2E gerçek zincir üzerinden doğrulandı. App/API route contract,
-external storage, reinstall koruması, release kontrolü, external vendor
-replacement ve shared-hosting senaryoları doğrulandı.
+yanÄ±tÄ± verdi, marker `3` olarak kaldÄ± ve `oc_release_notification` ÅŸemasÄ± doÄŸrulandÄ±.
+Kod Ã¼zerinden mevcut `upgradeN()` preflight'Ä± ile her baÅŸarÄ±lÄ± revision sonrasÄ±nda
+marker yazan sÄ±ralÄ± mekanizma da doÄŸrulandÄ±. Owner kararÄ±yla mevcut olmayan tarihsel
+revisionlar iÃ§in sentetik seed kullanÄ±lmadÄ±; birden Ã§ok gerÃ§ek revision bulunduÄŸunda
+Ã§ok seviyeli E2E gerÃ§ek zincir Ã¼zerinden doÄŸrulandÄ±. App/API route contract,
+external storage, reinstall korumasÄ±, release kontrolÃ¼, external vendor
+replacement ve shared-hosting senaryolarÄ± doÄŸrulandÄ±.
 
-Route contract doğrulaması: yönetim App'i kanonik olarak `/` altındadır ve fiziksel
-kaynak dizini `app/` olarak sabittir; API sınırı `/api/`dir. Eski `/admin/` ve
-`/catalog/` yolları HTTP 404 döndürür; legacy admin rename davranışı kaldırılmıştır.
-OpenCart altyapısı ve `Opencart` namespace'i korunmuştur.
+Route contract doÄŸrulamasÄ±: yÃ¶netim App'i kanonik olarak `/` altÄ±ndadÄ±r ve fiziksel
+kaynak dizini `app/` olarak sabittir; API sÄ±nÄ±rÄ± `/api/`dir. Eski `/admin/` ve
+`/catalog/` yollarÄ± HTTP 404 dÃ¶ndÃ¼rÃ¼r; legacy admin rename davranÄ±ÅŸÄ± kaldÄ±rÄ±lmÄ±ÅŸtÄ±r.
+OpenCart altyapÄ±sÄ± ve `Opencart` namespace'i korunmuÅŸtur.
 
-### Cron Runtime Sözleşmesi
+### Cron Runtime SÃ¶zleÅŸmesi
 
-Kanonik cron HTTP endpoint'i API uygulaması altındadır:
+Kanonik cron HTTP endpoint'i API uygulamasÄ± altÄ±ndadÄ±r:
 
 ```text
 /api/index.php?route=cron/cron
 ```
 
-Yönetim arayüzünün kullanıcıya gösterdiği scheduler komutu bu endpoint'i `wget` ile çağırır.
+YÃ¶netim arayÃ¼zÃ¼nÃ¼n kullanÄ±cÄ±ya gÃ¶sterdiÄŸi scheduler komutu bu endpoint'i `wget` ile Ã§aÄŸÄ±rÄ±r.
 
 Eski:
 
@@ -393,15 +393,15 @@ Eski:
 php <root>/cron.php
 ```
 
-scheduler komutuna geri dönülmemelidir.
+scheduler komutuna geri dÃ¶nÃ¼lmemelidir.
 
-Cron action kaynakları fiziksel olarak API uygulamasına aittir. Yönetim arayüzündeki source-resolution ve diagnostic kontrolleri bu nedenle:
+Cron action kaynaklarÄ± fiziksel olarak API uygulamasÄ±na aittir. YÃ¶netim arayÃ¼zÃ¼ndeki source-resolution ve diagnostic kontrolleri bu nedenle:
 
 ```php
 DIR_API . 'controller/'
 ```
 
-altında çözümleme yapmalıdır.
+altÄ±nda Ã§Ã¶zÃ¼mleme yapmalÄ±dÄ±r.
 
 Bu kontrollerde:
 
@@ -409,31 +409,31 @@ Bu kontrollerde:
 DIR_APPLICATION
 ```
 
-kullanılmamalıdır.
+kullanÄ±lmamalÄ±dÄ±r.
 
-Root `cron.php` dosyasının dağıtım ağacında korunması, yönetim arayüzündeki kanonik scheduler endpoint'inin root `cron.php` olduğu anlamına gelmez.
+Root `cron.php` dosyasÄ±nÄ±n daÄŸÄ±tÄ±m aÄŸacÄ±nda korunmasÄ±, yÃ¶netim arayÃ¼zÃ¼ndeki kanonik scheduler endpoint'inin root `cron.php` olduÄŸu anlamÄ±na gelmez.
 
-## Çalışma Yöntemi
+## Ã‡alÄ±ÅŸma YÃ¶ntemi
 
-- Küçük ve bağımsız batch'ler kullan.
-- İlgisiz refactor'lardan kaçın.
-- Her fazdan önce güncel repository durumunu doğrula.
-- Uygulama veya kaldırmadan önce bağımlılık audit'i yap.
-- Upstream OpenCart'ı yalnız denetlenmiş referans olarak kullan; körlemesine backport etme.
-- Runtime ile deployment/provisioning sorumluluklarını ayrı tut.
+- KÃ¼Ã§Ã¼k ve baÄŸÄ±msÄ±z batch'ler kullan.
+- Ä°lgisiz refactor'lardan kaÃ§Ä±n.
+- Her fazdan Ã¶nce gÃ¼ncel repository durumunu doÄŸrula.
+- Uygulama veya kaldÄ±rmadan Ã¶nce baÄŸÄ±mlÄ±lÄ±k audit'i yap.
+- Upstream OpenCart'Ä± yalnÄ±z denetlenmiÅŸ referans olarak kullan; kÃ¶rlemesine backport etme.
+- Runtime ile deployment/provisioning sorumluluklarÄ±nÄ± ayrÄ± tut.
 - External-storage kabiliyetini koru.
-- Kanonik ADR açıkça değiştirmedikçe mevcut OpenCore davranışını koru.
-- Her batch geri alınabilir olmalı.
-- İlgili batch'lerden sonra syntax, static ve residue kontrolleri yap.
-- Faz sınırlarında manuel smoke testleri çalıştır.
-- Destructive DB testlerini yalnız `opencore_test` üzerinde yap.
-- Tamamlanmamış mimariyi stable `main` branch'ine merge etme.
+- Kanonik ADR aÃ§Ä±kÃ§a deÄŸiÅŸtirmedikÃ§e mevcut OpenCore davranÄ±ÅŸÄ±nÄ± koru.
+- Her batch geri alÄ±nabilir olmalÄ±.
+- Ä°lgili batch'lerden sonra syntax, static ve residue kontrolleri yap.
+- Faz sÄ±nÄ±rlarÄ±nda manuel smoke testleri Ã§alÄ±ÅŸtÄ±r.
+- Destructive DB testlerini yalnÄ±z `opencore_test` Ã¼zerinde yap.
+- TamamlanmamÄ±ÅŸ mimariyi stable `main` branch'ine merge etme.
 
-## Branch ve Release Politikası
+## Branch ve Release PolitikasÄ±
 
 - `develop`, aktif mimari ve development branch'idir.
 - `main`, stable ve release branch'idir.
 
-Güncel `main`, terk edilmiş önceki lineage'a aittir ve bu fazlar sırasında değiştirilmemelidir.
+GÃ¼ncel `main`, terk edilmiÅŸ Ã¶nceki lineage'a aittir ve bu fazlar sÄ±rasÄ±nda deÄŸiÅŸtirilmemelidir.
 
-Yalnız kanonik uygulama ve tam E2E doğrulama tamamlandıktan sonra doğrulanmış `develop` lineage'ı, ayrıca onaylanmış bir Git işlemiyle stable `main` lineage'ı olabilir. Bu plan işlemin tam force/reset komutunu tanımlamaz.
+YalnÄ±z kanonik uygulama ve tam E2E doÄŸrulama tamamlandÄ±ktan sonra doÄŸrulanmÄ±ÅŸ `develop` lineage'Ä±, ayrÄ±ca onaylanmÄ±ÅŸ bir Git iÅŸlemiyle stable `main` lineage'Ä± olabilir. Bu plan iÅŸlemin tam force/reset komutunu tanÄ±mlamaz.
