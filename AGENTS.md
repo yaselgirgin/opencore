@@ -192,9 +192,10 @@ Repository içine yalnız OpenCore'un kalıcı bir parçası olması amaçlanan 
 
 Geliştirici görevini tamamlayıp ilgili kontroller başarılı olduktan sonra commit oluşturabilir.
 
-Owner onayı olmadan aşağıdaki işlemler yapılmaz:
+Push yalnız owner veya CEO açık onayıyla yapılabilir.
 
-- push
+Owner açık onayı olmadan aşağıdaki işlemler yapılmaz:
+
 - reset
 - rebase
 - clean
