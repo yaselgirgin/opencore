@@ -436,7 +436,11 @@ UI görevlerinde `AGENTS.md` içindeki genel test kuralları geçerlidir.
 
 UI değişikliğinin kapsamına göre gerekli syntax/static kontroller yapılır.
 
-Geçici test varlıkları repository içindeki `test/` alanında tutulur ve görev sonunda temizlenir.
+Geçici test varlıkları repository içinde oluşturulmaz.
+
+Geçici test, debug ve doğrulama çalışmaları AGENTS.md içindeki genel test ve geçici çalışma alanı kurallarına göre repository dışında yürütülür.
+
+Repository yalnız gerçek proje kodu ve kalıcı proje dokümantasyonu içerir.
 
 Son görsel kabul yalnız otomatik teste bırakılmaz.
 

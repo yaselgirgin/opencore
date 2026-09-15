@@ -161,20 +161,25 @@ Kanonik karar sırası:
 2. Basit bir otomasyon yeterli mi?
    → Gerekirse n8n veya benzeri workflow aracı kullan.
 
-3. Tek AI çağrısı / tek ajan yeterli mi?
-   → Multi-agent kurma.
+3. Tek AI çağrısı veya tek ajan yeterli mi?
+   → Gereksiz multi-agent yapı kurma.
 
-4. Gerçek browser araştırması gerekli mi?
-   → Browser tabanlı araç kullan.
+4. Kurumsal bilgi retrieval gerekli mi?
+   → Önce mevcut OpenCore verisi ve Bilgi Bankası kullanılır.
+   → İhtiyaç oluşursa semantic/vector retrieval katmanı kullanılabilir.
 
-5. Görev çalışma sırasında gerçekten parçalanmalı,
-   yön değiştirmeli veya delege edilmeli mi?
-   → Ancak o zaman agent orchestration / Paperclip benzeri yapı değerlendir.
+5. İnternet veya browser araştırması gerekli mi?
+   → Uygun harici araştırma aracı kullanılabilir.
+
+6. Görev gerçekten parçalanmalı, yön değiştirmeli veya delege edilmeli mi?
+   → Ancak o zaman agent orchestration kullanılabilir.
 ```
 
-Hiçbir araç OpenCore mimarisinin zorunlu parçası olarak kabul edilmez.
+Hiçbir harici AI, otomasyon veya orchestration aracı OpenCore mimarisinin zorunlu parçası olarak kabul edilmez.
 
-Paperclip, n8n, Browser Use, local LLM veya başka bir araç yalnızca ihtiyaç olduğunda kullanılan yardımcı sistemlerdir.
+Bu araçlar gerektiğinde OpenCore'u veya ilgili şirket operasyonlarını desteklemek için kullanılabilir.
+
+OpenCore bu sistemlerden bağımsız olarak çalışabilmelidir.
 
 ---
 

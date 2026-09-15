@@ -164,27 +164,29 @@ Bir kod değişikliği mevcut bir ADR veya aktif planı geçersiz hale getiriyor
 
 Kod değişikliği dokümante edilmiş davranışı değiştirmiyorsa gereksiz doküman değişikliği yapılmaz.
 
-## 9. Test
+## 9. Test ve Geçici Çalışma Alanları
 
-Yerel ve geçici test işleri repository içindeki:
+OpenCore repository yalnızca gerçek proje kodu ve kalıcı proje dokümantasyonu içerir.
 
-`test/`
+Geçici test dosyaları, scratch çalışmalar, debug scriptleri, dump'lar, loglar, ekran görüntüleri, geçici veri dosyaları, database exportları, yedekler ve yalnız tek görev için oluşturulan diğer geçici artefact'lar repository içinde oluşturulmaz.
 
-dizini altında yapılır.
+Bu kural `.gitignore` altında tutulacak dosyalar için de geçerlidir. Repository geçici çalışma veya scratch alanı olarak kullanılmaz.
 
-`test/` Git tarafından ignore edilir.
+Geçici test ve doğrulama çalışmaları repository dışındaki görev bazlı geçici çalışma alanında yapılır.
 
-Aynı görev için gereksiz yere birden fazla test ortamı veya test database'i oluşturulmaz.
+Aynı görev için gereksiz yere birden fazla geçici çalışma alanı veya test database'i oluşturulmaz.
 
 Önce implementation tamamlanır, ardından gerekli testler yapılır.
 
-Ana OpenCore database'i veri değiştirmeyen kontroller için kullanılabilir.
+Ana OpenCore database'i yalnız veri değiştirmeyen kontroller için kullanılabilir.
 
 Database değişikliği gerekiyorsa önce izole test database'inde doğrulanır.
 
 Testler başarılı olduktan sonra mevcut ana database'e uygulanması gerekiyorsa owner onayı alınır.
 
-Görev için oluşturulan geçici test dosyaları ve test database'leri test sonunda temizlenir.
+Görev için oluşturulan geçici çalışma alanları, test dosyaları ve test database'leri görev sonunda temizlenir.
+
+Repository içine yalnız OpenCore'un kalıcı bir parçası olması amaçlanan dosyalar eklenebilir.
 
 ## 10. Git
 
