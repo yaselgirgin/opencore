@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "providers": [
+    "php"
+  ],
+  "variables": {
+    "RAILPACK_PHP_EXTENSIONS": "mysqli,pdo_mysql,gd"
+  }
+}
