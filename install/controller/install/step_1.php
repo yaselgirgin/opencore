@@ -10,7 +10,9 @@ class Step1 extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	public function index(): void {
-		$this->session->data['install_step'] = 1;
+		if (!isset($this->session->data['install_step'])) {
+			$this->session->data['install_step'] = 1;
+		}
 
 		$this->load->language('install/step_1');
 
